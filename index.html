@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Contactar a Recaudación</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+    h1 {
+      color: #8a2be2; /* Morado VHT */
+    }
+    p {
+      font-size: 18px;
+    }
+    a {
+      color: #00ffcc;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Redirigiendo a WhatsApp...</h1>
+  <p>Si no eres redirigido automáticamente, <a id="manualLink" href="#">haz clic aquí</a>.</p>
+
+  <script>
+    // Enlace de destino
+    const whatsappUrl = "https://wa.me/529372547287?text=Hola%20Xudapu%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n";
+
+    // Poner el enlace manual
+    document.getElementById("manualLink").href = whatsappUrl;
+
+    // Detectar WebView (ejemplo en Android/iOS)
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const isWebView = /(wv|WebView|FBAN|FBAV|Line|Instagram)/i.test(ua);
+
+    if (isWebView) {
+      // Forzar abrir en navegador externo (no posible directamente desde webview)
+      // Estrategia: abrir enlace normal, el sistema preguntará abrir en navegador
+      window.location.href = whatsappUrl;
+    } else {
+      // Abrir directamente
+      window.location.href = whatsappUrl;
+    }
+  </script>
+</body>
+</html>
