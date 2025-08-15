@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Página Verde</title>
+  <style>
+    body {
+      background-color: #90ee90; /* Verde claro */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      cursor: pointer;
+      background-color: #ffffff;
+      border: 2px solid #008000;
+      border-radius: 8px;
+      color: #008000;
+    }
+    button:hover {
+      background-color: #e0ffe0;
+    }
+  </style>
+</head>
+<body>
+  <button onclick="abrirPagina()">IR A LA PAGINA</button>
+
+  <script>
+    function abrirPagina() {
+      window.open("https://www.google.com", "_blank");
+    }
+  </script>
+</body>
+</html>
