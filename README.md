@@ -1,2 +1,0 @@
-# pruebawhats
-pruebawhats
