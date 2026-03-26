@@ -1,104 +1,63 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Visor Auto-Wish | Mobility ADO</title>
+ <meta charset="UTF-8" />
+ <title>Visor Auto-Wish Mobility ADO</title>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <style>
+  html, body {
+   margin: 0;
+   padding: 0;
+   height: 100%;
+   width: 100%;
+   overflow: hidden;
+   font-family: Arial, Helvetica, sans-serif;
+   background-color: #000;
+  }
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      font-family: Arial, Helvetica, sans-serif;
-      background-color: #000;
-    }
+  .visor-container {
+   position: relative;
+   width: 100%;
+   height: 100%;
+  }
 
-    .visor-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
+  /* Logo responsive */
+  .logo {
+   position: absolute;
+   top: 16px;
+   left: 16px;
+   z-index: 9999;
+   background: white;
+   padding: 10px 14px;
+   border-radius: 8px;
+   box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  }
 
-    /* Logo parcialmente grande */
-    .logo {
-      position: absolute;
-      top: 16px;
-      left: 16px;
-      z-index: 9999;
-      background: white;
-      padding: 10px 14px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    }
+  .logo img {
+   max-width: 30vw;
+   max-height: 12vh;
+   width: auto;
+   height: auto;
+   display: block;
+  }
 
-    .logo img {
-      height: 82px; /* TAMAÑO LOGO */
-      width: auto;
-      display: block;
-    }
-
-    /* Botón pantalla completa */
-    .fullscreen-btn {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      z-index: 9999;
-      background: #7b1fa2;
-      color: white;
-      border: none;
-      padding: 12px 16px;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
-
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-  </style>
+  iframe {
+   width: 100%;
+   height: 100%;
+   border: none;
+  }
+ </style>
 </head>
 
 <body>
-  <div class="visor-container" id="visor">
-
-    <!-- Logo Mobility ADO -->
-    <div class="logo">
-      <img src="logo.png" alt="Mobility ADO">
-    </div>
-
-    <button class="fullscreen-btn" onclick="activarPantallaCompleta()">
-      Pantalla completa
-    </button>
-
-    <iframe src="https://app.auto-wish.com/"></iframe>
-
+ <div class="visor-container">
+  <!-- Logo Mobility ADO -->
+  <div class="logo">
+   <img src="logo.png" alt="Mobility ADO">
   </div>
 
-  <script>
-    function activarPantallaCompleta() {
-      const elem = document.getElementById("visor");
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
-      }
-    }
-
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        activarPantallaCompleta();
-      }, 500);
-    });
-  </script>
+  <iframe src="https://app.auto-wish.com/"></iframe>
+ </div>
 </body>
 </html>
-``
