@@ -1,63 +1,112 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
- <meta charset="UTF-8" />
- <title>Visor Auto-Wish Mobility ADO</title>
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
- <style>
-  html, body {
-   margin: 0;
-   padding: 0;
-   height: 100%;
-   width: 100%;
-   overflow: hidden;
-   font-family: Arial, Helvetica, sans-serif;
-   background-color: #000;
-  }
-
-  .visor-container {
-   position: relative;
-   width: 100%;
-   height: 100%;
-  }
-
-  /* Logo responsive */
-  .logo {
-   position: absolute;
-   top: 16px;
-   left: 16px;
-   z-index: 9999;
-   background: white;
-   padding: 10px 14px;
-   border-radius: 8px;
-   box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  }
-
-  .logo img {
-   max-width: 30vw;
-   max-height: 12vh;
-   width: auto;
-   height: auto;
-   display: block;
-  }
-
-  iframe {
-   width: 100%;
-   height: 100%;
-   border: none;
-  }
- </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Moments - Cumpleaños</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 15px;
+    }
+    img { width: 180px; margin-bottom: 15px; }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: none;
+    }
+    button {
+      background: #25D366;
+      color: white;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+    .cliente {
+      background: #2a2a2a;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
 </head>
+<body><div class="container">
+  <img src="logo.png">
+  <h3>Agenda de Cumpleaños 🎉</h3> <input type="text" id="nombre" placeholder="Nombre">
+  <input type="text" id="telefono" placeholder="Teléfono (521XXXXXXXXXX)">
+  <input type="date" id="fecha">
+  <textarea id="mensaje" placeholder="Mensaje"></textarea><button onclick="guardarCliente()">Guardar cliente</button>
 
-<body>
- <div class="visor-container">
-  <!-- Logo Mobility ADO -->
-  <div class="logo">
-   <img src="logo.png" alt="Mobility ADO">
-  </div>
+  <h4>Clientes guardados</h4>
+  <div id="lista"></div>
+</div><script>
+let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
 
-  <iframe src="https://app.auto-wish.com/"></iframe>
- </div>
-</body>
+function guardarCliente() {
+  let nombre = document.getElementById('nombre').value;
+  let telefono = document.getElementById('telefono').value;
+  let fecha = document.getElementById('fecha').value;
+  let mensaje = document.getElementById('mensaje').value;
+
+  if (!nombre || !telefono || !fecha) {
+    alert('Faltan datos');
+    return;
+  }
+
+  clientes.push({ nombre, telefono, fecha, mensaje });
+  localStorage.setItem('clientes', JSON.stringify(clientes));
+
+  mostrarClientes();
+}
+
+function mostrarClientes() {
+  let lista = document.getElementById('lista');
+  lista.innerHTML = '';
+
+  clientes.forEach(c => {
+    lista.innerHTML += `
+      <div class="cliente">
+        ${c.nombre} - ${c.fecha}
+      </div>
+    `;
+  });
+}
+
+function revisarCumpleanos() {
+  let hoy = new Date();
+  let mes = (hoy.getMonth() + 1).toString().padStart(2, '0');
+  let dia = hoy.getDate().toString().padStart(2, '0');
+
+  clientes.forEach(c => {
+    let [year, m, d] = c.fecha.split('-');
+
+    if (m === mes && d === dia) {
+      let texto = `🎉 ¡Feliz cumpleaños ${c.nombre}! 🎂\n\n${c.mensaje || 'Te deseamos un gran día 🥳'}\n\n- Happy Moments`;
+      let url = `https://wa.me/${c.telefono}?text=${encodeURIComponent(texto)}`;
+
+      window.open(url, '_blank');
+    }
+  });
+}
+
+// Revisar cada minuto
+setInterval(revisarCumpleanos, 60000);
+
+mostrarClientes();
+</script></body>
 </html>
