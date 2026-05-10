@@ -1,198 +1,273 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Invitaciones WhatsApp</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy CRM WhatsApp</title>
 
-  <style>
-    body{
-      font-family: Arial, sans-serif;
-      background:#0f172a;
-      color:white;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      min-height:100vh;
-      margin:0;
-      padding:20px;
-    }
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#0f172a;
+    color:white;
+    padding:20px;
+}
 
-    .container{
-      width:100%;
-      max-width:600px;
-      background:#1e293b;
-      padding:25px;
-      border-radius:20px;
-      box-shadow:0 0 20px rgba(0,0,0,.4);
-    }
+.container{
+    max-width:700px;
+    margin:auto;
+    background:#1e293b;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 0 20px rgba(0,0,0,.4);
+}
 
-    h1{
-      text-align:center;
-      margin-bottom:25px;
-      color:#22c55e;
-    }
+h1{
+    text-align:center;
+    color:#22c55e;
+}
 
-    label{
-      display:block;
-      margin-top:15px;
-      margin-bottom:5px;
-    }
+label{
+    display:block;
+    margin-top:15px;
+    margin-bottom:5px;
+}
 
-    input, textarea{
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:10px;
-      background:#334155;
-      color:white;
-      font-size:15px;
-      box-sizing:border-box;
-    }
+input, textarea, select{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#334155;
+    color:white;
+    box-sizing:border-box;
+}
 
-    textarea{
-      resize:none;
-      height:140px;
-    }
+textarea{
+    height:140px;
+    resize:none;
+}
 
-    button{
-      width:100%;
-      margin-top:20px;
-      padding:15px;
-      border:none;
-      border-radius:12px;
-      background:#22c55e;
-      color:white;
-      font-size:16px;
-      cursor:pointer;
-      font-weight:bold;
-    }
+button{
+    width:100%;
+    margin-top:20px;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:#22c55e;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
 
-    button:hover{
-      background:#16a34a;
-    }
+button:hover{
+    background:#16a34a;
+}
 
-    .status{
-      margin-top:15px;
-      text-align:center;
-      font-weight:bold;
-    }
+.preview{
+    margin-top:20px;
+    background:#0f172a;
+    padding:15px;
+    border-radius:12px;
+    border:1px solid #334155;
+    white-space:pre-wrap;
+}
 
-    .preview{
-      background:#0f172a;
-      padding:15px;
-      border-radius:12px;
-      margin-top:15px;
-      white-space:pre-wrap;
-      border:1px solid #334155;
-    }
-  </style>
+.status{
+    margin-top:15px;
+    text-align:center;
+    font-weight:bold;
+}
+
+.contact-list{
+    margin-top:20px;
+    max-height:250px;
+    overflow:auto;
+    border:1px solid #334155;
+    border-radius:12px;
+    padding:10px;
+}
+
+.contact{
+    padding:10px;
+    background:#334155;
+    border-radius:10px;
+    margin-bottom:10px;
+    cursor:pointer;
+}
+
+.contact:hover{
+    background:#475569;
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
 
-  <h1>📲 Invitaciones WhatsApp</h1>
+<h1>📲 Happy CRM WhatsApp</h1>
 
-  <label>Instance ID</label>
-  <input type="text" id="instance" placeholder="instance174263">
+<label>Instance ID</label>
+<input type="text" id="instance" placeholder="instance174263">
 
-  <label>Token</label>
-  <input type="text" id="token" placeholder="Tu token">
+<label>Token</label>
+<input type="text" id="token" placeholder="Tu token">
 
-  <label>Número destino</label>
-  <input type="text" id="numero" placeholder="5219931234567">
+<label>Nombre</label>
+<input type="text" id="nombre">
 
-  <label>Nombre</label>
-  <input type="text" id="nombre" placeholder="Juan Pérez">
+<label>Número</label>
+<input type="text" id="numero">
 
-  <label>Tipo de invitación</label>
-  <input type="text" id="evento" placeholder="Cumpleaños / Evento / Feria">
+<label>Evento</label>
+<input type="text" id="evento">
 
-  <label>Mensaje personalizado</label>
-  <textarea id="mensaje">🎉 Hola {nombre}
+<label>Mensaje</label>
+<textarea id="mensaje">🎉 Hola {nombre}
 
-Te invitamos cordialmente a nuestro evento:
+Te invitamos cordialmente a:
 {evento}
 
-¡Esperamos contar con tu presencia! 🥳</textarea>
+¡Esperamos contar contigo! 🥳</textarea>
 
-  <button onclick="enviarMensaje()">Enviar WhatsApp</button>
+<button onclick="enviarMensaje()">Enviar WhatsApp</button>
 
-  <div class="preview" id="preview"></div>
+<div class="preview" id="preview"></div>
 
-  <div class="status" id="status"></div>
+<div class="status" id="status"></div>
+
+<div class="contact-list" id="contactList"></div>
 
 </div>
 
 <script>
 
+const SHEET_ID = '1iwg8R-yQbfPXoqkjVkLhZaTls7oaTdpEXvIdMx2yCXY';
+const SHEET_NAME = 'happy';
+
 function actualizarPreview(){
 
-  const nombre = document.getElementById('nombre').value;
-  const evento = document.getElementById('evento').value;
+    let mensaje = document.getElementById('mensaje').value;
 
-  let mensaje = document.getElementById('mensaje').value;
+    mensaje = mensaje.replaceAll('{nombre}', document.getElementById('nombre').value);
+    mensaje = mensaje.replaceAll('{evento}', document.getElementById('evento').value);
 
-  mensaje = mensaje.replaceAll('{nombre}', nombre);
-  mensaje = mensaje.replaceAll('{evento}', evento);
-
-  document.getElementById('preview').innerText = mensaje;
+    document.getElementById('preview').innerText = mensaje;
 }
 
 setInterval(actualizarPreview, 500);
 
-async function enviarMensaje(){
+async function cargarContactos(){
 
-  const instance = document.getElementById('instance').value;
-  const token = document.getElementById('token').value;
-  const numero = document.getElementById('numero').value;
-  const nombre = document.getElementById('nombre').value;
-  const evento = document.getElementById('evento').value;
+    try{
 
-  let mensaje = document.getElementById('mensaje').value;
+        const url = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
 
-  mensaje = mensaje.replaceAll('{nombre}', nombre);
-  mensaje = mensaje.replaceAll('{evento}', evento);
+        const response = await fetch(url);
+        const data = await response.json();
 
-  const url = `https://api.ultramsg.com/${instance}/messages/chat`;
+        const lista = document.getElementById('contactList');
 
-  const body = {
-    token: token,
-    to: numero,
-    body: mensaje
-  };
+        lista.innerHTML = '';
 
-  document.getElementById('status').innerText = '⏳ Enviando...';
+        data.forEach(contacto => {
 
-  try{
+            const div = document.createElement('div');
 
-    const response = await fetch(url, {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json'
-      },
-      body: JSON.stringify(body)
-    });
+            div.className = 'contact';
 
-    const data = await response.json();
+            div.innerHTML = `
+                <strong>${contacto.Nombre || ''}</strong><br>
+                ${contacto.Numero || ''}<br>
+                ${contacto.Evento || ''}
+            `;
 
-    console.log(data);
+            div.onclick = () => {
 
-    if(data.sent === 'true' || data.sent === true){
-      document.getElementById('status').innerText = '✅ Mensaje enviado correctamente';
-    }else{
-      document.getElementById('status').innerText = '⚠️ Revisa token o número';
+                document.getElementById('nombre').value = contacto.Nombre || '';
+                document.getElementById('numero').value = contacto.Numero || '';
+                document.getElementById('evento').value = contacto.Evento || '';
+
+                actualizarPreview();
+            };
+
+            lista.appendChild(div);
+
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById('status').innerText =
+        '❌ Error conectando Google Sheets';
+
     }
 
-  }catch(error){
+}
 
-    console.error(error);
-    document.getElementById('status').innerText = '❌ Error de conexión';
+async function enviarMensaje(){
 
-  }
+    const instance = document.getElementById('instance').value;
+    const token = document.getElementById('token').value;
+    const numero = document.getElementById('numero').value;
+
+    let mensaje = document.getElementById('mensaje').value;
+
+    mensaje = mensaje.replaceAll('{nombre}', document.getElementById('nombre').value);
+    mensaje = mensaje.replaceAll('{evento}', document.getElementById('evento').value);
+
+    const url = `https://api.ultramsg.com/${instance}/messages/chat`;
+
+    const body = {
+        token: token,
+        to: numero,
+        body: mensaje
+    };
+
+    document.getElementById('status').innerText = '⏳ Enviando...';
+
+    try{
+
+        const response = await fetch(url,{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        const data = await response.json();
+
+        console.log(data);
+
+        if(data.sent === 'true' || data.sent === true){
+
+            document.getElementById('status').innerText =
+            '✅ WhatsApp enviado correctamente';
+
+        }else{
+
+            document.getElementById('status').innerText =
+            '⚠️ Revisa token, número o instancia';
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById('status').innerText =
+        '❌ Error de conexión';
+
+    }
 
 }
+
+cargarContactos();
 
 </script>
 
