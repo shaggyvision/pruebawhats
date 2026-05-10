@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+  <div class="status" id="status"></div>
+
+</div>
+
+<script>
+
+function actualizarPreview(){
+
+  const nombre = document.getElementById('nombre').value;
+  const evento = document.getElementById('evento').value;
+
+  let mensaje = document.getElementById('mensaje').value;
+
+  mensaje = mensaje.replaceAll('{nombre}', nombre);
+  mensaje = mensaje.replaceAll('{evento}', evento);
+
+  document.getElementById('preview').innerText = mensaje;
+}
+
+setInterval(actualizarPreview, 500);
+
+async function enviarMensaje(){
+
+  const instance = document.getElementById('instance').value;
+  const token = document.getElementById('token').value;
+  const numero = document.getElementById('numero').value;
+  const nombre = document.getElementById('nombre').value;
+  const evento = document.getElementById('evento').value;
+
+  let mensaje = document.getElementById('mensaje').value;
+
+  mensaje = mensaje.replaceAll('{nombre}', nombre);
+  mensaje = mensaje.replaceAll('{evento}', evento);
+
+  const url = `https://api.ultramsg.com/${instance}/messages/chat`;
+
+  const body = {
+    token: token,
+    to: numero,
+    body: mensaje
+  };
+
+  document.getElementById('status').innerText = '⏳ Enviando...';
+
+  try{
+
+    const response = await fetch(url, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    const data = await response.json();
+
+    console.log(data);
+
+    if(data.sent === 'true' || data.sent === true){
+      document.getElementById('status').innerText = '✅ Mensaje enviado correctamente';
+    }else{
+      document.getElementById('status').innerText = '⚠️ Revisa token o número';
+    }
+
+  }catch(error){
+
+    console.error(error);
+    document.getElementById('status').innerText = '❌ Error de conexión';
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
