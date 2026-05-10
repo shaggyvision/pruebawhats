@@ -1,22 +1,4 @@
 <!DOCTYPE html>
-  <div class="status" id="status"></div>
-
-</div>
-
-<script>
-
-function actualizarPreview(){
-
-  const nombre = document.getElementById('nombre').value;
-  const evento = document.getElementById('evento').value;
-
-  let mensaje = document.getElementById('mensaje').value;
-
-  mensaje = mensaje.replaceAll('{nombre}', nombre);
-  mensaje = mensaje.replaceAll('{evento}', evento);
-
-  document.getElementById('preview').innerText = mensaje;
-}
 
 setInterval(actualizarPreview, 500);
 
