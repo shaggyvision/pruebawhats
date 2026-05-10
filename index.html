@@ -1,4 +1,144 @@
 <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invitaciones WhatsApp</title>
+
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      background:#0f172a;
+      color:white;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
+      margin:0;
+      padding:20px;
+    }
+
+    .container{
+      width:100%;
+      max-width:600px;
+      background:#1e293b;
+      padding:25px;
+      border-radius:20px;
+      box-shadow:0 0 20px rgba(0,0,0,.4);
+    }
+
+    h1{
+      text-align:center;
+      margin-bottom:25px;
+      color:#22c55e;
+    }
+
+    label{
+      display:block;
+      margin-top:15px;
+      margin-bottom:5px;
+    }
+
+    input, textarea{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:#334155;
+      color:white;
+      font-size:15px;
+      box-sizing:border-box;
+    }
+
+    textarea{
+      resize:none;
+      height:140px;
+    }
+
+    button{
+      width:100%;
+      margin-top:20px;
+      padding:15px;
+      border:none;
+      border-radius:12px;
+      background:#22c55e;
+      color:white;
+      font-size:16px;
+      cursor:pointer;
+      font-weight:bold;
+    }
+
+    button:hover{
+      background:#16a34a;
+    }
+
+    .status{
+      margin-top:15px;
+      text-align:center;
+      font-weight:bold;
+    }
+
+    .preview{
+      background:#0f172a;
+      padding:15px;
+      border-radius:12px;
+      margin-top:15px;
+      white-space:pre-wrap;
+      border:1px solid #334155;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>📲 Invitaciones WhatsApp</h1>
+
+  <label>Instance ID</label>
+  <input type="text" id="instance" placeholder="instance174263">
+
+  <label>Token</label>
+  <input type="text" id="token" placeholder="Tu token">
+
+  <label>Número destino</label>
+  <input type="text" id="numero" placeholder="5219931234567">
+
+  <label>Nombre</label>
+  <input type="text" id="nombre" placeholder="Juan Pérez">
+
+  <label>Tipo de invitación</label>
+  <input type="text" id="evento" placeholder="Cumpleaños / Evento / Feria">
+
+  <label>Mensaje personalizado</label>
+  <textarea id="mensaje">🎉 Hola {nombre}
+
+Te invitamos cordialmente a nuestro evento:
+{evento}
+
+¡Esperamos contar con tu presencia! 🥳</textarea>
+
+  <button onclick="enviarMensaje()">Enviar WhatsApp</button>
+
+  <div class="preview" id="preview"></div>
+
+  <div class="status" id="status"></div>
+
+</div>
+
+<script>
+
+function actualizarPreview(){
+
+  const nombre = document.getElementById('nombre').value;
+  const evento = document.getElementById('evento').value;
+
+  let mensaje = document.getElementById('mensaje').value;
+
+  mensaje = mensaje.replaceAll('{nombre}', nombre);
+  mensaje = mensaje.replaceAll('{evento}', evento);
+
+  document.getElementById('preview').innerText = mensaje;
+}
 
 setInterval(actualizarPreview, 500);
 
