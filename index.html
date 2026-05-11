@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy CRM Fixed</title>
+
+<link rel="stylesheet" href="style.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+</head>
+
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+
+<div class="logo">
+<h1>💬 Happy CRM</h1>
+<p>AutoSend Pro</p>
+</div>
+
+<div class="menu active" onclick="mostrarPagina('dashboard', this)">
+<i class="fa-solid fa-chart-line"></i>
+<span>Dashboard</span>
+</div>
+
+<div class="menu" onclick="mostrarPagina('contactos', this)">
+<i class="fa-solid fa-users"></i>
+<span>Contactos</span>
+</div>
+
+<div class="menu" onclick="mostrarPagina('campanas', this)">
+<i class="fa-solid fa-paper-plane"></i>
+<span>Campañas</span>
+</div>
+
+<div class="menu" onclick="mostrarPagina('whatsapp', this)">
+<i class="fa-brands fa-whatsapp"></i>
+<span>WhatsApp</span>
+</div>
+
+<div class="menu" onclick="mostrarPagina('config', this)">
+<i class="fa-solid fa-gear"></i>
+<span>Configuración</span>
+</div>
+
+</aside>
+
+<main class="main">
+
+<section id="dashboard" class="page">
+
+<h1>📊 Dashboard</h1>
+
+<div class="cards">
+
+<div class="card">
+<h3>Total Contactos</h3>
+<h2 id="totalContactos">0</h2>
+</div>
+
+<div class="card">
+<h3>Mensajes Enviados</h3>
+<h2 id="enviados">0</h2>
+</div>
+
+<div class="card">
+<h3>Errores</h3>
+<h2 id="errores">0</h2>
+</div>
+
+</div>
+
+<div class="panel">
+
+<h2>Crear Campaña</h2>
+
+<select id="plantilla">
+<option value="cumple">🎂 Cumpleaños</option>
+<option value="evento">🎉 Evento</option>
+<option value="promo">🔥 Promoción</option>
+</select>
+
+<textarea id="mensaje"></textarea>
+
+<div class="buttons">
+<button onclick="enviarATodos()">
+🚀 Enviar campaña
+</button>
+
+<button onclick="cargarContactos()">
+🔄 Actualizar contactos
+</button>
+</div>
+
+<div class="barra">
+<div id="progress"></div>
+</div>
+
+<p id="status"></p>
+
+</div>
+
+</section>
+
+<section id="contactos" class="page oculto">
+<h1>📇 Contactos</h1>
+<div class="panel">
+<table>
+<thead>
+<tr>
+<th>Nombre</th>
+<th>Número</th>
+<th>Evento</th>
+</tr>
+</thead>
+
+<tbody id="tablaContactos"></tbody>
+
+</table>
+</div>
+</section>
+
+<section id="campanas" class="page oculto">
+<h1>🚀 Campañas</h1>
+<div class="panel">
+<p>Administración de campañas.</p>
+</div>
+</section>
+
+<section id="whatsapp" class="page oculto">
+<h1>💬 WhatsApp</h1>
+<div class="panel">
+<p>Configuración de UltraMSG.</p>
+</div>
+</section>
+
+<section id="config" class="page oculto">
+<h1>⚙️ Configuración</h1>
+<div class="panel">
+<p>Configuración general del CRM.</p>
+</div>
+</section>
+
+</main>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
