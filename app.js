@@ -1,3 +1,4 @@
+
 const INSTANCE_ID = 'TU_INSTANCE';
 const TOKEN = 'TU_TOKEN';
 
@@ -36,7 +37,6 @@ preview.innerText = plantillas.cumple;
 plantilla.addEventListener('change',()=>{
 
 mensaje.value = plantillas[plantilla.value];
-
 actualizarPreview();
 
 });
@@ -50,6 +50,34 @@ preview.innerText = mensaje.value
 .replace('{evento}','Gran apertura Happy CRM');
 
 }
+
+// Navegación
+
+const menus = document.querySelectorAll('.menu');
+
+menus.forEach(menu=>{
+
+menu.addEventListener('click',()=>{
+
+document
+.querySelectorAll('.menu')
+.forEach(item=>item.classList.remove('active'));
+
+menu.classList.add('active');
+
+document
+.querySelectorAll('.page')
+.forEach(page=>page.classList.add('hidden'));
+
+const destino = menu.dataset.page;
+
+document
+.getElementById(destino + 'Page')
+.classList.remove('hidden');
+
+});
+
+});
 
 let contactosGlobal = [];
 
