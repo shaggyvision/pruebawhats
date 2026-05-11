@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Happy Moments CRM</title>
+<title>Happy Moments CRM PRO</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -17,7 +17,7 @@ padding:40px;
 }
 
 .container{
-max-width:1200px;
+max-width:1300px;
 margin:auto;
 background:white;
 padding:30px;
@@ -48,17 +48,22 @@ box-sizing:border-box;
 }
 
 button{
-padding:14px 20px;
+padding:12px 18px;
 border:none;
 background:#7e22ce;
 color:white;
-border-radius:14px;
+border-radius:12px;
 cursor:pointer;
 font-weight:600;
+margin-right:10px;
 }
 
 button:hover{
 opacity:.9;
+}
+
+.btn-danger{
+background:#dc2626;
 }
 
 table{
@@ -90,12 +95,12 @@ font-weight:600;
 
 <div class="container">
 
-<h1>🎉 Happy Moments CRM</h1>
+<h1>🎉 Happy Moments CRM PRO</h1>
 
 <div class="card">
 <h2>UltraMSG conectado automáticamente</h2>
 <p>Instancia configurada: <b>instance174263</b></p>
-<span class="badge">Mensajes automáticos sin spam</span>
+<span class="badge">Mensajes automáticos inteligentes</span>
 </div>
 
 <div class="card">
@@ -107,8 +112,17 @@ font-weight:600;
 <input type="text" id="telefono" placeholder="WhatsApp 521XXXXXXXXXX">
 
 <select id="tipo">
-<option value="cumpleaños">Cumpleaños</option>
-<option value="aniversario">Aniversario</option>
+
+<option value="CUMPLEAÑOS TRT">CUMPLEAÑOS TRT</option>
+<option value="CUMPLEAÑOS SUR">CUMPLEAÑOS SUR</option>
+<option value="CUMPLEAÑOS ADMIN">CUMPLEAÑOS ADMIN</option>
+<option value="CUMPLEAÑOS ADO">CUMPLEAÑOS ADO</option>
+
+<option value="ANIVERSARIO TRT">ANIVERSARIO TRT</option>
+<option value="ANIVERSARIO SUR">ANIVERSARIO SUR</option>
+<option value="ANIVERSARIO ADMIN">ANIVERSARIO ADMIN</option>
+<option value="ANIVERSARIO ADO">ANIVERSARIO ADO</option>
+
 </select>
 
 <input type="date" id="fecha">
@@ -119,13 +133,47 @@ font-weight:600;
 
 <div class="card">
 
-<h2>Plantilla automática</h2>
+<h2>Crear plantilla</h2>
 
-<textarea id="mensaje" rows="5">🎉 Hola {nombre}, Happy Moments y Mobility ADO te desean un excelente día.</textarea>
+<select id="plantillaTipo">
+
+<option value="CUMPLEAÑOS TRT">CUMPLEAÑOS TRT</option>
+<option value="CUMPLEAÑOS SUR">CUMPLEAÑOS SUR</option>
+<option value="CUMPLEAÑOS ADMIN">CUMPLEAÑOS ADMIN</option>
+<option value="CUMPLEAÑOS ADO">CUMPLEAÑOS ADO</option>
+
+<option value="ANIVERSARIO TRT">ANIVERSARIO TRT</option>
+<option value="ANIVERSARIO SUR">ANIVERSARIO SUR</option>
+<option value="ANIVERSARIO ADMIN">ANIVERSARIO ADMIN</option>
+<option value="ANIVERSARIO ADO">ANIVERSARIO ADO</option>
+
+</select>
+
+<textarea id="mensaje" rows="5">🎉 Hola {nombre}, Happy Moments te desea un excelente día.</textarea>
 
 <input type="text" id="imagen" placeholder="URL de imagen https://...">
 
 <button onclick="guardarPlantilla()">Guardar plantilla</button>
+
+</div>
+
+<div class="card">
+
+<h2>Plantillas guardadas</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Mensaje</th>
+<th>Imagen</th>
+</tr>
+</thead>
+
+<tbody id="tablaPlantillas"></tbody>
+
+</table>
 
 </div>
 
@@ -141,6 +189,7 @@ font-weight:600;
 <th>WhatsApp</th>
 <th>Evento</th>
 <th>Fecha</th>
+<th>Acciones</th>
 </tr>
 </thead>
 
@@ -159,11 +208,11 @@ const token = 'a7hqz1tofhwq65b4';
 
 let contactos = JSON.parse(localStorage.getItem('contactos')) || [];
 
-async function enviarWhatsApp(numero,mensaje){
+let plantillas = JSON.parse(localStorage.getItem('plantillas')) || {};
+
+async function enviarWhatsApp(numero,mensaje,imagen=''){
 
 try{
-
-const imagen = localStorage.getItem('imagen');
 
 let endpoint = 'messages/chat';
 
@@ -231,11 +280,25 @@ localStorage.setItem('contactos',JSON.stringify(contactos));
 
 render();
 
-document.getElementById('nombre').value = '';
-document.getElementById('telefono').value = '';
-document.getElementById('fecha').value = '';
+document.getElementById('nombre').value='';
+document.getElementById('telefono').value='';
+document.getElementById('fecha').value='';
 
 alert('Contacto agregado correctamente');
+
+}
+
+function eliminarContacto(index){
+
+if(confirm('¿Eliminar contacto?')){
+
+contactos.splice(index,1);
+
+localStorage.setItem('contactos',JSON.stringify(contactos));
+
+render();
+
+}
 
 }
 
@@ -245,7 +308,7 @@ const tabla = document.getElementById('tabla');
 
 tabla.innerHTML='';
 
-contactos.forEach(c=>{
+contactos.forEach((c,index)=>{
 
 tabla.innerHTML += `
 <tr>
@@ -253,22 +316,54 @@ tabla.innerHTML += `
 <td>${c.telefono}</td>
 <td>${c.tipo}</td>
 <td>${c.fecha}</td>
+<td>
+<button class="btn-danger" onclick="eliminarContacto(${index})">Eliminar</button>
+</td>
 </tr>
 `;
 
 });
 
+renderPlantillas();
+
 }
 
 function guardarPlantilla(){
 
+const tipo = document.getElementById('plantillaTipo').value;
 const mensaje = document.getElementById('mensaje').value;
 const imagen = document.getElementById('imagen').value;
 
-localStorage.setItem('plantilla',mensaje);
-localStorage.setItem('imagen',imagen);
+plantillas[tipo] = {
+mensaje,
+imagen
+};
 
-alert('Plantilla guardada correctamente');
+localStorage.setItem('plantillas',JSON.stringify(plantillas));
+
+renderPlantillas();
+
+alert('Plantilla guardada');
+
+}
+
+function renderPlantillas(){
+
+const tabla = document.getElementById('tablaPlantillas');
+
+tabla.innerHTML='';
+
+Object.keys(plantillas).forEach(tipo=>{
+
+tabla.innerHTML += `
+<tr>
+<td>${tipo}</td>
+<td>${plantillas[tipo].mensaje}</td>
+<td>${plantillas[tipo].imagen || 'Sin imagen'}</td>
+</tr>
+`;
+
+});
 
 }
 
@@ -283,8 +378,6 @@ const dia = String(hoy.getDate()).padStart(2,'0');
 const hoyCompleto = `${anio}-${mes}-${dia}`;
 const hoyFormato = `${mes}-${dia}`;
 
-const plantilla = localStorage.getItem('plantilla') || '';
-
 let enviados = JSON.parse(localStorage.getItem('enviados')) || {};
 
 for(const contacto of contactos){
@@ -295,11 +388,19 @@ const clave = `${contacto.telefono}_${hoyCompleto}`;
 
 if(fecha === hoyFormato && !enviados[clave]){
 
-const mensaje = plantilla.replace('{nombre}',contacto.nombre);
+const plantilla = plantillas[contacto.tipo];
 
-await enviarWhatsApp(contacto.telefono,mensaje);
+if(plantilla){
 
-console.log('Mensaje automático enviado a:', contacto.nombre);
+const mensaje = plantilla.mensaje.replace('{nombre}',contacto.nombre);
+
+await enviarWhatsApp(
+contacto.telefono,
+mensaje,
+plantilla.imagen
+);
+
+console.log('Mensaje enviado a:', contacto.nombre);
 
 enviados[clave] = true;
 
@@ -311,11 +412,7 @@ localStorage.setItem('enviados', JSON.stringify(enviados));
 
 }
 
-document.getElementById('mensaje').value =
-localStorage.getItem('plantilla') || '';
-
-document.getElementById('imagen').value =
-localStorage.getItem('imagen') || '';
+}
 
 verificarEventos();
 
