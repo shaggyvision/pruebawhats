@@ -127,6 +127,15 @@ font-weight:600;
 
 <input type="date" id="fecha">
 
+<select id="hora">
+<option value="06:00">6:00 AM</option>
+<option value="07:00">7:00 AM</option>
+<option value="08:00">8:00 AM</option>
+<option value="09:00">9:00 AM</option>
+<option value="14:00">2:00 PM</option>
+<option value="16:00">4:00 PM</option>
+</select>
+
 <button onclick="agregar()">Agregar contacto</button>
 
 </div>
@@ -189,6 +198,7 @@ font-weight:600;
 <th>WhatsApp</th>
 <th>Evento</th>
 <th>Fecha</th>
+<th>Hora</th>
 <th>Acciones</th>
 </tr>
 </thead>
@@ -261,6 +271,7 @@ const nombre = document.getElementById('nombre').value;
 const telefono = document.getElementById('telefono').value;
 const tipo = document.getElementById('tipo').value;
 const fecha = document.getElementById('fecha').value;
+const hora = document.getElementById('hora').value;
 
 if(!nombre || !telefono || !fecha){
 
@@ -273,7 +284,8 @@ contactos.push({
 nombre,
 telefono,
 tipo,
-fecha
+fecha,
+hora
 });
 
 localStorage.setItem('contactos',JSON.stringify(contactos));
@@ -316,6 +328,7 @@ tabla.innerHTML += `
 <td>${c.telefono}</td>
 <td>${c.tipo}</td>
 <td>${c.fecha}</td>
+<td>${c.hora}</td>
 <td>
 <button class="btn-danger" onclick="eliminarContacto(${index})">Eliminar</button>
 </td>
@@ -369,11 +382,16 @@ tabla.innerHTML += `
 
 async function verificarEventos(){
 
-const hoy = new Date();
+const ahora = new Date();
 
-const anio = hoy.getFullYear();
-const mes = String(hoy.getMonth()+1).padStart(2,'0');
-const dia = String(hoy.getDate()).padStart(2,'0');
+const anio = ahora.getFullYear();
+const mes = String(ahora.getMonth()+1).padStart(2,'0');
+const dia = String(ahora.getDate()).padStart(2,'0');
+
+const horaActual = String(ahora.getHours()).padStart(2,'0');
+const minutoActual = String(ahora.getMinutes()).padStart(2,'0');
+
+const horaCompleta = `${horaActual}:${minutoActual}`;
 
 const hoyCompleto = `${anio}-${mes}-${dia}`;
 const hoyFormato = `${mes}-${dia}`;
@@ -386,7 +404,11 @@ const fecha = contacto.fecha.substring(5);
 
 const clave = `${contacto.telefono}_${hoyCompleto}`;
 
-if(fecha === hoyFormato && !enviados[clave]){
+if(
+fecha === hoyFormato &&
+contacto.hora === horaCompleta &&
+!enviados[clave]
+){
 
 const plantilla = plantillas[contacto.tipo];
 
@@ -416,7 +438,7 @@ localStorage.setItem('enviados', JSON.stringify(enviados));
 
 verificarEventos();
 
-setInterval(verificarEventos,3600000);
+setInterval(verificarEventos,60000);
 
 render();
 
