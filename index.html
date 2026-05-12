@@ -185,9 +185,16 @@ overflow-x:auto;
 <label>TRT</label>
 <textarea id="plantilla_TRT">🎉 Hola {nombre}, TRT te desea un excelente día.</textarea>
 
-<input type="file" id="imagen" accept="image/*">
+<input type="file" id="archivo" accept="image/*,video/*">
 
-<img id="preview" class="preview">
+<img id="previewImagen" class="preview">
+
+<video 
+id="previewVideo"
+class="preview"
+controls
+style="display:none;max-width:250px;border-radius:16px;">
+</video>
 
 <button onclick="guardarPlantillas()">
 Guardar plantillas
@@ -235,16 +242,29 @@ const token = 'a7hqz1tofhwq65b4';
 
 let contactos = JSON.parse(localStorage.getItem('contactos')) || [];
 
-let imagenBase64 = localStorage.getItem('imagenPlantilla') || '';
+let archivoBase64 = localStorage.getItem('archivoPlantilla') || '';
+
+let archivoTipo = localStorage.getItem('archivoTipo') || '';
 
 const estado = document.getElementById('estado');
 
-const preview = document.getElementById('preview');
+const previewImagen = document.getElementById('previewImagen');
 
-if(imagenBase64){
+const previewVideo = document.getElementById('previewVideo');
 
-preview.src = imagenBase64;
-preview.style.display='block';
+if(archivoBase64){
+
+if(archivoTipo.startsWith('image')){
+
+previewImagen.src = archivoBase64;
+previewImagen.style.display='block';
+
+}else if(archivoTipo.startsWith('video')){
+
+previewVideo.src = archivoBase64;
+previewVideo.style.display='block';
+
+}
 
 }
 
@@ -278,7 +298,7 @@ estado.style.display='none';
 
 }
 
-document.getElementById('imagen').addEventListener('change',function(e){
+document.getElementById('archivo').addEventListener('change',function(e){
 
 const file = e.target.files[0];
 
@@ -288,15 +308,30 @@ const reader = new FileReader();
 
 reader.onload = function(event){
 
-imagenBase64 = event.target.result;
+archivoBase64 = event.target.result;
 
-localStorage.setItem('imagenPlantilla',imagenBase64);
+archivoTipo = file.type;
 
-preview.src = imagenBase64;
+localStorage.setItem('archivoPlantilla',archivoBase64);
 
-preview.style.display='block';
+localStorage.setItem('archivoTipo',archivoTipo);
 
-mostrarEstado('Imagen guardada','success');
+previewImagen.style.display='none';
+previewVideo.style.display='none';
+
+if(file.type.startsWith('image')){
+
+previewImagen.src = archivoBase64;
+previewImagen.style.display='block';
+
+}else if(file.type.startsWith('video')){
+
+previewVideo.src = archivoBase64;
+previewVideo.style.display='block';
+
+}
+
+mostrarEstado('Archivo guardado','success');
 
 };
 
@@ -310,7 +345,9 @@ try{
 
 let response;
 
-if(imagenBase64){
+if(archivoBase64){
+
+if(archivoTipo.startsWith('image')){
 
 response = await fetch(`https://api.ultramsg.com/${instance}/messages/image`,{
 method:'POST',
@@ -320,10 +357,27 @@ headers:{
 body:new URLSearchParams({
 token:token,
 to:numero,
-image:imagenBase64,
+image:archivoBase64,
 caption:mensaje
 })
 });
+
+}else if(archivoTipo.startsWith('video')){
+
+response = await fetch(`https://api.ultramsg.com/${instance}/messages/video`,{
+method:'POST',
+headers:{
+'Content-Type':'application/x-www-form-urlencoded'
+},
+body:new URLSearchParams({
+token:token,
+to:numero,
+video:archivoBase64,
+caption:mensaje
+})
+});
+
+}
 
 }else{
 
