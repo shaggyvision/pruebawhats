@@ -17,7 +17,7 @@ padding:40px;
 }
 
 .container{
-max-width:1200px;
+max-width:1300px;
 margin:auto;
 background:white;
 padding:30px;
@@ -27,7 +27,6 @@ box-shadow:0 10px 30px rgba(0,0,0,.08);
 
 h1{
 color:#7e22ce;
-margin-bottom:10px;
 }
 
 .card{
@@ -35,6 +34,19 @@ background:#faf7ff;
 padding:20px;
 border-radius:20px;
 margin-top:20px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+}
+
+.marca-box{
+background:white;
+padding:16px;
+border-radius:18px;
+border:1px solid #eee;
 }
 
 input,textarea,select{
@@ -56,30 +68,24 @@ color:white;
 border-radius:14px;
 cursor:pointer;
 font-weight:600;
-transition:.2s;
 }
 
 button:hover{
-opacity:.9;
-transform:scale(1.02);
+opacity:.95;
 }
 
 .btn-delete{
 background:#ef4444;
 padding:10px 14px;
-border-radius:10px;
 font-size:13px;
 }
 
-.btn-test{
-background:#22c55e;
-margin-top:10px;
-}
-
 .preview{
+width:100%;
+max-height:220px;
+object-fit:cover;
+border-radius:14px;
 margin-top:10px;
-max-width:250px;
-border-radius:16px;
 display:none;
 }
 
@@ -97,12 +103,11 @@ font-size:14px;
 }
 
 .status{
-padding:10px;
+padding:12px;
 border-radius:12px;
 margin-top:15px;
-font-size:14px;
-font-weight:500;
 display:none;
+font-weight:500;
 }
 
 .success{
@@ -122,7 +127,6 @@ padding:15px;
 }
 
 table{
-font-size:12px;
 display:block;
 overflow-x:auto;
 }
@@ -139,7 +143,7 @@ overflow-x:auto;
 <h1>🎉 Happy Moments CRM</h1>
 
 <div class="card">
-<h2>UltraMSG conectado automáticamente</h2>
+<h2>UltraMSG conectado</h2>
 <p><b>Instancia:</b> instance174263</p>
 </div>
 
@@ -167,44 +171,77 @@ overflow-x:auto;
 
 <button onclick="agregar()">Agregar contacto</button>
 
+<div id="estado" class="status"></div>
+
 </div>
 
 <div class="card">
 
 <h2>Plantillas por marca</h2>
 
-<label>ADMIN</label>
+<div class="grid">
+
+<div class="marca-box">
+
+<h3>ADMIN</h3>
+
 <textarea id="plantilla_ADMIN">🎉 Hola {nombre}, ADMIN te desea un excelente día.</textarea>
 
-<label>ADO</label>
+<input type="file" id="archivo_ADMIN" accept="image/*,video/*">
+
+<img id="img_ADMIN" class="preview">
+
+<video id="video_ADMIN" class="preview" controls></video>
+
+</div>
+
+<div class="marca-box">
+
+<h3>ADO</h3>
+
 <textarea id="plantilla_ADO">🎉 Hola {nombre}, ADO te desea un excelente día.</textarea>
 
-<label>SUR</label>
+<input type="file" id="archivo_ADO" accept="image/*,video/*">
+
+<img id="img_ADO" class="preview">
+
+<video id="video_ADO" class="preview" controls></video>
+
+</div>
+
+<div class="marca-box">
+
+<h3>SUR</h3>
+
 <textarea id="plantilla_SUR">🎉 Hola {nombre}, SUR te desea un excelente día.</textarea>
 
-<label>TRT</label>
+<input type="file" id="archivo_SUR" accept="image/*,video/*">
+
+<img id="img_SUR" class="preview">
+
+<video id="video_SUR" class="preview" controls></video>
+
+</div>
+
+<div class="marca-box">
+
+<h3>TRT</h3>
+
 <textarea id="plantilla_TRT">🎉 Hola {nombre}, TRT te desea un excelente día.</textarea>
 
-<input type="file" id="archivo" accept="image/*,video/*">
+<input type="file" id="archivo_TRT" accept="image/*,video/*">
 
-<img id="previewImagen" class="preview">
+<img id="img_TRT" class="preview">
 
-<video 
-id="previewVideo"
-class="preview"
-controls
-style="display:none;max-width:250px;border-radius:16px;">
-</video>
+<video id="video_TRT" class="preview" controls></video>
+
+</div>
+
+</div>
 
 <button onclick="guardarPlantillas()">
 Guardar plantillas
 </button>
-
-<button class="btn-test" onclick="enviarPrueba()">
-Enviar mensaje de prueba
-</button>
-
-<div id="estado" class="status"></div>
 
 </div>
 
@@ -242,47 +279,7 @@ const token = 'a7hqz1tofhwq65b4';
 
 let contactos = JSON.parse(localStorage.getItem('contactos')) || [];
 
-let archivoBase64 = localStorage.getItem('archivoPlantilla') || '';
-
-let archivoTipo = localStorage.getItem('archivoTipo') || '';
-
 const estado = document.getElementById('estado');
-
-const previewImagen = document.getElementById('previewImagen');
-
-const previewVideo = document.getElementById('previewVideo');
-
-if(archivoBase64){
-
-if(archivoTipo.startsWith('image')){
-
-previewImagen.src = archivoBase64;
-previewImagen.style.display='block';
-
-}else if(archivoTipo.startsWith('video')){
-
-previewVideo.src = archivoBase64;
-previewVideo.style.display='block';
-
-}
-
-}
-
-document.getElementById('plantilla_ADMIN').value =
-localStorage.getItem('plantilla_ADMIN') ||
-document.getElementById('plantilla_ADMIN').value;
-
-document.getElementById('plantilla_ADO').value =
-localStorage.getItem('plantilla_ADO') ||
-document.getElementById('plantilla_ADO').value;
-
-document.getElementById('plantilla_SUR').value =
-localStorage.getItem('plantilla_SUR') ||
-document.getElementById('plantilla_SUR').value;
-
-document.getElementById('plantilla_TRT').value =
-localStorage.getItem('plantilla_TRT') ||
-document.getElementById('plantilla_TRT').value;
 
 function mostrarEstado(texto,tipo){
 
@@ -298,7 +295,41 @@ estado.style.display='none';
 
 }
 
-document.getElementById('archivo').addEventListener('change',function(e){
+['ADMIN','ADO','SUR','TRT'].forEach(marca=>{
+
+const textarea = document.getElementById(`plantilla_${marca}`);
+
+textarea.value =
+localStorage.getItem(`plantilla_${marca}`) ||
+textarea.value;
+
+const archivo = localStorage.getItem(`archivo_${marca}`);
+
+const tipo = localStorage.getItem(`tipoArchivo_${marca}`);
+
+const img = document.getElementById(`img_${marca}`);
+
+const video = document.getElementById(`video_${marca}`);
+
+if(archivo){
+
+if(tipo && tipo.startsWith('image')){
+
+img.src = archivo;
+img.style.display='block';
+
+}else if(tipo && tipo.startsWith('video')){
+
+video.src = archivo;
+video.style.display='block';
+
+}
+
+}
+
+document
+.getElementById(`archivo_${marca}`)
+.addEventListener('change',function(e){
 
 const file = e.target.files[0];
 
@@ -308,30 +339,35 @@ const reader = new FileReader();
 
 reader.onload = function(event){
 
-archivoBase64 = event.target.result;
+localStorage.setItem(
+`archivo_${marca}`,
+event.target.result
+);
 
-archivoTipo = file.type;
+localStorage.setItem(
+`tipoArchivo_${marca}`,
+file.type
+);
 
-localStorage.setItem('archivoPlantilla',archivoBase64);
-
-localStorage.setItem('archivoTipo',archivoTipo);
-
-previewImagen.style.display='none';
-previewVideo.style.display='none';
+img.style.display='none';
+video.style.display='none';
 
 if(file.type.startsWith('image')){
 
-previewImagen.src = archivoBase64;
-previewImagen.style.display='block';
+img.src = event.target.result;
+img.style.display='block';
 
 }else if(file.type.startsWith('video')){
 
-previewVideo.src = archivoBase64;
-previewVideo.style.display='block';
+video.src = event.target.result;
+video.style.display='block';
 
 }
 
-mostrarEstado('Archivo guardado','success');
+mostrarEstado(
+`Archivo guardado para ${marca}`,
+'success'
+);
 
 };
 
@@ -339,17 +375,29 @@ reader.readAsDataURL(file);
 
 });
 
-async function enviarWhatsApp(numero,mensaje){
+});
+
+async function enviarWhatsApp(numero,mensaje,marca){
 
 try{
 
+const archivo = localStorage.getItem(
+`archivo_${marca}`
+);
+
+const tipo = localStorage.getItem(
+`tipoArchivo_${marca}`
+);
+
 let response;
 
-if(archivoBase64){
+if(archivo){
 
-if(archivoTipo.startsWith('image')){
+if(tipo.startsWith('image')){
 
-response = await fetch(`https://api.ultramsg.com/${instance}/messages/image`,{
+response = await fetch(
+`https://api.ultramsg.com/${instance}/messages/image`,
+{
 method:'POST',
 headers:{
 'Content-Type':'application/x-www-form-urlencoded'
@@ -357,14 +405,16 @@ headers:{
 body:new URLSearchParams({
 token:token,
 to:numero,
-image:archivoBase64,
+image:archivo,
 caption:mensaje
 })
 });
 
-}else if(archivoTipo.startsWith('video')){
+}else if(tipo.startsWith('video')){
 
-response = await fetch(`https://api.ultramsg.com/${instance}/messages/video`,{
+response = await fetch(
+`https://api.ultramsg.com/${instance}/messages/video`,
+{
 method:'POST',
 headers:{
 'Content-Type':'application/x-www-form-urlencoded'
@@ -372,7 +422,7 @@ headers:{
 body:new URLSearchParams({
 token:token,
 to:numero,
-video:archivoBase64,
+video:archivo,
 caption:mensaje
 })
 });
@@ -381,7 +431,9 @@ caption:mensaje
 
 }else{
 
-response = await fetch(`https://api.ultramsg.com/${instance}/messages/chat`,{
+response = await fetch(
+`https://api.ultramsg.com/${instance}/messages/chat`,
+{
 method:'POST',
 headers:{
 'Content-Type':'application/x-www-form-urlencoded'
@@ -439,25 +491,29 @@ tipo,
 fecha
 });
 
-localStorage.setItem('contactos',JSON.stringify(contactos));
+localStorage.setItem(
+'contactos',
+JSON.stringify(contactos)
+);
 
 render();
 
-const plantilla = localStorage.getItem(`plantilla_${marca}`);
+const plantilla =
+localStorage.getItem(`plantilla_${marca}`);
 
-const mensaje = plantilla.replace('{nombre}',nombre);
+const mensaje =
+plantilla.replace('{nombre}',nombre);
 
-const enviado = await enviarWhatsApp(telefono,mensaje);
+await enviarWhatsApp(
+telefono,
+mensaje,
+marca
+);
 
-if(enviado){
-
-mostrarEstado('Contacto agregado y mensaje enviado','success');
-
-}else{
-
-mostrarEstado('Contacto agregado pero hubo error enviando mensaje','error');
-
-}
+mostrarEstado(
+'Contacto agregado y mensaje enviado',
+'success'
+);
 
 document.getElementById('nombre').value='';
 document.getElementById('telefono').value='';
@@ -467,15 +523,21 @@ document.getElementById('fecha').value='';
 
 function eliminarContacto(index){
 
-if(confirm('¿Eliminar este contacto?')){
+if(confirm('¿Eliminar contacto?')){
 
 contactos.splice(index,1);
 
-localStorage.setItem('contactos',JSON.stringify(contactos));
+localStorage.setItem(
+'contactos',
+JSON.stringify(contactos)
+);
 
 render();
 
-mostrarEstado('Contacto eliminado','success');
+mostrarEstado(
+'Contacto eliminado',
+'success'
+);
 
 }
 
@@ -491,7 +553,9 @@ if(contactos.length===0){
 
 tabla.innerHTML=`
 <tr>
-<td colspan="6">No hay contactos registrados</td>
+<td colspan="6">
+No hay contactos registrados
+</td>
 </tr>
 `;
 
@@ -515,7 +579,7 @@ tabla.innerHTML += `
 <td>${c.fecha}</td>
 
 <td>
-<button 
+<button
 class="btn-delete"
 onclick="eliminarContacto(${index})">
 🗑️ Eliminar
@@ -531,55 +595,22 @@ onclick="eliminarContacto(${index})">
 
 function guardarPlantillas(){
 
-localStorage.setItem(
-'plantilla_ADMIN',
-document.getElementById('plantilla_ADMIN').value
-);
+['ADMIN','ADO','SUR','TRT']
+.forEach(marca=>{
 
 localStorage.setItem(
-'plantilla_ADO',
-document.getElementById('plantilla_ADO').value
+`plantilla_${marca}`,
+document.getElementById(
+`plantilla_${marca}`
+).value
 );
 
-localStorage.setItem(
-'plantilla_SUR',
-document.getElementById('plantilla_SUR').value
+});
+
+mostrarEstado(
+'Plantillas guardadas',
+'success'
 );
-
-localStorage.setItem(
-'plantilla_TRT',
-document.getElementById('plantilla_TRT').value
-);
-
-mostrarEstado('Plantillas guardadas','success');
-
-}
-
-async function enviarPrueba(){
-
-const telefono = prompt('Ingresa un número para prueba');
-
-if(!telefono) return;
-
-const marca = prompt('Marca: ADMIN / ADO / SUR / TRT');
-
-if(!marca) return;
-
-const plantilla = localStorage.getItem(`plantilla_${marca}`);
-
-const mensaje = plantilla.replace('{nombre}','Usuario');
-
-const enviado = await enviarWhatsApp(telefono,mensaje);
-
-if(enviado){
-
-mostrarEstado('Mensaje de prueba enviado','success');
-
-}else{
-
-mostrarEstado('Error enviando prueba','error');
-
-}
 
 }
 
@@ -587,9 +618,11 @@ function verificarEventos(){
 
 const hoy = new Date();
 
-const mes = String(hoy.getMonth()+1).padStart(2,'0');
+const mes =
+String(hoy.getMonth()+1).padStart(2,'0');
 
-const dia = String(hoy.getDate()).padStart(2,'0');
+const dia =
+String(hoy.getDate()).padStart(2,'0');
 
 const hoyFormato = `${mes}-${dia}`;
 
@@ -597,25 +630,32 @@ contactos.forEach(async contacto=>{
 
 const fecha = contacto.fecha.substring(5);
 
-const llaveEnvio = `enviado_${contacto.telefono}_${hoyFormato}`;
+const llave =
+`enviado_${contacto.telefono}_${hoyFormato}`;
 
-if(fecha === hoyFormato && !localStorage.getItem(llaveEnvio)){
+if(
+fecha === hoyFormato &&
+!localStorage.getItem(llave)
+){
 
-const plantilla = localStorage.getItem(
+const plantilla =
+localStorage.getItem(
 `plantilla_${contacto.marca}`
 );
 
-const mensaje = plantilla.replace(
+const mensaje =
+plantilla.replace(
 '{nombre}',
 contacto.nombre
 );
 
 await enviarWhatsApp(
 contacto.telefono,
-mensaje
+mensaje,
+contacto.marca
 );
 
-localStorage.setItem(llaveEnvio,'si');
+localStorage.setItem(llave,'si');
 
 console.log(
 'Mensaje enviado a',
