@@ -151,6 +151,13 @@ overflow-x:auto;
 
 <input type="text" id="telefono" placeholder="WhatsApp 521XXXXXXXXXX">
 
+<select id="marca">
+<option value="ADMIN">ADMIN</option>
+<option value="ADO">ADO</option>
+<option value="SUR">SUR</option>
+<option value="TRT">TRT</option>
+</select>
+
 <select id="tipo">
 <option value="cumpleaños">Cumpleaños</option>
 <option value="aniversario">Aniversario</option>
@@ -164,15 +171,27 @@ overflow-x:auto;
 
 <div class="card">
 
-<h2>Plantilla automática</h2>
+<h2>Plantillas por marca</h2>
 
-<textarea id="mensaje" rows="5">🎉 Hola {nombre}, Happy Moments y Mobility ADO te desean un excelente día.</textarea>
+<label>ADMIN</label>
+<textarea id="plantilla_ADMIN">🎉 Hola {nombre}, ADMIN te desea un excelente día.</textarea>
+
+<label>ADO</label>
+<textarea id="plantilla_ADO">🎉 Hola {nombre}, ADO te desea un excelente día.</textarea>
+
+<label>SUR</label>
+<textarea id="plantilla_SUR">🎉 Hola {nombre}, SUR te desea un excelente día.</textarea>
+
+<label>TRT</label>
+<textarea id="plantilla_TRT">🎉 Hola {nombre}, TRT te desea un excelente día.</textarea>
 
 <input type="file" id="imagen" accept="image/*">
 
 <img id="preview" class="preview">
 
-<button onclick="guardarPlantilla()">Guardar plantilla</button>
+<button onclick="guardarPlantillas()">
+Guardar plantillas
+</button>
 
 <button class="btn-test" onclick="enviarPrueba()">
 Enviar mensaje de prueba
@@ -193,6 +212,7 @@ Enviar mensaje de prueba
 <tr>
 <th>Nombre</th>
 <th>WhatsApp</th>
+<th>Marca</th>
 <th>Evento</th>
 <th>Fecha</th>
 <th>Acción</th>
@@ -227,6 +247,22 @@ preview.src = imagenBase64;
 preview.style.display='block';
 
 }
+
+document.getElementById('plantilla_ADMIN').value =
+localStorage.getItem('plantilla_ADMIN') ||
+document.getElementById('plantilla_ADMIN').value;
+
+document.getElementById('plantilla_ADO').value =
+localStorage.getItem('plantilla_ADO') ||
+document.getElementById('plantilla_ADO').value;
+
+document.getElementById('plantilla_SUR').value =
+localStorage.getItem('plantilla_SUR') ||
+document.getElementById('plantilla_SUR').value;
+
+document.getElementById('plantilla_TRT').value =
+localStorage.getItem('plantilla_TRT') ||
+document.getElementById('plantilla_TRT').value;
 
 function mostrarEstado(texto,tipo){
 
@@ -327,6 +363,8 @@ const nombre = document.getElementById('nombre').value.trim();
 
 const telefono = document.getElementById('telefono').value.trim();
 
+const marca = document.getElementById('marca').value;
+
 const tipo = document.getElementById('tipo').value;
 
 const fecha = document.getElementById('fecha').value;
@@ -342,6 +380,7 @@ return;
 contactos.push({
 nombre,
 telefono,
+marca,
 tipo,
 fecha
 });
@@ -350,7 +389,7 @@ localStorage.setItem('contactos',JSON.stringify(contactos));
 
 render();
 
-const plantilla = localStorage.getItem('plantilla') || document.getElementById('mensaje').value;
+const plantilla = localStorage.getItem(`plantilla_${marca}`);
 
 const mensaje = plantilla.replace('{nombre}',nombre);
 
@@ -398,7 +437,7 @@ if(contactos.length===0){
 
 tabla.innerHTML=`
 <tr>
-<td colspan="5">No hay contactos registrados</td>
+<td colspan="6">No hay contactos registrados</td>
 </tr>
 `;
 
@@ -414,6 +453,8 @@ tabla.innerHTML += `
 <td>${c.nombre}</td>
 
 <td>${c.telefono}</td>
+
+<td>${c.marca}</td>
 
 <td>${c.tipo}</td>
 
@@ -434,13 +475,29 @@ onclick="eliminarContacto(${index})">
 
 }
 
-function guardarPlantilla(){
+function guardarPlantillas(){
 
-const mensaje = document.getElementById('mensaje').value;
+localStorage.setItem(
+'plantilla_ADMIN',
+document.getElementById('plantilla_ADMIN').value
+);
 
-localStorage.setItem('plantilla',mensaje);
+localStorage.setItem(
+'plantilla_ADO',
+document.getElementById('plantilla_ADO').value
+);
 
-mostrarEstado('Plantilla guardada','success');
+localStorage.setItem(
+'plantilla_SUR',
+document.getElementById('plantilla_SUR').value
+);
+
+localStorage.setItem(
+'plantilla_TRT',
+document.getElementById('plantilla_TRT').value
+);
+
+mostrarEstado('Plantillas guardadas','success');
 
 }
 
@@ -450,7 +507,11 @@ const telefono = prompt('Ingresa un número para prueba');
 
 if(!telefono) return;
 
-const plantilla = localStorage.getItem('plantilla') || document.getElementById('mensaje').value;
+const marca = prompt('Marca: ADMIN / ADO / SUR / TRT');
+
+if(!marca) return;
+
+const plantilla = localStorage.getItem(`plantilla_${marca}`);
 
 const mensaje = plantilla.replace('{nombre}','Usuario');
 
@@ -478,8 +539,6 @@ const dia = String(hoy.getDate()).padStart(2,'0');
 
 const hoyFormato = `${mes}-${dia}`;
 
-const plantilla = localStorage.getItem('plantilla') || document.getElementById('mensaje').value;
-
 contactos.forEach(async contacto=>{
 
 const fecha = contacto.fecha.substring(5);
@@ -488,13 +547,26 @@ const llaveEnvio = `enviado_${contacto.telefono}_${hoyFormato}`;
 
 if(fecha === hoyFormato && !localStorage.getItem(llaveEnvio)){
 
-const mensaje = plantilla.replace('{nombre}',contacto.nombre);
+const plantilla = localStorage.getItem(
+`plantilla_${contacto.marca}`
+);
 
-await enviarWhatsApp(contacto.telefono,mensaje);
+const mensaje = plantilla.replace(
+'{nombre}',
+contacto.nombre
+);
+
+await enviarWhatsApp(
+contacto.telefono,
+mensaje
+);
 
 localStorage.setItem(llaveEnvio,'si');
 
-console.log('Mensaje automático enviado a',contacto.nombre);
+console.log(
+'Mensaje enviado a',
+contacto.nombre
+);
 
 }
 
