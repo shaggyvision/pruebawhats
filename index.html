@@ -317,8 +317,6 @@ contactos = await response.json();
 
 render();
 
-console.log(contactos);
-
 }catch(error){
 
 console.log(error);
@@ -517,9 +515,6 @@ try{
 
 await fetch(SCRIPT_URL,{
 method:'POST',
-headers:{
-'Content-Type':'application/json'
-},
 body:JSON.stringify(nuevoContacto)
 });
 
