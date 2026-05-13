@@ -237,6 +237,8 @@ let contactos = [];
 
 let archivos = {};
 
+let tipos = {};
+
 function mostrarEstado(texto,tipo){
 
 const estado =
@@ -304,12 +306,6 @@ if(p.archivo){
 
 if(
 p.archivo.includes('.mp4')
-||
-
-p.archivo.includes('.mov')
-||
-
-p.archivo.includes('.webm')
 ){
 
 const video =
@@ -420,11 +416,14 @@ const file = e.target.files[0];
 
 if(!file) return;
 
-archivos[marca] = file;
+tipos[marca] = file.type;
 
 const reader = new FileReader();
 
 reader.onload = function(event){
+
+archivos[marca] =
+event.target.result;
 
 if(file.type.startsWith('image')){
 
@@ -487,16 +486,8 @@ document.getElementById(
 `plantilla_${marca}`
 ).value;
 
-let archivoBase64 = '';
-
-if(archivos[marca]){
-
-archivoBase64 =
-await convertirBase64(
-archivos[marca]
-);
-
-}
+const archivoBase64 =
+archivos[marca] || '';
 
 const nombreArchivo =
 `${marca}_${Date.now()}`;
@@ -558,25 +549,6 @@ mostrarEstado(
 );
 
 }
-
-}
-
-function convertirBase64(file){
-
-return new Promise((resolve,reject)=>{
-
-const reader =
-new FileReader();
-
-reader.readAsDataURL(file);
-
-reader.onload = () =>
-resolve(reader.result);
-
-reader.onerror = error =>
-reject(error);
-
-});
 
 }
 
