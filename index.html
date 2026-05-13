@@ -161,87 +161,35 @@ Agregar contacto
 <div class="grid">
 
 <div class="marca-box">
-
 <h3>ADMIN</h3>
-
 <textarea id="plantilla_ADMIN"></textarea>
-
-<input
-type="file"
-id="archivo_ADMIN"
-accept="image/*,video/*">
-
+<input type="file" id="archivo_ADMIN" accept="image/*,video/*">
 <img id="img_ADMIN" class="preview">
-
-<video
-id="video_ADMIN"
-class="preview"
-controls>
-</video>
-
+<video id="video_ADMIN" class="preview" controls></video>
 </div>
 
 <div class="marca-box">
-
 <h3>ADO</h3>
-
 <textarea id="plantilla_ADO"></textarea>
-
-<input
-type="file"
-id="archivo_ADO"
-accept="image/*,video/*">
-
+<input type="file" id="archivo_ADO" accept="image/*,video/*">
 <img id="img_ADO" class="preview">
-
-<video
-id="video_ADO"
-class="preview"
-controls>
-</video>
-
+<video id="video_ADO" class="preview" controls></video>
 </div>
 
 <div class="marca-box">
-
 <h3>SUR</h3>
-
 <textarea id="plantilla_SUR"></textarea>
-
-<input
-type="file"
-id="archivo_SUR"
-accept="image/*,video/*">
-
+<input type="file" id="archivo_SUR" accept="image/*,video/*">
 <img id="img_SUR" class="preview">
-
-<video
-id="video_SUR"
-class="preview"
-controls>
-</video>
-
+<video id="video_SUR" class="preview" controls></video>
 </div>
 
 <div class="marca-box">
-
 <h3>TRT</h3>
-
 <textarea id="plantilla_TRT"></textarea>
-
-<input
-type="file"
-id="archivo_TRT"
-accept="image/*,video/*">
-
+<input type="file" id="archivo_TRT" accept="image/*,video/*">
 <img id="img_TRT" class="preview">
-
-<video
-id="video_TRT"
-class="preview"
-controls>
-</video>
-
+<video id="video_TRT" class="preview" controls></video>
 </div>
 
 </div>
@@ -325,6 +273,11 @@ render();
 
 console.log(error);
 
+mostrarEstado(
+'Error cargando contactos',
+'error'
+);
+
 }
 
 }
@@ -335,8 +288,9 @@ try{
 
 const response =
 await fetch(
-SCRIPT_URL + '?tipo=plantillas&t='
-+ new Date().getTime()
+SCRIPT_URL +
+'?tipo=plantillas&t=' +
+new Date().getTime()
 );
 
 const plantillas =
@@ -412,7 +366,7 @@ await fetch(SCRIPT_URL,{
 method:'POST',
 
 headers:{
-'Content-Type':'text/plain'
+'Content-Type':'text/plain;charset=utf-8'
 },
 
 body:JSON.stringify({
@@ -430,12 +384,20 @@ mostrarEstado(
 'success'
 );
 
+document.getElementById('nombre').value='';
+document.getElementById('telefono').value='';
+document.getElementById('fecha').value='';
+
+setTimeout(()=>{
 cargarContactos();
+},1000);
 
 }catch(error){
 
+console.log(error);
+
 mostrarEstado(
-'Error guardando',
+'Error guardando contacto',
 'error'
 );
 
@@ -454,15 +416,14 @@ const file = e.target.files[0];
 
 if(!file) return;
 
+tipos[marca] = file.type;
+
 const reader = new FileReader();
 
 reader.onload = function(event){
 
 archivos[marca] =
 event.target.result;
-
-tipos[marca] =
-file.type;
 
 if(file.type.startsWith('image')){
 
@@ -476,6 +437,10 @@ event.target.result;
 
 img.style.display='block';
 
+document.getElementById(
+`video_${marca}`
+).style.display='none';
+
 }else{
 
 const video =
@@ -488,6 +453,10 @@ event.target.result;
 
 video.style.display='block';
 
+document.getElementById(
+`img_${marca}`
+).style.display='none';
+
 }
 
 };
@@ -499,6 +468,13 @@ reader.readAsDataURL(file);
 });
 
 async function guardarPlantillas(){
+
+try{
+
+mostrarEstado(
+'Guardando plantillas...',
+'success'
+);
 
 const marcas =
 ['ADMIN','ADO','SUR','TRT'];
@@ -516,36 +492,63 @@ archivos[marca] || '';
 const nombreArchivo =
 `${marca}_${Date.now()}`;
 
-await fetch(SCRIPT_URL,{
+const response = await fetch(SCRIPT_URL,{
 
 method:'POST',
 
 headers:{
-'Content-Type':'text/plain'
+'Content-Type':'text/plain;charset=utf-8'
 },
 
 body:JSON.stringify({
 
-tipoOperacion:
-'guardarPlantilla',
+tipoOperacion:'guardarPlantilla',
 
-marca,
-plantilla,
-archivoBase64,
-nombreArchivo
+marca:marca,
+
+plantilla:plantilla,
+
+archivoBase64:archivoBase64,
+
+nombreArchivo:nombreArchivo
 
 })
 
 });
 
+const data = await response.json();
+
+console.log(data);
+
+if(!data.success){
+
+throw new Error(
+data.error || 'Error guardando'
+);
+
+}
+
 }
 
 mostrarEstado(
-'Plantillas guardadas',
+'Plantillas guardadas correctamente',
 'success'
 );
 
+setTimeout(()=>{
 cargarPlantillas();
+},1500);
+
+}catch(error){
+
+console.log(error);
+
+mostrarEstado(
+'Error guardando plantillas',
+'error'
+);
+
+}
 
 }
 
@@ -575,118 +578,20 @@ contactos.forEach(c=>{
 tabla.innerHTML += `
 <tr>
 
-<td>${c.nombre}</td>
+<td>${c.nombre || ''}</td>
 
-<td>${c.telefono}</td>
+<td>${c.telefono || ''}</td>
 
-<td>${c.marca}</td>
+<td>${c.marca || ''}</td>
 
-<td>${c.tipo}</td>
+<td>${c.tipo || ''}</td>
 
-<td>${c.fecha}</td>
+<td>${c.fecha || ''}</td>
 
 </tr>
 `;
 
 });
-
-}
-
-async function enviarWhatsApp(
-numero,
-mensaje,
-marca
-){
-
-try{
-
-let plantillaData;
-
-const response =
-await fetch(
-SCRIPT_URL +
-'?tipo=plantillas&t='
-+ new Date().getTime()
-);
-
-const plantillas =
-await response.json();
-
-plantillaData =
-plantillas.find(
-p=>p.marca===marca
-);
-
-if(
-plantillaData &&
-plantillaData.archivo
-){
-
-if(
-plantillaData.archivo
-.includes('.mp4')
-){
-
-await fetch(
-`https://api.ultramsg.com/${instance}/messages/video`,
-{
-method:'POST',
-headers:{
-'Content-Type':
-'application/x-www-form-urlencoded'
-},
-body:new URLSearchParams({
-token,
-to:numero,
-video:plantillaData.archivo,
-caption:mensaje
-})
-});
-
-}else{
-
-await fetch(
-`https://api.ultramsg.com/${instance}/messages/image`,
-{
-method:'POST',
-headers:{
-'Content-Type':
-'application/x-www-form-urlencoded'
-},
-body:new URLSearchParams({
-token,
-to:numero,
-image:plantillaData.archivo,
-caption:mensaje
-})
-});
-
-}
-
-}else{
-
-await fetch(
-`https://api.ultramsg.com/${instance}/messages/chat`,
-{
-method:'POST',
-headers:{
-'Content-Type':
-'application/x-www-form-urlencoded'
-},
-body:new URLSearchParams({
-token,
-to:numero,
-body:mensaje
-})
-});
-
-}
-
-}catch(error){
-
-console.log(error);
-
-}
 
 }
 
