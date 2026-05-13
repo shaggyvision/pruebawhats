@@ -245,20 +245,6 @@ overflow-x:auto;
 Guardar plantillas
 </button>
 
-<button onclick="exportarContactos()">
-💾 Guardar contactos
-</button>
-
-<button onclick="importarContactos()">
-📂 Cargar contactos
-</button>
-
-<input
-type="file"
-id="importador"
-style="display:none"
-accept=".json">
-
 </div>
 
 <div class="card">
@@ -293,7 +279,10 @@ accept=".json">
 const instance = 'instance174263';
 const token = 'a7hqz1tofhwq65b4';
 
-let contactos = JSON.parse(localStorage.getItem('contactos')) || [];
+const SHEET_URL =
+'https://opensheet.elk.sh/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/Hoja1';
+
+let contactos = [];
 
 let archivos = {};
 let tipos = {};
@@ -311,6 +300,31 @@ estado.innerText=texto;
 setTimeout(()=>{
 estado.style.display='none';
 },4000);
+
+}
+
+async function cargarContactosDesdeSheet(){
+
+try{
+
+const response = await fetch(SHEET_URL);
+
+contactos = await response.json();
+
+render();
+
+console.log('Contactos cargados');
+
+}catch(error){
+
+console.log(error);
+
+mostrarEstado(
+'Error cargando Google Sheets',
+'error'
+);
+
+}
 
 }
 
@@ -478,11 +492,6 @@ tipo,
 fecha
 });
 
-localStorage.setItem(
-'contactos',
-JSON.stringify(contactos)
-);
-
 render();
 
 const plantilla =
@@ -498,7 +507,7 @@ marca
 );
 
 mostrarEstado(
-'Contacto agregado y mensaje enviado',
+'Contacto agregado',
 'success'
 );
 
@@ -513,11 +522,6 @@ function eliminarContacto(index){
 if(confirm('¿Eliminar contacto?')){
 
 contactos.splice(index,1);
-
-localStorage.setItem(
-'contactos',
-JSON.stringify(contactos)
-);
 
 render();
 
@@ -601,84 +605,6 @@ mostrarEstado(
 
 }
 
-function exportarContactos(){
-
-const data = JSON.stringify(contactos,null,2);
-
-const blob = new Blob([data],{
-type:'application/json'
-});
-
-const url = URL.createObjectURL(blob);
-
-const a = document.createElement('a');
-
-a.href = url;
-
-a.download = 'contactos.json';
-
-a.click();
-
-URL.revokeObjectURL(url);
-
-mostrarEstado(
-'Contactos guardados',
-'success'
-);
-
-}
-
-function importarContactos(){
-
-document
-.getElementById('importador')
-.click();
-
-}
-
-document
-.getElementById('importador')
-.addEventListener('change',function(e){
-
-const file = e.target.files[0];
-
-if(!file) return;
-
-const reader = new FileReader();
-
-reader.onload = function(event){
-
-try{
-
-contactos = JSON.parse(event.target.result);
-
-localStorage.setItem(
-'contactos',
-JSON.stringify(contactos)
-);
-
-render();
-
-mostrarEstado(
-'Contactos cargados',
-'success'
-);
-
-}catch(error){
-
-mostrarEstado(
-'Archivo inválido',
-'error'
-);
-
-}
-
-};
-
-reader.readAsText(file);
-
-});
-
 function verificarEventos(){
 
 const hoy = new Date();
@@ -735,7 +661,7 @@ contacto.nombre
 
 setInterval(verificarEventos,60000);
 
-render();
+cargarContactosDesdeSheet();
 
 </script>
 
