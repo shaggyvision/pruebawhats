@@ -256,8 +256,6 @@ const token = 'a7hqz1tofhwq65b4';
 const SCRIPT_URL =
 'https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
 
-const SHEET_URL = SCRIPT_URL;
-
 let contactos = [];
 
 let archivos = {};
@@ -285,14 +283,12 @@ async function cargarContactosDesdeSheet(){
 try{
 
 const response = await fetch(
-SHEET_URL + '?t=' + new Date().getTime()
+SCRIPT_URL + '?t=' + new Date().getTime()
 );
 
 contactos = await response.json();
 
 render();
-
-console.log(contactos);
 
 }catch(error){
 
@@ -336,7 +332,6 @@ archivos[marca] = event.target.result;
 tipos[marca] = file.type;
 
 img.style.display='none';
-
 video.style.display='none';
 
 if(file.type.startsWith('image')){
@@ -369,7 +364,6 @@ async function enviarWhatsApp(numero,mensaje,marca){
 try{
 
 const archivo = archivos[marca];
-
 const tipo = tipos[marca];
 
 let response;
@@ -482,36 +476,37 @@ tipo,
 fecha
 };
 
-contactos.push(nuevoContacto);
-
-render();
-
 try{
 
 await fetch(SCRIPT_URL,{
 method:'POST',
+headers:{
+'Content-Type':'text/plain;charset=utf-8'
+},
 body:JSON.stringify(nuevoContacto)
 });
 
-console.log('Guardado en Google Sheets');
-
-setTimeout(()=>{
-cargarContactosDesdeSheet();
-},2000);
+mostrarEstado(
+'Contacto guardado',
+'success'
+);
 
 }catch(error){
 
 console.log(error);
 
 mostrarEstado(
-'Error guardando en Google Sheets',
+'Error guardando contacto',
 'error'
 );
+
+return;
 
 }
 
 const plantilla =
-localStorage.getItem(`plantilla_${marca}`);
+localStorage.getItem(`plantilla_${marca}`) ||
+`🎉 Hola ${nombre}`;
 
 const mensaje =
 plantilla.replace('{nombre}',nombre);
@@ -522,31 +517,21 @@ mensaje,
 marca
 );
 
-mostrarEstado(
-'Contacto agregado y guardado',
-'success'
-);
-
 document.getElementById('nombre').value='';
 document.getElementById('telefono').value='';
 document.getElementById('fecha').value='';
+
+setTimeout(()=>{
+cargarContactosDesdeSheet();
+},1500);
 
 }
 
 function eliminarContacto(index){
 
-if(confirm('¿Eliminar contacto?')){
-
 contactos.splice(index,1);
 
 render();
-
-mostrarEstado(
-'Contacto eliminado',
-'success'
-);
-
-}
 
 }
 
@@ -556,6 +541,20 @@ const tabla =
 document.getElementById('tabla');
 
 tabla.innerHTML='';
+
+if(!Array.isArray(contactos)){
+
+tabla.innerHTML=`
+<tr>
+<td colspan="6">
+Error cargando datos
+</td>
+</tr>
+`;
+
+return;
+
+}
 
 if(contactos.length===0){
 
@@ -668,11 +667,6 @@ contacto.marca
 );
 
 localStorage.setItem(llave,'si');
-
-console.log(
-'Mensaje enviado a',
-contacto.nombre
-);
 
 }
 
