@@ -187,13 +187,11 @@ overflow-x:auto;
 
 <textarea id="plantilla_ADMIN">🎉 Hola {nombre}, ADMIN te desea un excelente día.</textarea>
 
-<input type="text" id="video_ADMIN" placeholder="URL VIDEO MP4">
+<input type="file" id="archivo_ADMIN" accept="image/*,video/*">
 
-<input type="text" id="imagen_ADMIN" placeholder="URL IMAGEN">
+<img id="img_ADMIN" class="preview">
 
-<img id="preview_img_ADMIN" class="preview">
-
-<video id="preview_video_ADMIN" class="preview" controls></video>
+<video id="video_ADMIN" class="preview" controls></video>
 
 </div>
 
@@ -203,13 +201,11 @@ overflow-x:auto;
 
 <textarea id="plantilla_ADO">🎉 Hola {nombre}, ADO te desea un excelente día.</textarea>
 
-<input type="text" id="video_ADO" placeholder="URL VIDEO MP4">
+<input type="file" id="archivo_ADO" accept="image/*,video/*">
 
-<input type="text" id="imagen_ADO" placeholder="URL IMAGEN">
+<img id="img_ADO" class="preview">
 
-<img id="preview_img_ADO" class="preview">
-
-<video id="preview_video_ADO" class="preview" controls></video>
+<video id="video_ADO" class="preview" controls></video>
 
 </div>
 
@@ -219,13 +215,11 @@ overflow-x:auto;
 
 <textarea id="plantilla_SUR">🎉 Hola {nombre}, SUR te desea un excelente día.</textarea>
 
-<input type="text" id="video_SUR" placeholder="URL VIDEO MP4">
+<input type="file" id="archivo_SUR" accept="image/*,video/*">
 
-<input type="text" id="imagen_SUR" placeholder="URL IMAGEN">
+<img id="img_SUR" class="preview">
 
-<img id="preview_img_SUR" class="preview">
-
-<video id="preview_video_SUR" class="preview" controls></video>
+<video id="video_SUR" class="preview" controls></video>
 
 </div>
 
@@ -235,13 +229,11 @@ overflow-x:auto;
 
 <textarea id="plantilla_TRT">🎉 Hola {nombre}, TRT te desea un excelente día.</textarea>
 
-<input type="text" id="video_TRT" placeholder="URL VIDEO MP4">
+<input type="file" id="archivo_TRT" accept="image/*,video/*">
 
-<input type="text" id="imagen_TRT" placeholder="URL IMAGEN">
+<img id="img_TRT" class="preview">
 
-<img id="preview_img_TRT" class="preview">
-
-<video id="preview_video_TRT" class="preview" controls></video>
+<video id="video_TRT" class="preview" controls></video>
 
 </div>
 
@@ -287,6 +279,13 @@ const token = 'a7hqz1tofhwq65b4';
 
 let contactos = JSON.parse(localStorage.getItem('contactos')) || [];
 
+/* ========= ARCHIVOS EN MEMORIA ========= */
+
+let archivos = {};
+let tipos = {};
+
+/* ====================================== */
+
 const estado = document.getElementById('estado');
 
 function mostrarEstado(texto,tipo){
@@ -305,77 +304,58 @@ estado.style.display='none';
 
 ['ADMIN','ADO','SUR','TRT'].forEach(marca=>{
 
-document.getElementById(`plantilla_${marca}`).value =
+const textarea = document.getElementById(`plantilla_${marca}`);
+
+textarea.value =
 localStorage.getItem(`plantilla_${marca}`) ||
-document.getElementById(`plantilla_${marca}`).value;
+textarea.value;
 
-document.getElementById(`video_${marca}`).value =
-localStorage.getItem(`video_${marca}`) || '';
+const img = document.getElementById(`img_${marca}`);
 
-document.getElementById(`imagen_${marca}`).value =
-localStorage.getItem(`imagen_${marca}`) || '';
+const video = document.getElementById(`video_${marca}`);
 
-const video = document.getElementById(`video_${marca}`).value;
+document
+.getElementById(`archivo_${marca}`)
+.addEventListener('change',function(e){
 
-const imagen = document.getElementById(`imagen_${marca}`).value;
+const file = e.target.files[0];
 
-if(video){
+if(!file) return;
 
-const videoPreview =
-document.getElementById(`preview_video_${marca}`);
+const reader = new FileReader();
 
-videoPreview.src = video;
-videoPreview.style.display='block';
+reader.onload = function(event){
 
-}
+/* ====== GUARDAR SOLO EN MEMORIA ====== */
 
-if(imagen){
+archivos[marca] = event.target.result;
+tipos[marca] = file.type;
 
-const imgPreview =
-document.getElementById(`preview_img_${marca}`);
+/* ===================================== */
 
-imgPreview.src = imagen;
-imgPreview.style.display='block';
+img.style.display='none';
+video.style.display='none';
 
-}
+if(file.type.startsWith('image')){
 
-document.getElementById(`video_${marca}`)
-.addEventListener('input',function(){
+img.src = event.target.result;
+img.style.display='block';
 
-const preview =
-document.getElementById(`preview_video_${marca}`);
+}else if(file.type.startsWith('video')){
 
-preview.src = this.value;
-
-if(this.value){
-
-preview.style.display='block';
-
-}else{
-
-preview.style.display='none';
+video.src = event.target.result;
+video.style.display='block';
 
 }
 
-});
+mostrarEstado(
+`Archivo cargado para ${marca}`,
+'success'
+);
 
-document.getElementById(`imagen_${marca}`)
-.addEventListener('input',function(){
+};
 
-const preview =
-document.getElementById(`preview_img_${marca}`);
-
-preview.src = this.value;
-
-if(this.value){
-
-preview.style.display='block';
-
-}else{
-
-preview.style.display='none';
-
-}
+reader.readAsDataURL(file);
 
 });
 
@@ -385,33 +365,18 @@ async function enviarWhatsApp(numero,mensaje,marca){
 
 try{
 
-const video =
-localStorage.getItem(`video_${marca}`);
+/* ====== OBTENER DESDE MEMORIA ====== */
 
-const imagen =
-localStorage.getItem(`imagen_${marca}`);
+const archivo = archivos[marca];
+const tipo = tipos[marca];
+
+/* =================================== */
 
 let response;
 
-if(video){
+if(archivo){
 
-response = await fetch(
-`https://api.ultramsg.com/${instance}/messages/video`,
-{
-method:'POST',
-headers:{
-'Content-Type':'application/x-www-form-urlencoded'
-},
-body:new URLSearchParams({
-token:token,
-to:numero,
-video:video,
-caption:mensaje,
-mime_type:'video/mp4'
-})
-});
-
-}else if(imagen){
+if(tipo.startsWith('image')){
 
 response = await fetch(
 `https://api.ultramsg.com/${instance}/messages/image`,
@@ -423,10 +388,29 @@ headers:{
 body:new URLSearchParams({
 token:token,
 to:numero,
-image:imagen,
+image:archivo,
 caption:mensaje
 })
 });
+
+}else if(tipo.startsWith('video')){
+
+response = await fetch(
+`https://api.ultramsg.com/${instance}/messages/video`,
+{
+method:'POST',
+headers:{
+'Content-Type':'application/x-www-form-urlencoded'
+},
+body:new URLSearchParams({
+token:token,
+to:numero,
+video:archivo,
+caption:mensaje
+})
+});
+
+}
 
 }else{
 
@@ -601,20 +585,6 @@ localStorage.setItem(
 `plantilla_${marca}`,
 document.getElementById(
 `plantilla_${marca}`
-).value
-);
-
-localStorage.setItem(
-`video_${marca}`,
-document.getElementById(
-`video_${marca}`
-).value
-);
-
-localStorage.setItem(
-`imagen_${marca}`,
-document.getElementById(
-`imagen_${marca}`
 ).value
 );
 
