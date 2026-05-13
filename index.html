@@ -75,12 +75,6 @@ button:hover{
 opacity:.95;
 }
 
-.btn-delete{
-background:#ef4444;
-padding:10px 14px;
-font-size:13px;
-}
-
 .preview{
 width:100%;
 max-height:220px;
@@ -121,19 +115,6 @@ background:#fee2e2;
 color:#991b1b;
 }
 
-@media(max-width:768px){
-
-body{
-padding:15px;
-}
-
-table{
-display:block;
-overflow-x:auto;
-}
-
-}
-
 </style>
 </head>
 
@@ -142,11 +123,6 @@ overflow-x:auto;
 <div class="container">
 
 <h1>🎉 Happy Moments CRM</h1>
-
-<div class="card">
-<h2>UltraMSG conectado</h2>
-<p><b>Instancia:</b> instance174263</p>
-</div>
 
 <div class="card">
 
@@ -170,7 +146,9 @@ overflow-x:auto;
 
 <input type="date" id="fecha">
 
-<button onclick="agregar()">Agregar contacto</button>
+<button onclick="agregarContacto()">
+Agregar contacto
+</button>
 
 <div id="estado" class="status"></div>
 
@@ -178,40 +156,92 @@ overflow-x:auto;
 
 <div class="card">
 
-<h2>Plantillas por marca</h2>
+<h2>Plantillas</h2>
 
 <div class="grid">
 
 <div class="marca-box">
+
 <h3>ADMIN</h3>
-<textarea id="plantilla_ADMIN">🎉 Hola {nombre}, ADMIN te desea un excelente día.</textarea>
-<input type="file" id="archivo_ADMIN" accept="image/*,video/*">
+
+<textarea id="plantilla_ADMIN"></textarea>
+
+<input
+type="file"
+id="archivo_ADMIN"
+accept="image/*,video/*">
+
 <img id="img_ADMIN" class="preview">
-<video id="video_ADMIN" class="preview" controls></video>
+
+<video
+id="video_ADMIN"
+class="preview"
+controls>
+</video>
+
 </div>
 
 <div class="marca-box">
+
 <h3>ADO</h3>
-<textarea id="plantilla_ADO">🎉 Hola {nombre}, ADO te desea un excelente día.</textarea>
-<input type="file" id="archivo_ADO" accept="image/*,video/*">
+
+<textarea id="plantilla_ADO"></textarea>
+
+<input
+type="file"
+id="archivo_ADO"
+accept="image/*,video/*">
+
 <img id="img_ADO" class="preview">
-<video id="video_ADO" class="preview" controls></video>
+
+<video
+id="video_ADO"
+class="preview"
+controls>
+</video>
+
 </div>
 
 <div class="marca-box">
+
 <h3>SUR</h3>
-<textarea id="plantilla_SUR">🎉 Hola {nombre}, SUR te desea un excelente día.</textarea>
-<input type="file" id="archivo_SUR" accept="image/*,video/*">
+
+<textarea id="plantilla_SUR"></textarea>
+
+<input
+type="file"
+id="archivo_SUR"
+accept="image/*,video/*">
+
 <img id="img_SUR" class="preview">
-<video id="video_SUR" class="preview" controls></video>
+
+<video
+id="video_SUR"
+class="preview"
+controls>
+</video>
+
 </div>
 
 <div class="marca-box">
+
 <h3>TRT</h3>
-<textarea id="plantilla_TRT">🎉 Hola {nombre}, TRT te desea un excelente día.</textarea>
-<input type="file" id="archivo_TRT" accept="image/*,video/*">
+
+<textarea id="plantilla_TRT"></textarea>
+
+<input
+type="file"
+id="archivo_TRT"
+accept="image/*,video/*">
+
 <img id="img_TRT" class="preview">
-<video id="video_TRT" class="preview" controls></video>
+
+<video
+id="video_TRT"
+class="preview"
+controls>
+</video>
+
 </div>
 
 </div>
@@ -235,7 +265,6 @@ Guardar plantillas
 <th>Marca</th>
 <th>Evento</th>
 <th>Fecha</th>
-<th>Acción</th>
 </tr>
 </thead>
 
@@ -249,12 +278,12 @@ Guardar plantillas
 
 <script>
 
+const SCRIPT_URL =
+'https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
+
 const instance = 'instance174263';
 
 const token = 'a7hqz1tofhwq65b4';
-
-const SCRIPT_URL =
-'https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
 
 let contactos = [];
 
@@ -262,9 +291,10 @@ let archivos = {};
 
 let tipos = {};
 
-const estado = document.getElementById('estado');
-
 function mostrarEstado(texto,tipo){
+
+const estado =
+document.getElementById('estado');
 
 estado.style.display='block';
 
@@ -278,11 +308,12 @@ estado.style.display='none';
 
 }
 
-async function cargarContactosDesdeSheet(){
+async function cargarContactos(){
 
 try{
 
-const response = await fetch(
+const response =
+await fetch(
 SCRIPT_URL + '?t=' + new Date().getTime()
 );
 
@@ -294,8 +325,117 @@ render();
 
 console.log(error);
 
+}
+
+}
+
+async function cargarPlantillas(){
+
+try{
+
+const response =
+await fetch(
+SCRIPT_URL + '?tipo=plantillas&t='
++ new Date().getTime()
+);
+
+const plantillas =
+await response.json();
+
+plantillas.forEach(p=>{
+
+document.getElementById(
+`plantilla_${p.marca}`
+).value = p.plantilla || '';
+
+if(p.archivo){
+
+if(
+p.archivo.includes('.mp4')
+){
+
+const video =
+document.getElementById(
+`video_${p.marca}`
+);
+
+video.src = p.archivo;
+
+video.style.display='block';
+
+}else{
+
+const img =
+document.getElementById(
+`img_${p.marca}`
+);
+
+img.src = p.archivo;
+
+img.style.display='block';
+
+}
+
+}
+
+});
+
+}catch(error){
+
+console.log(error);
+
+}
+
+}
+
+async function agregarContacto(){
+
+const nombre =
+document.getElementById('nombre').value;
+
+const telefono =
+document.getElementById('telefono').value;
+
+const marca =
+document.getElementById('marca').value;
+
+const tipo =
+document.getElementById('tipo').value;
+
+const fecha =
+document.getElementById('fecha').value;
+
+try{
+
+await fetch(SCRIPT_URL,{
+
+method:'POST',
+
+headers:{
+'Content-Type':'text/plain'
+},
+
+body:JSON.stringify({
+nombre,
+telefono,
+marca,
+tipo,
+fecha
+})
+
+});
+
 mostrarEstado(
-'Error cargando Google Sheets',
+'Contacto guardado',
+'success'
+);
+
+cargarContactos();
+
+}catch(error){
+
+mostrarEstado(
+'Error guardando',
 'error'
 );
 
@@ -303,17 +443,8 @@ mostrarEstado(
 
 }
 
-['ADMIN','ADO','SUR','TRT'].forEach(marca=>{
-
-const textarea = document.getElementById(`plantilla_${marca}`);
-
-textarea.value =
-localStorage.getItem(`plantilla_${marca}`) ||
-textarea.value;
-
-const img = document.getElementById(`img_${marca}`);
-
-const video = document.getElementById(`video_${marca}`);
+['ADMIN','ADO','SUR','TRT']
+.forEach(marca=>{
 
 document
 .getElementById(`archivo_${marca}`)
@@ -327,29 +458,37 @@ const reader = new FileReader();
 
 reader.onload = function(event){
 
-archivos[marca] = event.target.result;
+archivos[marca] =
+event.target.result;
 
-tipos[marca] = file.type;
-
-img.style.display='none';
-video.style.display='none';
+tipos[marca] =
+file.type;
 
 if(file.type.startsWith('image')){
 
-img.src = event.target.result;
+const img =
+document.getElementById(
+`img_${marca}`
+);
+
+img.src =
+event.target.result;
+
 img.style.display='block';
 
-}else if(file.type.startsWith('video')){
+}else{
 
-video.src = event.target.result;
+const video =
+document.getElementById(
+`video_${marca}`
+);
+
+video.src =
+event.target.result;
+
 video.style.display='block';
 
 }
-
-mostrarEstado(
-`Archivo cargado para ${marca}`,
-'success'
-);
 
 };
 
@@ -359,179 +498,54 @@ reader.readAsDataURL(file);
 
 });
 
-async function enviarWhatsApp(numero,mensaje,marca){
+async function guardarPlantillas(){
 
-try{
+const marcas =
+['ADMIN','ADO','SUR','TRT'];
 
-const archivo = archivos[marca];
-const tipo = tipos[marca];
+for(const marca of marcas){
 
-let response;
+const plantilla =
+document.getElementById(
+`plantilla_${marca}`
+).value;
 
-if(archivo){
+const archivoBase64 =
+archivos[marca] || '';
 
-if(tipo.startsWith('image')){
-
-response = await fetch(
-`https://api.ultramsg.com/${instance}/messages/image`,
-{
-method:'POST',
-headers:{
-'Content-Type':'application/x-www-form-urlencoded'
-},
-body:new URLSearchParams({
-token:token,
-to:numero,
-image:archivo,
-caption:mensaje
-})
-});
-
-}else if(tipo.startsWith('video')){
-
-response = await fetch(
-`https://api.ultramsg.com/${instance}/messages/video`,
-{
-method:'POST',
-headers:{
-'Content-Type':'application/x-www-form-urlencoded'
-},
-body:new URLSearchParams({
-token:token,
-to:numero,
-video:archivo,
-caption:mensaje
-})
-});
-
-}
-
-}else{
-
-response = await fetch(
-`https://api.ultramsg.com/${instance}/messages/chat`,
-{
-method:'POST',
-headers:{
-'Content-Type':'application/x-www-form-urlencoded'
-},
-body:new URLSearchParams({
-token:token,
-to:numero,
-body:mensaje
-})
-});
-
-}
-
-const data = await response.json();
-
-console.log(data);
-
-return true;
-
-}catch(error){
-
-console.log(error);
-
-return false;
-
-}
-
-}
-
-async function agregar(){
-
-const nombre =
-document.getElementById('nombre').value.trim();
-
-const telefono =
-document.getElementById('telefono').value.trim();
-
-const marca =
-document.getElementById('marca').value;
-
-const tipo =
-document.getElementById('tipo').value;
-
-const fecha =
-document.getElementById('fecha').value;
-
-if(!nombre || !telefono || !fecha){
-
-mostrarEstado(
-'Completa todos los campos',
-'error'
-);
-
-return;
-
-}
-
-const nuevoContacto = {
-nombre,
-telefono,
-marca,
-tipo,
-fecha
-};
-
-try{
+const nombreArchivo =
+`${marca}_${Date.now()}`;
 
 await fetch(SCRIPT_URL,{
+
 method:'POST',
+
 headers:{
-'Content-Type':'text/plain;charset=utf-8'
+'Content-Type':'text/plain'
 },
-body:JSON.stringify(nuevoContacto)
+
+body:JSON.stringify({
+
+tipoOperacion:
+'guardarPlantilla',
+
+marca,
+plantilla,
+archivoBase64,
+nombreArchivo
+
+})
+
 });
 
+}
+
 mostrarEstado(
-'Contacto guardado',
+'Plantillas guardadas',
 'success'
 );
 
-}catch(error){
-
-console.log(error);
-
-mostrarEstado(
-'Error guardando contacto',
-'error'
-);
-
-return;
-
-}
-
-const plantilla =
-localStorage.getItem(`plantilla_${marca}`) ||
-`🎉 Hola ${nombre}`;
-
-const mensaje =
-plantilla.replace('{nombre}',nombre);
-
-await enviarWhatsApp(
-telefono,
-mensaje,
-marca
-);
-
-document.getElementById('nombre').value='';
-document.getElementById('telefono').value='';
-document.getElementById('fecha').value='';
-
-setTimeout(()=>{
-cargarContactosDesdeSheet();
-},1500);
-
-}
-
-function eliminarContacto(index){
-
-contactos.splice(index,1);
-
-render();
+cargarPlantillas();
 
 }
 
@@ -542,26 +556,12 @@ document.getElementById('tabla');
 
 tabla.innerHTML='';
 
-if(!Array.isArray(contactos)){
-
-tabla.innerHTML=`
-<tr>
-<td colspan="6">
-Error cargando datos
-</td>
-</tr>
-`;
-
-return;
-
-}
-
 if(contactos.length===0){
 
 tabla.innerHTML=`
 <tr>
-<td colspan="6">
-No hay contactos registrados
+<td colspan="5">
+No hay contactos
 </td>
 </tr>
 `;
@@ -570,28 +570,20 @@ return;
 
 }
 
-contactos.forEach((c,index)=>{
+contactos.forEach(c=>{
 
 tabla.innerHTML += `
 <tr>
 
-<td>${c.nombre || ''}</td>
+<td>${c.nombre}</td>
 
-<td>${c.telefono || ''}</td>
+<td>${c.telefono}</td>
 
-<td>${c.marca || ''}</td>
+<td>${c.marca}</td>
 
-<td>${c.tipo || ''}</td>
+<td>${c.tipo}</td>
 
-<td>${c.fecha || ''}</td>
-
-<td>
-<button
-class="btn-delete"
-onclick="eliminarContacto(${index})">
-🗑️ Eliminar
-</button>
-</td>
+<td>${c.fecha}</td>
 
 </tr>
 `;
@@ -600,85 +592,109 @@ onclick="eliminarContacto(${index})">
 
 }
 
-function guardarPlantillas(){
-
-['ADMIN','ADO','SUR','TRT']
-.forEach(marca=>{
-
-localStorage.setItem(
-`plantilla_${marca}`,
-document.getElementById(
-`plantilla_${marca}`
-).value
-);
-
-});
-
-mostrarEstado(
-'Plantillas guardadas',
-'success'
-);
-
-}
-
-function verificarEventos(){
-
-const hoy = new Date();
-
-const mes =
-String(hoy.getMonth()+1).padStart(2,'0');
-
-const dia =
-String(hoy.getDate()).padStart(2,'0');
-
-const hoyFormato = `${mes}-${dia}`;
-
-contactos.forEach(async contacto=>{
-
-if(!contacto.fecha) return;
-
-const fecha = contacto.fecha.substring(5);
-
-const llave =
-`enviado_${contacto.telefono}_${hoyFormato}`;
-
-if(
-fecha === hoyFormato &&
-!localStorage.getItem(llave)
+async function enviarWhatsApp(
+numero,
+mensaje,
+marca
 ){
 
-const plantilla =
-localStorage.getItem(
-`plantilla_${contacto.marca}`
+try{
+
+let plantillaData;
+
+const response =
+await fetch(
+SCRIPT_URL +
+'?tipo=plantillas&t='
++ new Date().getTime()
 );
 
-if(!plantilla) return;
+const plantillas =
+await response.json();
 
-const mensaje =
-plantilla.replace(
-'{nombre}',
-contacto.nombre
+plantillaData =
+plantillas.find(
+p=>p.marca===marca
 );
 
-await enviarWhatsApp(
-contacto.telefono,
-mensaje,
-contacto.marca
-);
+if(
+plantillaData &&
+plantillaData.archivo
+){
 
-localStorage.setItem(llave,'si');
+if(
+plantillaData.archivo
+.includes('.mp4')
+){
 
-}
+await fetch(
+`https://api.ultramsg.com/${instance}/messages/video`,
+{
+method:'POST',
+headers:{
+'Content-Type':
+'application/x-www-form-urlencoded'
+},
+body:new URLSearchParams({
+token,
+to:numero,
+video:plantillaData.archivo,
+caption:mensaje
+})
+});
 
+}else{
+
+await fetch(
+`https://api.ultramsg.com/${instance}/messages/image`,
+{
+method:'POST',
+headers:{
+'Content-Type':
+'application/x-www-form-urlencoded'
+},
+body:new URLSearchParams({
+token,
+to:numero,
+image:plantillaData.archivo,
+caption:mensaje
+})
 });
 
 }
 
-setInterval(verificarEventos,60000);
+}else{
 
-cargarContactosDesdeSheet();
+await fetch(
+`https://api.ultramsg.com/${instance}/messages/chat`,
+{
+method:'POST',
+headers:{
+'Content-Type':
+'application/x-www-form-urlencoded'
+},
+body:new URLSearchParams({
+token,
+to:numero,
+body:mensaje
+})
+});
 
-setInterval(cargarContactosDesdeSheet,30000);
+}
+
+}catch(error){
+
+console.log(error);
+
+}
+
+}
+
+cargarContactos();
+
+cargarPlantillas();
+
+setInterval(cargarContactos,30000);
 
 </script>
 
