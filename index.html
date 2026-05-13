@@ -68,7 +68,6 @@ color:white;
 border-radius:14px;
 cursor:pointer;
 font-weight:600;
-margin-right:10px;
 margin-top:10px;
 }
 
@@ -277,14 +276,19 @@ Guardar plantillas
 <script>
 
 const instance = 'instance174263';
+
 const token = 'a7hqz1tofhwq65b4';
 
 const SHEET_URL =
 'https://opensheet.elk.sh/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/1';
 
+const SCRIPT_URL =
+'https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
+
 let contactos = [];
 
 let archivos = {};
+
 let tipos = {};
 
 const estado = document.getElementById('estado');
@@ -313,7 +317,7 @@ contactos = await response.json();
 
 render();
 
-console.log('Contactos cargados');
+console.log(contactos);
 
 }catch(error){
 
@@ -353,19 +357,23 @@ const reader = new FileReader();
 reader.onload = function(event){
 
 archivos[marca] = event.target.result;
+
 tipos[marca] = file.type;
 
 img.style.display='none';
+
 video.style.display='none';
 
 if(file.type.startsWith('image')){
 
 img.src = event.target.result;
+
 img.style.display='block';
 
 }else if(file.type.startsWith('video')){
 
 video.src = event.target.result;
+
 video.style.display='block';
 
 }
@@ -388,6 +396,7 @@ async function enviarWhatsApp(numero,mensaje,marca){
 try{
 
 const archivo = archivos[marca];
+
 const tipo = tipos[marca];
 
 let response;
@@ -466,33 +475,66 @@ return false;
 
 async function agregar(){
 
-const nombre = document.getElementById('nombre').value.trim();
+const nombre =
+document.getElementById('nombre').value.trim();
 
-const telefono = document.getElementById('telefono').value.trim();
+const telefono =
+document.getElementById('telefono').value.trim();
 
-const marca = document.getElementById('marca').value;
+const marca =
+document.getElementById('marca').value;
 
-const tipo = document.getElementById('tipo').value;
+const tipo =
+document.getElementById('tipo').value;
 
-const fecha = document.getElementById('fecha').value;
+const fecha =
+document.getElementById('fecha').value;
 
 if(!nombre || !telefono || !fecha){
 
-mostrarEstado('Completa todos los campos','error');
+mostrarEstado(
+'Completa todos los campos',
+'error'
+);
 
 return;
 
 }
 
-contactos.push({
+const nuevoContacto = {
 nombre,
 telefono,
 marca,
 tipo,
 fecha
-});
+};
+
+contactos.push(nuevoContacto);
 
 render();
+
+try{
+
+await fetch(SCRIPT_URL,{
+method:'POST',
+headers:{
+'Content-Type':'application/json'
+},
+body:JSON.stringify(nuevoContacto)
+});
+
+console.log('Guardado en Google Sheets');
+
+}catch(error){
+
+console.log(error);
+
+mostrarEstado(
+'Error guardando en Google Sheets',
+'error'
+);
+
+}
 
 const plantilla =
 localStorage.getItem(`plantilla_${marca}`);
@@ -507,12 +549,14 @@ marca
 );
 
 mostrarEstado(
-'Contacto agregado',
+'Contacto agregado y guardado',
 'success'
 );
 
 document.getElementById('nombre').value='';
+
 document.getElementById('telefono').value='';
+
 document.getElementById('fecha').value='';
 
 }
@@ -536,7 +580,8 @@ mostrarEstado(
 
 function render(){
 
-const tabla = document.getElementById('tabla');
+const tabla =
+document.getElementById('tabla');
 
 tabla.innerHTML='';
 
