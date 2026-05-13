@@ -68,6 +68,8 @@ color:white;
 border-radius:14px;
 cursor:pointer;
 font-weight:600;
+margin-right:10px;
+margin-top:10px;
 }
 
 button:hover{
@@ -243,6 +245,20 @@ overflow-x:auto;
 Guardar plantillas
 </button>
 
+<button onclick="exportarContactos()">
+💾 Guardar contactos
+</button>
+
+<button onclick="importarContactos()">
+📂 Cargar contactos
+</button>
+
+<input
+type="file"
+id="importador"
+style="display:none"
+accept=".json">
+
 </div>
 
 <div class="card">
@@ -279,12 +295,8 @@ const token = 'a7hqz1tofhwq65b4';
 
 let contactos = JSON.parse(localStorage.getItem('contactos')) || [];
 
-/* ========= ARCHIVOS EN MEMORIA ========= */
-
 let archivos = {};
 let tipos = {};
-
-/* ====================================== */
 
 const estado = document.getElementById('estado');
 
@@ -326,12 +338,8 @@ const reader = new FileReader();
 
 reader.onload = function(event){
 
-/* ====== GUARDAR SOLO EN MEMORIA ====== */
-
 archivos[marca] = event.target.result;
 tipos[marca] = file.type;
-
-/* ===================================== */
 
 img.style.display='none';
 video.style.display='none';
@@ -365,12 +373,8 @@ async function enviarWhatsApp(numero,mensaje,marca){
 
 try{
 
-/* ====== OBTENER DESDE MEMORIA ====== */
-
 const archivo = archivos[marca];
 const tipo = tipos[marca];
-
-/* =================================== */
 
 let response;
 
@@ -596,6 +600,84 @@ mostrarEstado(
 );
 
 }
+
+function exportarContactos(){
+
+const data = JSON.stringify(contactos,null,2);
+
+const blob = new Blob([data],{
+type:'application/json'
+});
+
+const url = URL.createObjectURL(blob);
+
+const a = document.createElement('a');
+
+a.href = url;
+
+a.download = 'contactos.json';
+
+a.click();
+
+URL.revokeObjectURL(url);
+
+mostrarEstado(
+'Contactos guardados',
+'success'
+);
+
+}
+
+function importarContactos(){
+
+document
+.getElementById('importador')
+.click();
+
+}
+
+document
+.getElementById('importador')
+.addEventListener('change',function(e){
+
+const file = e.target.files[0];
+
+if(!file) return;
+
+const reader = new FileReader();
+
+reader.onload = function(event){
+
+try{
+
+contactos = JSON.parse(event.target.result);
+
+localStorage.setItem(
+'contactos',
+JSON.stringify(contactos)
+);
+
+render();
+
+mostrarEstado(
+'Contactos cargados',
+'success'
+);
+
+}catch(error){
+
+mostrarEstado(
+'Archivo inválido',
+'error'
+);
+
+}
+
+};
+
+reader.readAsText(file);
+
+});
 
 function verificarEventos(){
 
