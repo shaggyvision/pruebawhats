@@ -183,59 +183,35 @@ overflow-x:auto;
 <div class="grid">
 
 <div class="marca-box">
-
 <h3>ADMIN</h3>
-
 <textarea id="plantilla_ADMIN">🎉 Hola {nombre}, ADMIN te desea un excelente día.</textarea>
-
 <input type="file" id="archivo_ADMIN" accept="image/*,video/*">
-
 <img id="img_ADMIN" class="preview">
-
 <video id="video_ADMIN" class="preview" controls></video>
-
 </div>
 
 <div class="marca-box">
-
 <h3>ADO</h3>
-
 <textarea id="plantilla_ADO">🎉 Hola {nombre}, ADO te desea un excelente día.</textarea>
-
 <input type="file" id="archivo_ADO" accept="image/*,video/*">
-
 <img id="img_ADO" class="preview">
-
 <video id="video_ADO" class="preview" controls></video>
-
 </div>
 
 <div class="marca-box">
-
 <h3>SUR</h3>
-
 <textarea id="plantilla_SUR">🎉 Hola {nombre}, SUR te desea un excelente día.</textarea>
-
 <input type="file" id="archivo_SUR" accept="image/*,video/*">
-
 <img id="img_SUR" class="preview">
-
 <video id="video_SUR" class="preview" controls></video>
-
 </div>
 
 <div class="marca-box">
-
 <h3>TRT</h3>
-
 <textarea id="plantilla_TRT">🎉 Hola {nombre}, TRT te desea un excelente día.</textarea>
-
 <input type="file" id="archivo_TRT" accept="image/*,video/*">
-
 <img id="img_TRT" class="preview">
-
 <video id="video_TRT" class="preview" controls></video>
-
 </div>
 
 </div>
@@ -253,7 +229,6 @@ Guardar plantillas
 <table>
 
 <thead>
-
 <tr>
 <th>Nombre</th>
 <th>WhatsApp</th>
@@ -262,7 +237,6 @@ Guardar plantillas
 <th>Fecha</th>
 <th>Acción</th>
 </tr>
-
 </thead>
 
 <tbody id="tabla"></tbody>
@@ -279,11 +253,10 @@ const instance = 'instance174263';
 
 const token = 'a7hqz1tofhwq65b4';
 
-const SHEET_URL =
-'https://opensheet.elk.sh/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/1';
-
 const SCRIPT_URL =
 'https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
+
+const SHEET_URL = SCRIPT_URL;
 
 let contactos = [];
 
@@ -369,13 +342,11 @@ video.style.display='none';
 if(file.type.startsWith('image')){
 
 img.src = event.target.result;
-
 img.style.display='block';
 
 }else if(file.type.startsWith('video')){
 
 video.src = event.target.result;
-
 video.style.display='block';
 
 }
@@ -557,9 +528,7 @@ mostrarEstado(
 );
 
 document.getElementById('nombre').value='';
-
 document.getElementById('telefono').value='';
-
 document.getElementById('fecha').value='';
 
 }
@@ -607,15 +576,15 @@ contactos.forEach((c,index)=>{
 tabla.innerHTML += `
 <tr>
 
-<td>${c.nombre}</td>
+<td>${c.nombre || ''}</td>
 
-<td>${c.telefono}</td>
+<td>${c.telefono || ''}</td>
 
-<td>${c.marca}</td>
+<td>${c.marca || ''}</td>
 
-<td>${c.tipo}</td>
+<td>${c.tipo || ''}</td>
 
-<td>${c.fecha}</td>
+<td>${c.fecha || ''}</td>
 
 <td>
 <button
@@ -667,6 +636,8 @@ const hoyFormato = `${mes}-${dia}`;
 
 contactos.forEach(async contacto=>{
 
+if(!contacto.fecha) return;
+
 const fecha = contacto.fecha.substring(5);
 
 const llave =
@@ -681,6 +652,8 @@ const plantilla =
 localStorage.getItem(
 `plantilla_${contacto.marca}`
 );
+
+if(!plantilla) return;
 
 const mensaje =
 plantilla.replace(
