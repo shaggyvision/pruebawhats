@@ -1,148 +1,3 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>CRM Happy Moments PRO</title>
-
-<style>
-body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
-.container{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:20px;}
-
-.tabs{display:flex;gap:10px;margin-bottom:20px;}
-.tab{
-  padding:10px;
-  background:#ddd;
-  cursor:pointer;
-  border-radius:8px;
-}
-.tab.active{
-  background:#7e22ce;
-  color:white;
-}
-
-.section{display:none;}
-.section.active{display:block;}
-
-input, textarea, select{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-}
-
-button{
-  padding:10px;
-  background:#7e22ce;
-  color:white;
-  border:none;
-  margin-top:10px;
-  cursor:pointer;
-  border-radius:8px;
-}
-
-table{width:100%;margin-top:20px;border-collapse:collapse;}
-td,th{padding:10px;border-bottom:1px solid #ddd;}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<h2>CRM Happy Moments</h2>
-
-<!-- ✅ TABS -->
-<div class="tabs">
-  <div class="tab active" data-tab="contacto">Contacto</div>
-  <div class="tab" data-tab="plantilla">Plantilla</div>
-  <div class="tab" data-tab="lista">Contactos</div>
-  <div class="tab" data-tab="plantillasLista">Plantillas</div>
-</div>
-
-<!-- ✅ AGREGAR CONTACTO -->
-<div id="contacto" class="section active">
-
-<h3>Agregar contacto</h3>
-
-<input id="nombre" placeholder="Nombre">
-<input id="telefono" placeholder="521XXXXXXXXXX">
-
-<select id="marca">
-<option>ADMIN</option>
-<option>ADO</option>
-<option>SUR</option>
-<option>TRT</option>
-</select>
-
-<input type="date" id="fecha">
-
-<button onclick="agregarContacto()">Guardar contacto</button>
-
-</div>
-
-<!-- ✅ PLANTILLA -->
-<div id="plantilla" class="section">
-
-<h3>Crear plantilla</h3>
-
-<select id="marcaPlantilla">
-<option>ADMIN</option>
-<option>ADO</option>
-<option>SUR</option>
-<option>TRT</option>
-</select>
-
-<textarea id="textoPlantilla">Hola {Nombre}</textarea>
-
-<input id="urlMedia" placeholder="URL imagen/video (Drive recomendado)">
-
-<button onclick="guardarPlantilla()">Guardar plantilla</button>
-
-</div>
-
-<!-- ✅ CONTACTOS -->
-<div id="lista" class="section">
-
-<h3>Contactos</h3>
-
-<table>
-<thead>
-<tr>
-<th>Nombre</th>
-<th>Teléfono</th>
-<th>Área</th>
-<th>Fecha</th>
-<th>Acción</th>
-</tr>
-</thead>
-
-<tbody id="tabla"></tbody>
-
-</table>
-
-</div>
-
-<!-- ✅ PLANTILLAS -->
-<div id="plantillasLista" class="section">
-
-<h3>Plantillas</h3>
-
-<table>
-<thead>
-<tr>
-<th>Área</th>
-<th>Mensaje</th>
-<th>Media</th>
-</tr>
-</thead>
-
-<tbody id="tablaPlantillas"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
 <script>
 
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
@@ -206,6 +61,26 @@ cargarContactos();
 }
 
 //////////////////////////////////////////////////
+// ✅ BORRAR CONTACTO 🗑
+//////////////////////////////////////////////////
+async function borrarContacto(telefono){
+
+if(!confirm("¿Eliminar este contacto?")) return;
+
+await fetch(SCRIPT_URL,{
+method:'POST',
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({
+accion:'borrar',
+telefono:telefono
+})
+});
+
+alert("Contacto eliminado 🗑");
+cargarContactos();
+}
+
+//////////////////////////////////////////////////
 // ✅ PLANTILLAS
 //////////////////////////////////////////////////
 async function cargarPlantillas(){
@@ -236,7 +111,7 @@ cargarPlantillas();
 }
 
 //////////////////////////////////////////////////
-// ✅ RENDER CONTACTOS + BOTON ENVIAR
+// ✅ TABLA CONTACTOS (BOTÓN DOBLE)
 //////////////////////////////////////////////////
 function render(){
 
@@ -252,19 +127,22 @@ t.innerHTML+=`
 <td>${c.marca}</td>
 <td>${c.fecha}</td>
 <td>
-<button onclick="enviarAhora('${c.telefono}','${c.nombre}','${c.marca}')">
-📲 Enviar
-</button>
+  <button onclick="enviarAhora('${c.telefono}','${c.nombre}','${c.marca}')">
+    📲
+  </button>
+
+  <button onclick="borrarContacto('${c.telefono}')" style="background:#dc2626">
+    🗑
+  </button>
 </td>
 </tr>
 `;
 
 });
-
 }
 
 //////////////////////////////////////////////////
-// ✅ RENDER PLANTILLAS
+// ✅ TABLA PLANTILLAS
 //////////////////////////////////////////////////
 function renderPlantillas(){
 
@@ -282,11 +160,10 @@ t.innerHTML+=`
 `;
 
 });
-
 }
 
 //////////////////////////////////////////////////
-// ✅ ENVIAR WHATSAPP MANUAL
+// ✅ ENVIAR WHATSAPP
 //////////////////////////////////////////////////
 async function enviarAhora(telefono,nombre,marca){
 
@@ -333,6 +210,3 @@ console.error(e);
 }
 
 </script>
-
-</body>
-</html>
