@@ -1,165 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>CRM Happy Moments</title>
+
+<style>
+body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
+.container{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:20px;}
+
+.tabs{display:flex;gap:10px;margin-bottom:20px;}
+.tab{
+  padding:10px;
+  background:#ddd;
+  cursor:pointer;
+  border-radius:8px;
+}
+.tab.active{
+  background:#7e22ce;
+  color:white;
+}
+
+.section{display:none;}
+.section.active{display:block;}
+
+input, textarea, select{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+}
+
+button{
+  padding:10px;
+  background:#7e22ce;
+  color:white;
+  border:none;
+  margin-top:10px;
+  cursor:pointer;
+  border-radius:8px;
+}
+
+.delete{background:#dc2626;}
+.send{background:#16a34a;}
+
+table{width:100%;margin-top:20px;border-collapse:collapse;}
+td,th{padding:10px;border-bottom:1px solid #ddd;}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>CRM Happy Moments</h2>
+
+<!-- ✅ TABS -->
+<div class="tabs">
+  <div class="tab active" data-tab="contacto">Contacto</div>
+  <div class="tab" data-tab="plantilla">Plantilla</div>
+  <div class="tab" data-tab="lista">Contactos</div>
+  <div class="tab" data-tab="plantillas">Plantillas</div>
+</div>
+
+<!-- ✅ SECCIONES -->
+<div id="contacto" class="section active">
+  <h3>Agregar contacto</h3>
+
+  <input id="nombre" placeholder="Nombre">
+  <input id="telefono" placeholder="521XXXXXXXXXX">
+
+  <select id="marca">
+    <option>ADMIN</option>
+    <option>ADO</option>
+    <option>SUR</option>
+    <option>TRT</option>
+  </select>
+
+  <input type="date" id="fecha">
+
+  <button onclick="agregarContacto()">Guardar</button>
+</div>
+
+<div id="plantilla" class="section">
+  <h3>Crear plantilla</h3>
+
+  <select id="marcaPlantilla">
+    <option>ADMIN</option>
+    <option>ADO</option>
+    <option>SUR</option>
+    <option>TRT</option>
+  </select>
+
+  <textarea id="textoPlantilla">Hola {Nombre}</textarea>
+
+  <input id="urlMedia" placeholder="URL imagen/video">
+
+  <button onclick="guardarPlantilla()">Guardar plantilla</button>
+</div>
+
+<div id="lista" class="section">
+  <h3>Contactos</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+        <th>Área</th>
+        <th>Fecha</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+
+    <tbody id="tabla"></tbody>
+  </table>
+</div>
+
+<div id="plantillas" class="section">
+  <h3>Plantillas</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Área</th>
+        <th>Mensaje</th>
+        <th>Media</th>
+      </tr>
+    </thead>
+
+    <tbody id="tablaPlantillas"></tbody>
+  </table>
+</div>
+
+</div>
+
 <script>
 
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec";
 
-const instance='instance174263';
-const token='a7hqz1tofhwq65b4';
-
-let contactos=[];
-let plantillas=[];
+let contactos = [];
+let plantillas = [];
 
 //////////////////////////////////////////////////
-// ✅ INICIO
+// ✅ TABS
 //////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function(){
 
-document.querySelectorAll('.tab').forEach(tab => {
+  document.querySelectorAll(".tab").forEach(tab=>{
+    tab.addEventListener("click", function(){
 
-tab.addEventListener('click', function(){
+      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+      this.classList.add("active");
 
-document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-tab.classList.add('active');
+      let id = this.dataset.tab;
 
-document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
 
-let id=tab.getAttribute('data-tab');
-document.getElementById(id).classList.add('active');
+    });
+  });
 
-});
-
-});
-
-cargarContactos();
-cargarPlantillas();
-
+  cargarContactos();
+  cargarPlantillas();
 });
 
 //////////////////////////////////////////////////
 // ✅ CONTACTOS
 //////////////////////////////////////////////////
 async function cargarContactos(){
-let res=await fetch(SCRIPT_URL);
-contactos=await res.json();
-render();
+  let res = await fetch(SCRIPT_URL);
+  contactos = await res.json();
+  render();
 }
 
 async function agregarContacto(){
 
-let nombre=document.getElementById('nombre').value;
-let telefono=document.getElementById('telefono').value;
-let marca=document.getElementById('marca').value;
-let fecha=document.getElementById('fecha').value;
+  let nombre = document.getElementById("nombre").value;
+  let telefono = document.getElementById("telefono").value;
+  let marca = document.getElementById("marca").value;
+  let fecha = document.getElementById("fecha").value;
 
-await fetch(SCRIPT_URL,{
-method:'POST',
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({nombre,telefono,marca,fecha})
-});
+  await fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({nombre,telefono,marca,fecha})
+  });
 
-alert("Guardado ✅");
-cargarContactos();
+  alert("Guardado ✅");
+  cargarContactos();
 }
 
-//////////////////////////////////////////////////
-// ✅ BORRAR CONTACTO 🗑
-//////////////////////////////////////////////////
 async function borrarContacto(telefono){
 
-if(!confirm("¿Eliminar este contacto?")) return;
+  if(!confirm("¿Eliminar contacto?")) return;
 
-await fetch(SCRIPT_URL,{
-method:'POST',
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-accion:'borrar',
-telefono:telefono
-})
-});
+  await fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({accion:"borrar",telefono})
+  });
 
-alert("Contacto eliminado 🗑");
-cargarContactos();
+  cargarContactos();
 }
 
 //////////////////////////////////////////////////
 // ✅ PLANTILLAS
 //////////////////////////////////////////////////
 async function cargarPlantillas(){
-let res=await fetch(SCRIPT_URL+'?tipo=plantillas');
-plantillas=await res.json();
-renderPlantillas();
+  let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
+  plantillas = await res.json();
+  renderPlantillas();
 }
 
 async function guardarPlantilla(){
 
-let marca=document.getElementById('marcaPlantilla').value;
-let plantilla=document.getElementById('textoPlantilla').value;
-let url=document.getElementById('urlMedia').value;
+  let marca = document.getElementById("marcaPlantilla").value;
+  let plantilla = document.getElementById("textoPlantilla").value;
+  let archivo = document.getElementById("urlMedia").value;
 
-await fetch(SCRIPT_URL,{
-method:'POST',
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-tipoOperacion:'guardarPlantilla',
-marca:marca,
-plantilla:plantilla,
-archivoURLmanual:url
-})
-});
+  await fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({
+      tipoOperacion:"guardarPlantilla",
+      marca,
+      plantilla,
+      archivoURLmanual:archivo
+    })
+  });
 
-alert("Plantilla guardada ✅");
-cargarPlantillas();
+  alert("Plantilla guardada ✅");
+  cargarPlantillas();
 }
 
 //////////////////////////////////////////////////
-// ✅ TABLA CONTACTOS (BOTÓN DOBLE)
+// ✅ RENDER CONTACTOS
 //////////////////////////////////////////////////
 function render(){
 
-let t=document.getElementById('tabla');
-t.innerHTML='';
+  let t = document.getElementById("tabla");
+  t.innerHTML = "";
 
-contactos.forEach(c=>{
+  contactos.forEach(c=>{
 
-t.innerHTML+=`
-<tr>
-<td>${c.nombre}</td>
-<td>${c.telefono}</td>
-<td>${c.marca}</td>
-<td>${c.fecha}</td>
-<td>
-  <button onclick="enviarAhora('${c.telefono}','${c.nombre}','${c.marca}')">
-    📲
-  </button>
-
-  <button onclick="borrarContacto('${c.telefono}')" style="background:#dc2626">
-    🗑
-  </button>
-</td>
-</tr>
-`;
-
-});
+    t.innerHTML += `
+    <tr>
+      <td>${c.nombre}</td>
+      <td>${c.telefono}</td>
+      <td>${c.marca}</td>
+      <td>${c.fecha}</td>
+      <td>
+        <button class="send" onclick="enviarAhora('${c.telefono}','${c.nombre}','${c.marca}')">📲</button>
+        <button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
+      </td>
+    </tr>
+    `;
+  });
 }
 
 //////////////////////////////////////////////////
-// ✅ TABLA PLANTILLAS
+// ✅ RENDER PLANTILLAS
 //////////////////////////////////////////////////
 function renderPlantillas(){
 
-let t=document.getElementById('tablaPlantillas');
-t.innerHTML='';
+  let t = document.getElementById("tablaPlantillas");
+  t.innerHTML = "";
 
-plantillas.forEach(p=>{
-
-t.innerHTML+=`
-<tr>
-<td>${p.marca}</td>
-<td>${p.plantilla}</td>
-<td>${p.archivo ? '✅' : '—'}</td>
-</tr>
-`;
-
-});
+  plantillas.forEach(p=>{
+    t.innerHTML += `
+    <tr>
+      <td>${p.marca}</td>
+      <td>${p.plantilla}</td>
+      <td>${p.archivo || ''}</td>
+    </tr>
+    `;
+  });
 }
 
 //////////////////////////////////////////////////
@@ -167,46 +281,48 @@ t.innerHTML+=`
 //////////////////////////////////////////////////
 async function enviarAhora(telefono,nombre,marca){
 
-let plantilla = plantillas.find(p => p.marca === marca);
+  let plantilla = plantillas.find(p=>p.marca === marca);
 
-let mensaje = plantilla 
-  ? plantilla.plantilla.replace('{Nombre}', nombre)
-  : "Hola " + nombre;
+  let mensaje = plantilla
+    ? plantilla.plantilla.replace("{Nombre}", nombre)
+    : "Hola " + nombre;
 
-let media = plantilla ? plantilla.archivo : '';
+  let media = plantilla ? plantilla.archivo : "";
 
-try{
+  try{
 
-if(media){
-await fetch(`https://api.ultramsg.com/${instance}/messages/image`,{
-method:'POST',
-headers:{'Content-Type':'application/x-www-form-urlencoded'},
-body:new URLSearchParams({
-token:token,
-to:telefono,
-image:media,
-caption:mensaje
-})
-});
-}else{
-await fetch(`https://api.ultramsg.com/${instance}/messages/chat`,{
-method:'POST',
-headers:{'Content-Type':'application/x-www-form-urlencoded'},
-body:new URLSearchParams({
-token:token,
-to:telefono,
-body:mensaje
-})
-});
-}
+    if(media){
+      await fetch(`https://api.ultramsg.com/instance174263/messages/image`,{
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:new URLSearchParams({
+          token:'a7hqz1tofhwq65b4',
+          to:telefono,
+          image:media,
+          caption:mensaje
+        })
+      });
+    }else{
+      await fetch(`https://api.ultramsg.com/instance174263/messages/chat`,{
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:new URLSearchParams({
+          token:'a7hqz1tofhwq65b4',
+          to:telefono,
+          body:mensaje
+        })
+      });
+    }
 
-alert("Mensaje enviado ✅");
+    alert("Enviado ✅");
 
-}catch(e){
-alert("Error enviando");
-console.error(e);
-}
-
+  }catch(e){
+    alert("Error enviando");
+    console.log(e);
+  }
 }
 
 </script>
+
+</body>
+</html>
