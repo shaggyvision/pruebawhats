@@ -64,7 +64,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <div class="container">
 
 <div class="banner">
- <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
+<img src="https://shaggyvision.github.io/pruebawhats/logo.png">
 </div>
 
 <div class="tabs">
@@ -329,12 +329,7 @@ t.innerHTML += `
 
 //////////////////////////////////////////////////
 
-async function enviarAhora(telefono,nombre,marca){
-
-if (!plantillas.length){
-alert("⚠️ Plantillas no cargadas");
-return;
-}
+function enviarAhora(telefono,nombre,marca){
 
 let plantilla = plantillas.find(p => p.marca === marca);
 
@@ -344,42 +339,19 @@ let mensaje = plantilla
 
 let media = plantilla ? (plantilla.archivo || plantilla.archivoURLmanual) : "";
 
-try{
-
 if(media){
 
-await fetch(`https://api.ultramsg.com/instance174263/messages/image`,{
-method:'POST',
-headers:{'Content-Type':'application/x-www-form-urlencoded'},
-body:new URLSearchParams({
-token:'a7hqz1tofhwq65b4',
-to:telefono,
-image:media,
-caption:mensaje
-})
-});
+let url = `https://api.ultramsg.com/instance174263/messages/image?token=a7hqz1tofhwq65b4&to=${telefono}&image=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`;
+window.open(url, "_blank");
 
 }else{
 
-await fetch(`https://api.ultramsg.com/instance174263/messages/chat`,{
-method:'POST',
-headers:{'Content-Type':'application/x-www-form-urlencoded'},
-body:new URLSearchParams({
-token:'a7hqz1tofhwq65b4',
-to:telefono,
-body:mensaje
-})
-});
+let url = `https://api.ultramsg.com/instance174263/messages/chat?token=a7hqz1tofhwq65b4&to=${telefono}&body=${encodeURIComponent(mensaje)}`;
+window.open(url, "_blank");
 
 }
 
-alert("✅ Enviado");
-
-}catch(e){
-alert("❌ Error al enviar");
-console.error(e);
-}
-
+alert("✅ Enviando...");
 }
 
 </script>
