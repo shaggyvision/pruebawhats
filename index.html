@@ -8,24 +8,17 @@
 body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 .container{max-width:1100px;margin:auto;background:white;padding:20px;border-radius:20px;}
 
-/* ✅ TABS */
-.tabs{
-  display:flex;
-  gap:10px;
-  margin-bottom:20px;
-}
+.tabs{display:flex;gap:10px;margin-bottom:20px;}
 .tab{
   padding:10px 15px;
   background:#ddd;
   cursor:pointer;
   border-radius:8px;
+  transition:0.3s;
 }
-.tab.active{
-  background:#7e22ce;
-  color:white;
-}
+.tab:hover{transform:scale(1.05);}
+.tab.active{background:#7e22ce;color:white;}
 
-/* ✅ SECCIONES */
 .section{display:none;}
 .section.active{display:block;}
 
@@ -44,8 +37,10 @@ button{
   border-radius:8px;
 }
 .delete{background:#dc2626;}
+
 table{width:100%;margin-top:20px;border-collapse:collapse;}
 td,th{padding:10px;border-bottom:1px solid #ddd;}
+
 .status{padding:10px;margin-top:10px;display:none;}
 .success{background:#dcfce7;}
 .error{background:#fee2e2;}
@@ -60,21 +55,19 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <h1>🎉 CRM Happy Moments PRO</h1>
 
-<!-- ✅ PESTAÑAS -->
+<!-- ✅ TABS -->
 <div class="tabs">
-  <div class="tab active" onclick="cambiarTab('contacto')">Agregar Contacto</div>
-  <div class="tab" onclick="cambiarTab('plantilla')">Plantillas</div>
-  <div class="tab" onclick="cambiarTab('lista')">Ver Contactos</div>
-  <div class="tab" onclick="cambiarTab('plantillasLista')">Ver Plantillas</div>
+  <div class="tab active" onclick="cambiarTab('contacto', this)">Agregar Contacto</div>
+  <div class="tab" onclick="cambiarTab('plantilla', this)">Plantillas</div>
+  <div class="tab" onclick="cambiarTab('lista', this)">Ver Contactos</div>
+  <div class="tab" onclick="cambiarTab('plantillasLista', this)">Ver Plantillas</div>
 </div>
 
 <div id="estado" class="status"></div>
 
-<!-- ================= CONTACTOS ================= -->
+<!-- ✅ CONTACTO -->
 <div id="contacto" class="section active">
-
 <h2>Agregar contacto</h2>
-
 <input id="nombre" placeholder="Nombre">
 <input id="telefono" placeholder="521XXXXXXXXXX">
 
@@ -88,12 +81,10 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <input type="date" id="fecha">
 
 <button onclick="agregarContacto()">Guardar contacto</button>
-
 </div>
 
-<!-- ================= PLANTILLA ================= -->
+<!-- ✅ PLANTILLA -->
 <div id="plantilla" class="section">
-
 <h2>Crear plantilla</h2>
 
 <select id="marca_plantilla">
@@ -106,6 +97,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <textarea id="plantillaTexto">🎉 Hola {Nombre}, feliz día 🎉</textarea>
 
 <input type="file" id="archivo" accept="image/*,video/*" onchange="mostrarPreviewArchivo()">
+
 <input id="archivoURL" placeholder="URL de imagen o video" oninput="mostrarPreviewURL()">
 
 <div id="previewBox"></div>
@@ -114,11 +106,9 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 </div>
 
-<!-- ================= LISTA CONTACTOS ================= -->
+<!-- ✅ CONTACTOS -->
 <div id="lista" class="section">
-
 <h2>Contactos</h2>
-
 <table>
 <thead>
 <tr>
@@ -131,14 +121,11 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 </thead>
 <tbody id="tabla"></tbody>
 </table>
-
 </div>
 
-<!-- ================= LISTA PLANTILLAS ================= -->
+<!-- ✅ PLANTILLAS -->
 <div id="plantillasLista" class="section">
-
 <h2>Plantillas guardadas</h2>
-
 <table>
 <thead>
 <tr>
@@ -149,7 +136,6 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 </thead>
 <tbody id="tablaPlantillas"></tbody>
 </table>
-
 </div>
 
 </div>
@@ -157,22 +143,20 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <script>
 
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
-const instance='instance174263';
-const token='a7hqz1tofhwq65b4';
 
 let contactos=[];
 let plantillas=[];
 
 //////////////////////////////////////////////////
-// ✅ TABS
+// ✅ CAMBIAR TAB
 //////////////////////////////////////////////////
-function cambiarTab(id){
+function cambiarTab(id, el){
 
 document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
 document.getElementById(id).classList.add('active');
 
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-event.target.classList.add('active');
+el.classList.add('active');
 }
 
 //////////////////////////////////////////////////
@@ -185,7 +169,7 @@ setTimeout(()=>e.style.display='none',3000);
 }
 
 //////////////////////////////////////////////////
-// ✅ CARGAR
+// ✅ CARGAR DATOS
 //////////////////////////////////////////////////
 async function cargarContactos(){
 let res=await fetch(SCRIPT_URL);
@@ -200,7 +184,7 @@ renderPlantillas();
 }
 
 //////////////////////////////////////////////////
-// ✅ CONTACTO
+// ✅ AGREGAR CONTACTO
 //////////////////////////////////////////////////
 async function agregarContacto(){
 
@@ -215,13 +199,16 @@ headers:{'Content-Type':'text/plain'},
 body:JSON.stringify({nombre,telefono,marca,fecha})
 });
 
-mostrarEstado('Guardado ✅','success');
+mostrarEstado('Contacto guardado ✅','success');
 cargarContactos();
 }
 
+//////////////////////////////////////////////////
+// ✅ BORRAR
+//////////////////////////////////////////////////
 async function borrarContacto(tel){
 
-if(!confirm("Eliminar?")) return;
+if(!confirm("Eliminar contacto?")) return;
 
 await fetch(SCRIPT_URL,{
 method:'POST',
@@ -233,7 +220,7 @@ cargarContactos();
 }
 
 //////////////////////////////////////////////////
-// ✅ PLANTILLA
+// ✅ GUARDAR PLANTILLA
 //////////////////////////////////////////////////
 async function guardarPlantilla(){
 
@@ -255,7 +242,7 @@ cargarPlantillas();
 }
 
 //////////////////////////////////////////////////
-// ✅ PREVIEW
+// ✅ PREVIEW ARCHIVO
 //////////////////////////////////////////////////
 function mostrarPreviewArchivo(){
 
@@ -268,7 +255,10 @@ if(!file)return;
 let url=URL.createObjectURL(file);
 
 if(file.type.startsWith('image')){
-p.innerHTML=`<img src="${url}" style="max-width: src="${url}" controls style="maxreviewURL(){
+p.innerHTML=`<img src="${url}" style="max-width:300px"${url}" controls style="max-width:300///////////////////////
+// ✅ PREVIEW URL
+//////////////////////////////////////////////////
+function mostrarPreviewURL(){
 
 let url=document.getElementById('archivoURL').value;
 let p=document.getElementById('previewBox');
@@ -278,33 +268,10 @@ p.innerHTML='';
 if(!url)return;
 
 if(url.includes('mp4')){
-p.innerHTML=`<video src="${url}" controls style="max-width:"${url}" style="max-width:300//////////////////////////
-// ✅ MENSAJE
-//////////////////////////////////////////////////
-function generarMensaje(n,m){
-let p=plantillas.find(x=>x.marca===m);
-return p ? p.plantilla.replace('{Nombre}',n) : "Hola "+n;
-}
-
-//////////////////////////////////////////////////
-// ✅ WHATSAPP
-//////////////////////////////////////////////////
-async function enviarWhatsApp(t,m,media){
-
-if(media){
-await fetch(`https://api.ultramsg.com/${instance}/messages/image`,{
-method:'POST',
-headers:{'Content-Type':'application/x-www-form-urlencoded'},
-body:new URLSearchParams({token,to:t,image:media,caption:m})
-});
-}
-}
-
-//////////////////////////////////////////////////
-// ✅ TABLAS
+p.innerHTML=`<video src="${url}" controls style="max-width:300url}" style="max-width//////////////////////////////
+// ✅ RENDER CONTACTOS
 //////////////////////////////////////////////////
 function render(){
-
 let t=document.getElementById('tabla');
 t.innerHTML='';
 
@@ -322,8 +289,10 @@ t.innerHTML+=`
 });
 }
 
+//////////////////////////////////////////////////
+// ✅ RENDER PLANTILLAS
+//////////////////////////////////////////////////
 function renderPlantillas(){
-
 let t=document.getElementById('tablaPlantillas');
 t.innerHTML='';
 
@@ -347,4 +316,3 @@ cargarPlantillas();
 
 </body>
 </html>
-``
