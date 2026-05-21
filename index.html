@@ -15,7 +15,7 @@ body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 .banner img{
   width:100%;
   height:160px;
-  object-fit:cover;
+  object-fit:contain;
   border-radius:12px;
 }
 
@@ -43,10 +43,12 @@ input, textarea, select{
 button{
   padding:10px;
   border:none;
-  margin-top:10px;
   cursor:pointer;
   border-radius:8px;
   color:white;
+  display:flex;
+  align-items:center;
+  gap:5px;
 }
 
 .save{background:#7e22ce;}
@@ -63,9 +65,9 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <div class="container">
 
-<!-- ✅ BANNER -->
+<!-- ✅ BANNER CORRIGIDO -->
 <div class="banner">
-<img src="https://shaggyvision.github.io/pruebawhats/logo.png">
+  <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
 </div>
 
 <!-- ✅ TABS -->
@@ -93,13 +95,19 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <input type="date" id="fecha">
 
-<button class="save" onclick="agregarContacto()">Guardar contacto</button>
+<!-- ✅ BOTONES ALINEADOS -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
 
-<!-- ✅ BOTÓN GOOGLE SHEETS ABAJO DERECHA -->
-<div style="display:flex;justify-content:flex-end;">
+  <button class="save" onclick="agregarContacto()">
+    Guardar contacto
+  </button>
+
   <a href="https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit" target="_blank">
-    <button class="sheet">📊 Google Sheets</button>
+    <button class="sheet">
+      📊 Google Sheets
+    </button>
   </a>
+
 </div>
 
 </div>
@@ -120,7 +128,9 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <input id="urlMedia" placeholder="URL imagen/video">
 
-<button class="save" onclick="guardarPlantilla()">Guardar plantilla</button>
+<button class="save" style="margin-top:10px;" onclick="guardarPlantilla()">
+Guardar plantilla
+</button>
 
 </div>
 
@@ -175,8 +185,6 @@ let contactos = [];
 let plantillas = [];
 
 //////////////////////////////////////////////////
-// ✅ TABS
-//////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function(){
 
 document.querySelectorAll(".tab").forEach(tab=>{
@@ -198,8 +206,6 @@ cargarPlantillas();
 
 });
 
-//////////////////////////////////////////////////
-// ✅ CONTACTOS
 //////////////////////////////////////////////////
 async function cargarContactos(){
 let res = await fetch(SCRIPT_URL);
@@ -237,8 +243,6 @@ body:JSON.stringify({accion:"borrar",telefono})
 cargarContactos();
 }
 
-//////////////////////////////////////////////////
-// ✅ PLANTILLAS
 //////////////////////////////////////////////////
 async function cargarPlantillas(){
 let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
@@ -284,8 +288,6 @@ cargarPlantillas();
 }
 
 //////////////////////////////////////////////////
-// ✅ TABLAS
-//////////////////////////////////////////////////
 function render(){
 
 let t = document.getElementById("tabla");
@@ -324,8 +326,6 @@ t.innerHTML += `
 });
 }
 
-//////////////////////////////////////////////////
-// ✅ ENVIAR WHATSAPP
 //////////////////////////////////////////////////
 async function enviarAhora(telefono,nombre,marca){
 
