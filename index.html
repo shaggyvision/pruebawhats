@@ -6,41 +6,22 @@
 
 <style>
 body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
-.container{max-width:1100px;margin:auto;background:white;padding:20px;border-radius:20px;}
+.container{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:20px;}
 
 .tabs{display:flex;gap:10px;margin-bottom:20px;}
 .tab{
-  padding:10px 15px;
+  padding:10px;
   background:#ddd;
   cursor:pointer;
   border-radius:8px;
-  transition:0.3s;
 }
-.tab.active{background:#7e22ce;color:white;}
+.tab.active{
+  background:#7e22ce;
+  color:white;
+}
 
 .section{display:none;}
 .section.active{display:block;}
-
-input, textarea, select{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-}
-
-button{
-  padding:10px;
-  background:#7e22ce;
-  color:white;
-  border:none;
-  margin-top:10px;
-  cursor:pointer;
-  border-radius:8px;
-}
-
-table{width:100%;margin-top:20px;border-collapse:collapse;}
-td,th{padding:10px;border-bottom:1px solid #ddd;}
-
-#previewBox{margin-top:15px;}
 </style>
 </head>
 
@@ -48,78 +29,30 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <div class="container">
 
-<h1>🎉 CRM Happy Moments PRO</h1>
+<h2>CRM con Pestañas</h2>
 
-<!-- ✅ TABS -->
 <div class="tabs">
-  <div class="tab active" data-tab="contacto">Agregar Contacto</div>
-  <div class="tab" data-tab="plantilla">Plantillas</div>
-  <div class="tab" data-tab="lista">Ver Contactos</div>
-  <div class="tab" data-tab="plantillasLista">Ver Plantillas</div>
+  <div class="tab active" data-tab="contacto">Contacto</div>
+  <div class="tab" data-tab="plantilla">Plantilla</div>
+  <div class="tab" data-tab="lista">Contactos</div>
+  <div class="tab" data-tab="plantillasLista">Plantillas</div>
 </div>
 
-<!-- ✅ SECCIONES -->
+<!-- SECCIONES -->
 <div id="contacto" class="section active">
-  <h2>Agregar contacto</h2>
-  <input id="nombre" placeholder="Nombre">
-  <input id="telefono" placeholder="521XXXXXXXXXX">
-
-  <select id="marca_contacto">
-    <option>ADMIN</option>
-    <option>ADO</option>
-    <option>SUR</option>
-    <option>TRT</option>
-  </select>
-
-  <input type="date" id="fecha">
-  <button>Guardar contacto</button>
+  <h3>Agregar contacto</h3>
 </div>
 
 <div id="plantilla" class="section">
-  <h2>Crear plantilla</h2>
-
-  <select id="marca_plantilla">
-    <option>ADMIN</option>
-    <option>ADO</option>
-    <option>SUR</option>
-    <option>TRT</option>
-  </select>
-
-  <textarea id="plantillaTexto">🎉 Hola {Nombre}, feliz día 🎉</textarea>
-
-  <input type="file" id="archivo" accept="image/*,video/*">
-  <input id="archivoURL" placeholder="URL de imagen o video">
-
-  <div id="previewBox"></div>
-  <button>Guardar plantilla</button>
+  <h3>Crear plantilla</h3>
 </div>
 
 <div id="lista" class="section">
-  <h2>Contactos</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Teléfono</th>
-        <th>Área</th>
-        <th>Fecha</th>
-      </tr>
-    </thead>
-    <tbody id="tabla"></tbody>
-  </table>
+  <h3>Lista contactos</h3>
 </div>
 
 <div id="plantillasLista" class="section">
-  <h2>Plantillas guardadas</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Área</th>
-        <th>Mensaje</th>
-      </tr>
-    </thead>
-    <tbody id="tablaPlantillas"></tbody>
-  </table>
+  <h3>Lista plantillas</h3>
 </div>
 
 </div>
@@ -127,55 +60,38 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <script>
 
 //////////////////////////////////////////////////
-// ✅ PESTAÑAS FUNCIONANDO BIEN
+// ✅ ESPERAR QUE CARGUE TODO EL HTML
 //////////////////////////////////////////////////
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', function(){
+document.addEventListener("DOMContentLoaded", function(){
 
-    // Quitar activo de tabs
-    document.querySelectorAll('.tab').forEach(t=>{
-      t.classList.remove('active');
+  const tabs = document.querySelectorAll(".tab");
+
+  tabs.forEach(function(tab){
+
+    tab.addEventListener("click", function(){
+
+      // Quitar activo a todos
+      tabs.forEach(t => t.classList.remove("active"));
+
+      // Activar actual
+      tab.classList.add("active");
+
+      // Ocultar todas las secciones
+      document.querySelectorAll(".section").forEach(sec=>{
+        sec.classList.remove("active");
+      });
+
+      // Mostrar la seleccionada
+      const id = tab.getAttribute("data-tab");
+      document.getElementById(id).classList.add("active");
+
     });
-
-    this.classList.add('active');
-
-    // Ocultar secciones
-    document.querySelectorAll('.section').forEach(s=>{
-      s.classList.remove('active');
-    });
-
-    // Mostrar seleccionada
-    const id = this.getAttribute('data-tab');
-    document.getElementById(id).classList.add('active');
 
   });
+
 });
 
-//////////////////////////////////////////////////
-// ✅ PREVIEW
-//////////////////////////////////////////////////
-document.getElementById('archivo').addEventListener('change', function(){
+</script>
 
-  let file = this.files[0];
-  let p = document.getElementById('previewBox');
-
-  p.innerHTML = '';
-
-  if(!file) return;
-
-  let url = URL.createObjectURL(file);
-
-  if(file.type.startsWith('image')){
-    p.innerHTML = `<{url}`;
-  } else {
-    p.innerHTML = `<video src="${url}" controls style="maxlementById('archivoURL').addEventListener('input', function(){
-
-  let url = this.value;
-  let p = document.getElementById('previewBox');
-
-  p.innerHTML = '';
-
-  if(!url) return;
-
-  if(url.includes('mp4')){
-    p.innerHTML = `<video src="${url}" controls style="nerHTML = `<img src="${url}" style="max-width:300pxtml>
+</body>
+</html>
