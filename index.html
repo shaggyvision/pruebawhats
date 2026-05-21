@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>CRM Happy Moments</title>
+<title>CRM Happy Moments PRO</title>
 
 <style>
 body{font-family:sans-serif;background:#f4f5fb;padding:40px;}
@@ -16,6 +16,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 .status{padding:10px;margin-top:10px;display:none;}
 .success{background:#dcfce7;}
 .error{background:#fee2e2;}
+#previewBox{margin-top:15px;}
 </style>
 </head>
 
@@ -55,9 +56,14 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <option>TRT</option>
 </select>
 
-<textarea id="plantilla">🎉 Hola {Nombre}, feliz cumpleaños 🎉</textarea>
+<textarea id="plantilla">🎉 Hola {Nombre}, feliz día 🎉</textarea>
 
-<input type="text" id="archivoURL" placeholder="Pega URL de imagen o video (Drive)">
+<input type="file" id="archivo" accept="image/*,video/*" onchange="mostrarPreviewArchivo()">
+
+<input type="text" id="archivoURL" placeholder="Pega URL de imagen o video"
+oninput="mostrarPreviewURL()">
+
+<div id="previewBox"></div>
 
 <button onclick="guardarPlantilla()">Guardar plantilla</button>
 
@@ -90,7 +96,7 @@ const token = 'a7hqz1tofhwq65b4';
 let contactos = [];
 let plantillas = [];
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
 function mostrarEstado(texto,tipo){
 let e = document.getElementById('estado');
 e.style.display='block';
@@ -99,9 +105,9 @@ e.innerText=texto;
 setTimeout(()=>{e.style.display='none';},4000);
 }
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
 // ✅ CARGAR DATOS
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
 async function cargarContactos(){
 let res = await fetch(SCRIPT_URL);
 contactos = await res.json();
@@ -113,9 +119,9 @@ let res = await fetch(SCRIPT_URL+'?tipo=plantillas');
 plantillas = await res.json();
 }
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
 // ✅ AGREGAR CONTACTO
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
 async function agregarContacto(){
 
 let nombre = document.getElementById('nombre').value;
@@ -130,13 +136,12 @@ body:JSON.stringify({nombre,telefono,marca,fecha})
 });
 
 mostrarEstado('Contacto guardado ✅','success');
-
 setTimeout(cargarContactos,800);
 }
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
 // ✅ BORRAR
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
 async function borrarContacto(telefono){
 
 if(!confirm("¿Eliminar contacto?")) return;
@@ -150,9 +155,9 @@ body:JSON.stringify({accion:'borrar',telefono})
 cargarContactos();
 }
 
-//////////////////////////////////////////////
-// ✅ GUARDAR PLANTILLA (CORREGIDO)
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
+// ✅ GUARDAR PLANTILLA
+//////////////////////////////////////////////////
 async function guardarPlantilla(){
 
 let marca = document.getElementById('marca_plantilla').value;
@@ -171,25 +176,53 @@ archivoURLmanual:archivoURL
 });
 
 mostrarEstado('Plantilla guardada ✅','success');
-
 cargarPlantillas();
 }
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
+// ✅ PREVIEW ARCHIVO
+//////////////////////////////////////////////////
+function mostrarPreviewArchivo(){
+
+const file = document.getElementById('archivo').files[0];
+const preview = document.getElementById('previewBox');
+
+preview.innerHTML='';
+
+if(!file) return;
+
+const url = URL.createObjectURL(file);
+
+if(file.type.startsWith('image')){
+preview.innerHTML=`<p>Vista previa:</p>
+<img src="${url}" style="max-width:300px;border-radius:10ew.innerHTML=`<p>Vista previa:</p>
+<video src="${url}" controls style="max-width:300px;border-radius///////
+// ✅ PREVIEW URL
+//////////////////////////////////////////////////
+function mostrarPreviewURL(){
+
+const url=document.getElementById('archivoURL').value;
+const preview=document.getElementById('previewBox');
+
+preview.innerHTML='';
+
+if(!url) return;
+
+if(url.includes("mp4")||url.includes("video")){
+preview.innerHTML=`<p>Vista previa:</p>
+<video src="${url}" controls style="rHTML=`<p>Vista previa:</p>
+<img src="${url}" style="///////////////////////////////////////
 // ✅ GENERAR MENSAJE
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
 function generarMensaje(nombre,marca){
-
-let p = plantillas.find(x=>x.marca === marca);
-
-if(!p) return "Hola " + nombre;
-
+let p = plantillas.find(x=>x.marca===marca);
+if(!p) return "Hola "+nombre;
 return p.plantilla.replace('{Nombre}',nombre);
 }
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
 // ✅ WHATSAPP
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
 async function enviarWhatsApp(telefono,mensaje,media){
 
 if(media){
@@ -216,18 +249,18 @@ body:mensaje
 }
 }
 
-//////////////////////////////////////////////
-// ✅ ENVÍO AUTOMÁTICO 🎂
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
+// ✅ AUTOMÁTICO POR FECHA 🎂
+//////////////////////////////////////////////////
 function envioAutomatico(){
 
-let hoy = new Date().toISOString().split('T')[0];
+let hoy=new Date().toISOString().split('T')[0];
 
 contactos.forEach(c=>{
 
-if(c.fecha === hoy){
+if(c.fecha===hoy){
 
-let media = (plantillas.find(p=>p.marca === c.marca)||{}).archivo;
+let media=(plantillas.find(p=>p.marca===c.marca)||{}).archivo;
 
 enviarWhatsApp(
 c.telefono,
@@ -241,12 +274,12 @@ media
 
 }
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
 // ✅ TABLA
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
 function render(){
 
-let tabla = document.getElementById('tabla');
+let tabla=document.getElementById('tabla');
 tabla.innerHTML='';
 
 contactos.forEach(c=>{
@@ -263,22 +296,17 @@ tabla.innerHTML+=`
 <button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
 </div>
 </td>
-</tr>
-`;
+</tr>`;
 });
-
 }
 
 async function enviarAhora(t,n,m){
-
-let media = (plantillas.find(p=>p.marca === m)||{}).archivo;
-
+let media=(plantillas.find(p=>p.marca===m)||{}).archivo;
 await enviarWhatsApp(t,generarMensaje(n,m),media);
-
 mostrarEstado('Enviado ✅','success');
 }
 
-//////////////////////////////////////////////
+//////////////////////////////////////////////////
 window.onload=()=>{
 cargarContactos();
 cargarPlantillas();
