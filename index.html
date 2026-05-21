@@ -8,13 +8,6 @@
 body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 .container{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:20px;}
 
-.banner img{
- width:100%;
- height:160px;
- object-fit:contain;
- border-radius:12px;
-}
-
 .tabs{display:flex;gap:10px;margin-bottom:20px;justify-content:center;}
 
 .tab{
@@ -52,7 +45,6 @@ button{
 .save{background:#7e22ce;}
 .send{background:#16a34a;}
 .delete{background:#dc2626;}
-.sheet{background:#15803d;}
 
 table{width:100%;margin-top:20px;border-collapse:collapse;}
 td,th{padding:10px;border-bottom:1px solid #ddd;}
@@ -63,15 +55,10 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <div class="container">
 
-<div class="banner">
-<img src="https://shaggyvision.github.io/pruebawhats/logo.png">
-</div>
-
 <div class="tabs">
  <div class="tab active" data-tab="contacto">Contacto</div>
  <div class="tab" data-tab="plantilla">Plantilla</div>
  <div class="tab" data-tab="lista">Contactos</div>
- <div class="tab" data-tab="plantillas">Plantillas</div>
 </div>
 
 <!-- CONTACTO -->
@@ -91,16 +78,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <input type="date" id="fecha">
 
-<div style="display:flex;justify-content:space-between;margin-top:10px;">
-
 <button class="save" onclick="agregarContacto()">✅ Guardar</button>
-
-<button class="sheet"
-onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit')">
-📊 BD-CONTACTOS
-</button>
-
-</div>
 
 </div>
 
@@ -117,12 +95,9 @@ onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zx
 </select>
 
 <textarea id="textoPlantilla">Hola {Nombre}</textarea>
+<input id="urlMedia" placeholder="URL imagen (.jpg, .png...)">
 
-<input id="urlMedia" placeholder="URL imagen/video (.jpg, .png, etc)">
-
-<button class="save" style="margin-top:10px;" onclick="guardarPlantilla()">
-💾 Guardar plantilla
-</button>
+<button class="save" onclick="guardarPlantilla()">💾 Guardar</button>
 
 </div>
 
@@ -137,32 +112,11 @@ onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zx
 <th>Nombre</th>
 <th>Teléfono</th>
 <th>Área</th>
-<th>Fecha</th>
 <th>Acción</th>
 </tr>
 </thead>
 
 <tbody id="tabla"></tbody>
-</table>
-
-</div>
-
-<!-- PLANTILLAS -->
-<div id="plantillas" class="section">
-
-<h3>Plantillas</h3>
-
-<table>
-<thead>
-<tr>
-<th>Área</th>
-<th>Mensaje</th>
-<th>Media</th>
-<th>Acción</th>
-</tr>
-</thead>
-
-<tbody id="tablaPlantillas"></tbody>
 </table>
 
 </div>
@@ -208,11 +162,6 @@ let telefono = document.getElementById("telefono").value;
 let marca = document.getElementById("marca").value;
 let fecha = document.getElementById("fecha").value;
 
-if(!nombre || !telefono){
-alert("Completa los datos");
-return;
-}
-
 await fetch(SCRIPT_URL,{
 method:"POST",
 headers:{'Content-Type':'text/plain'},
@@ -223,62 +172,11 @@ alert("✅ Guardado");
 cargarContactos();
 }
 
-async function borrarContacto(telefono){
-
-if(!confirm("¿Eliminar contacto?")) return;
-
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({accion:"borrar",telefono})
-});
-
-cargarContactos();
-}
-
 //////////////////////////////////////////////////
 
 async function cargarPlantillas(){
 let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
 plantillas = await res.json();
-renderPlantillas();
-}
-
-async function guardarPlantilla(){
-
-let marca = document.getElementById("marcaPlantilla").value;
-let plantilla = document.getElementById("textoPlantilla").value;
-let archivo = document.getElementById("urlMedia").value;
-
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-tipoOperacion:"guardarPlantilla",
-marca,
-plantilla,
-archivoURLmanual:archivo
-})
-});
-
-alert("✅ Plantilla guardada");
-cargarPlantillas();
-}
-
-async function borrarPlantilla(marca){
-
-if(!confirm("¿Eliminar plantilla de " + marca + "?")) return;
-
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-tipoOperacion:"borrarPlantilla",
-marca:marca
-})
-});
-
-cargarPlantillas();
 }
 
 //////////////////////////////////////////////////
@@ -295,35 +193,33 @@ t.innerHTML += `
 <td>${c.nombre}</td>
 <td>${c.telefono}</td>
 <td>${c.marca}</td>
-<td>${c.fecha}</td>
 <td>
-<button class="send" onclick="enviarAhora('${c.telefono}','${c.nombre}','${c.marca}')">📲</button>
-<button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
+
+<button class="send"
+data-tel="${c.telefono}"
+data-nombre="${c.nombre}"
+data-marca="${c.marca}"
+onclick="enviarDesdeBoton(this)">
+📲
+</button>
+
 </td>
 </tr>
 `;
+
 });
 
 }
 
-function renderPlantillas(){
+//////////////////////////////////////////////////
 
-let t = document.getElementById("tablaPlantillas");
-t.innerHTML = "";
+function enviarDesdeBoton(btn){
 
-plantillas.forEach(p=>{
+let telefono = btn.dataset.tel.replace(/\D/g,'');
+let nombre = btn.dataset.nombre;
+let marca = btn.dataset.marca;
 
-t.innerHTML += `
-<tr>
-<td>${p.marca}</td>
-<td>${p.plantilla}</td>
-<td>${p.archivo || p.archivoURLmanual || ''}</td>
-<td>
-<button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
-</td>
-</tr>
-`;
-});
+enviarAhora(telefono, nombre, marca);
 
 }
 
@@ -355,7 +251,8 @@ window.open(url, "_blank");
 
 }
 
-alert("✅ Enviando...");
+alert("✅ Enviando a " + telefono);
+
 }
 
 </script>
