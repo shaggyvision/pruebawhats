@@ -16,7 +16,6 @@ body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
   border-radius:8px;
   transition:0.3s;
 }
-.tab:hover{transform:scale(1.05);}
 .tab.active{background:#7e22ce;color:white;}
 
 .section{display:none;}
@@ -27,6 +26,7 @@ input, textarea, select{
   padding:10px;
   margin-top:10px;
 }
+
 button{
   padding:10px;
   background:#7e22ce;
@@ -36,14 +36,9 @@ button{
   cursor:pointer;
   border-radius:8px;
 }
-.delete{background:#dc2626;}
 
 table{width:100%;margin-top:20px;border-collapse:collapse;}
 td,th{padding:10px;border-bottom:1px solid #ddd;}
-
-.status{padding:10px;margin-top:10px;display:none;}
-.success{background:#dcfce7;}
-.error{background:#fee2e2;}
 
 #previewBox{margin-top:15px;}
 </style>
@@ -57,262 +52,130 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <!-- ✅ TABS -->
 <div class="tabs">
-  <div class="tab active" onclick="cambiarTab('contacto', this)">Agregar Contacto</div>
-  <div class="tab" onclick="cambiarTab('plantilla', this)">Plantillas</div>
-  <div class="tab" onclick="cambiarTab('lista', this)">Ver Contactos</div>
-  <div class="tab" onclick="cambiarTab('plantillasLista', this)">Ver Plantillas</div>
+  <div class="tab active" data-tab="contacto">Agregar Contacto</div>
+  <div class="tab" data-tab="plantilla">Plantillas</div>
+  <div class="tab" data-tab="lista">Ver Contactos</div>
+  <div class="tab" data-tab="plantillasLista">Ver Plantillas</div>
 </div>
 
-<div id="estado" class="status"></div>
-
-<!-- ✅ CONTACTO -->
+<!-- ✅ SECCIONES -->
 <div id="contacto" class="section active">
-<h2>Agregar contacto</h2>
-<input id="nombre" placeholder="Nombre">
-<input id="telefono" placeholder="521XXXXXXXXXX">
+  <h2>Agregar contacto</h2>
+  <input id="nombre" placeholder="Nombre">
+  <input id="telefono" placeholder="521XXXXXXXXXX">
 
-<select id="marca_contacto">
-<option>ADMIN</option>
-<option>ADO</option>
-<option>SUR</option>
-<option>TRT</option>
-</select>
+  <select id="marca_contacto">
+    <option>ADMIN</option>
+    <option>ADO</option>
+    <option>SUR</option>
+    <option>TRT</option>
+  </select>
 
-<input type="date" id="fecha">
-
-<button onclick="agregarContacto()">Guardar contacto</button>
+  <input type="date" id="fecha">
+  <button>Guardar contacto</button>
 </div>
 
-<!-- ✅ PLANTILLA -->
 <div id="plantilla" class="section">
-<h2>Crear plantilla</h2>
+  <h2>Crear plantilla</h2>
 
-<select id="marca_plantilla">
-<option>ADMIN</option>
-<option>ADO</option>
-<option>SUR</option>
-<option>TRT</option>
-</select>
+  <select id="marca_plantilla">
+    <option>ADMIN</option>
+    <option>ADO</option>
+    <option>SUR</option>
+    <option>TRT</option>
+  </select>
 
-<textarea id="plantillaTexto">🎉 Hola {Nombre}, feliz día 🎉</textarea>
+  <textarea id="plantillaTexto">🎉 Hola {Nombre}, feliz día 🎉</textarea>
 
-<input type="file" id="archivo" accept="image/*,video/*" onchange="mostrarPreviewArchivo()">
+  <input type="file" id="archivo" accept="image/*,video/*">
+  <input id="archivoURL" placeholder="URL de imagen o video">
 
-<input id="archivoURL" placeholder="URL de imagen o video" oninput="mostrarPreviewURL()">
-
-<div id="previewBox"></div>
-
-<button onclick="guardarPlantilla()">Guardar plantilla</button>
-
+  <div id="previewBox"></div>
+  <button>Guardar plantilla</button>
 </div>
 
-<!-- ✅ CONTACTOS -->
 <div id="lista" class="section">
-<h2>Contactos</h2>
-<table>
-<thead>
-<tr>
-<th>Nombre</th>
-<th>Teléfono</th>
-<th>Área</th>
-<th>Fecha</th>
-<th>Acción</th>
-</tr>
-</thead>
-<tbody id="tabla"></tbody>
-</table>
+  <h2>Contactos</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+        <th>Área</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody id="tabla"></tbody>
+  </table>
 </div>
 
-<!-- ✅ PLANTILLAS -->
 <div id="plantillasLista" class="section">
-<h2>Plantillas guardadas</h2>
-<table>
-<thead>
-<tr>
-<th>Área</th>
-<th>Mensaje</th>
-<th>Media</th>
-</tr>
-</thead>
-<tbody id="tablaPlantillas"></tbody>
-</table>
+  <h2>Plantillas guardadas</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Área</th>
+        <th>Mensaje</th>
+      </tr>
+    </thead>
+    <tbody id="tablaPlantillas"></tbody>
+  </table>
 </div>
 
 </div>
 
 <script>
 
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
-
-let contactos=[];
-let plantillas=[];
-
 //////////////////////////////////////////////////
-// ✅ CAMBIAR TAB
+// ✅ PESTAÑAS FUNCIONANDO BIEN
 //////////////////////////////////////////////////
-function cambiarTab(id, el){
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', function(){
 
-document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-document.getElementById(id).classList.add('active');
+    // Quitar activo de tabs
+    document.querySelectorAll('.tab').forEach(t=>{
+      t.classList.remove('active');
+    });
 
-document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-el.classList.add('active');
-}
+    this.classList.add('active');
 
-//////////////////////////////////////////////////
-function mostrarEstado(t,tipo){
-let e=document.getElementById('estado');
-e.style.display='block';
-e.className=`status ${tipo}`;
-e.innerText=t;
-setTimeout(()=>e.style.display='none',3000);
-}
+    // Ocultar secciones
+    document.querySelectorAll('.section').forEach(s=>{
+      s.classList.remove('active');
+    });
 
-//////////////////////////////////////////////////
-// ✅ CARGAR DATOS
-//////////////////////////////////////////////////
-async function cargarContactos(){
-let res=await fetch(SCRIPT_URL);
-contactos=await res.json();
-render();
-}
+    // Mostrar seleccionada
+    const id = this.getAttribute('data-tab');
+    document.getElementById(id).classList.add('active');
 
-async function cargarPlantillas(){
-let res=await fetch(SCRIPT_URL+'?tipo=plantillas');
-plantillas=await res.json();
-renderPlantillas();
-}
-
-//////////////////////////////////////////////////
-// ✅ AGREGAR CONTACTO
-//////////////////////////////////////////////////
-async function agregarContacto(){
-
-let nombre=document.getElementById('nombre').value;
-let telefono=document.getElementById('telefono').value;
-let marca=document.getElementById('marca_contacto').value;
-let fecha=document.getElementById('fecha').value;
-
-await fetch(SCRIPT_URL,{
-method:'POST',
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({nombre,telefono,marca,fecha})
+  });
 });
 
-mostrarEstado('Contacto guardado ✅','success');
-cargarContactos();
-}
-
 //////////////////////////////////////////////////
-// ✅ BORRAR
+// ✅ PREVIEW
 //////////////////////////////////////////////////
-async function borrarContacto(tel){
+document.getElementById('archivo').addEventListener('change', function(){
 
-if(!confirm("Eliminar contacto?")) return;
+  let file = this.files[0];
+  let p = document.getElementById('previewBox');
 
-await fetch(SCRIPT_URL,{
-method:'POST',
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({accion:'borrar',telefono:tel})
-});
+  p.innerHTML = '';
 
-cargarContactos();
-}
+  if(!file) return;
 
-//////////////////////////////////////////////////
-// ✅ GUARDAR PLANTILLA
-//////////////////////////////////////////////////
-async function guardarPlantilla(){
+  let url = URL.createObjectURL(file);
 
-let marca=document.getElementById('marca_plantilla').value;
-let plantilla=document.getElementById('plantillaTexto').value;
-let archivoURL=document.getElementById('archivoURL').value;
+  if(file.type.startsWith('image')){
+    p.innerHTML = `<{url}`;
+  } else {
+    p.innerHTML = `<video src="${url}" controls style="maxlementById('archivoURL').addEventListener('input', function(){
 
-await fetch(SCRIPT_URL,{
-method:'POST',
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-tipoOperacion:'guardarPlantilla',
-marca,plantilla,archivoURLmanual:archivoURL
-})
-});
+  let url = this.value;
+  let p = document.getElementById('previewBox');
 
-mostrarEstado('Plantilla guardada ✅','success');
-cargarPlantillas();
-}
+  p.innerHTML = '';
 
-//////////////////////////////////////////////////
-// ✅ PREVIEW ARCHIVO
-//////////////////////////////////////////////////
-function mostrarPreviewArchivo(){
+  if(!url) return;
 
-let file=document.getElementById('archivo').files[0];
-let p=document.getElementById('previewBox');
-p.innerHTML='';
-
-if(!file)return;
-
-let url=URL.createObjectURL(file);
-
-if(file.type.startsWith('image')){
-p.innerHTML=`<img src="${url}" style="max-width:300px"${url}" controls style="max-width:300///////////////////////
-// ✅ PREVIEW URL
-//////////////////////////////////////////////////
-function mostrarPreviewURL(){
-
-let url=document.getElementById('archivoURL').value;
-let p=document.getElementById('previewBox');
-
-p.innerHTML='';
-
-if(!url)return;
-
-if(url.includes('mp4')){
-p.innerHTML=`<video src="${url}" controls style="max-width:300url}" style="max-width//////////////////////////////
-// ✅ RENDER CONTACTOS
-//////////////////////////////////////////////////
-function render(){
-let t=document.getElementById('tabla');
-t.innerHTML='';
-
-contactos.forEach(c=>{
-t.innerHTML+=`
-<tr>
-<td>${c.nombre}</td>
-<td>${c.telefono}</td>
-<td>${c.marca}</td>
-<td>${c.fecha}</td>
-<td>
-<button onclick="borrarContacto('${c.telefono}')">🗑</button>
-</td>
-</tr>`;
-});
-}
-
-//////////////////////////////////////////////////
-// ✅ RENDER PLANTILLAS
-//////////////////////////////////////////////////
-function renderPlantillas(){
-let t=document.getElementById('tablaPlantillas');
-t.innerHTML='';
-
-plantillas.forEach(p=>{
-t.innerHTML+=`
-<tr>
-<td>${p.marca}</td>
-<td>${p.plantilla}</td>
-<td>${p.archivo ? '✅' : '❌'}</td>
-</tr>`;
-});
-}
-
-//////////////////////////////////////////////////
-window.onload=()=>{
-cargarContactos();
-cargarPlantillas();
-};
-
-</script>
-
-</body>
-</html>
+  if(url.includes('mp4')){
+    p.innerHTML = `<video src="${url}" controls style="nerHTML = `<img src="${url}" style="max-width:300pxtml>
