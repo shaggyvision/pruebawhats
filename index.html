@@ -1,6 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Moments CRM</title>
+
+<style>
+body{
+font-family:sans-serif;
+background:#f4f5fb;
+padding:40px;
+}
+.container{
+max-width:1100px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:20px;
+}
+input, textarea, select{
+width:100%;
+padding:12px;
+margin-top:10px;
+}
+button{
+padding:10px;
+background:#7e22ce;
+color:white;
+border:none;
+margin-top:10px;
+cursor:pointer;
+}
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+td,th{
+padding:10px;
+border-bottom:1px solid #ddd;
+}
+.status{
+padding:10px;
+margin-top:10px;
+display:none;
+}
+.success{background:#dcfce7;}
+.error{background:#fee2e2;}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🎉 Happy Moments CRM</h1>
+
+<h2>Agregar contacto</h2>
+
+<input id="nombre" placeholder="Nombre">
+<input id="telefono" placeholder="521XXXXXXXXXX">
+
+<select id="marca">
+<option value="ADMIN">ADMIN</option>
+<option value="ADO">ADO</option>
+<option value="SUR">SUR</option>
+<option value="TRT">TRT</option>
+</select>
+
+<select id="tipo">
+<option value="cumpleaños">Cumpleaños</option>
+<option value="aniversario">Aniversario</option>
+</select>
+
+<input type="date" id="fecha">
+
+<button onclick="agregarContacto()">
+Guardar + Enviar WhatsApp
+</button>
+
+<div id="estado" class="status"></div>
+
+
+<h2>Plantillas</h2>
+
+<textarea id="plantilla_ADMIN">
+🎉 Hola {Nombre}, hoy celebramos a alguien muy importante para nuestra familia Mobility ADO 🎉
+
+Queremos desearte un feliz cumpleaños y recordarte que valoramos profundamente tu esfuerzo, compromiso y la energía que aportas cada día. Para nosotros, las fechas importantes no pasan desapercibidas, porque detrás de cada colaborador hay una historia, una persona y un motivo para celebrar.
+
+Que este nuevo año venga lleno de alegría, salud, crecimiento y momentos especiales.
+¡Gracias por ser parte de Mobility ADO! 💙
+</textarea>
+
+
+<h2>Contactos</h2>
+
+<table>
+<thead>
+<tr>
+<th>Nombre</th>
+<th>Teléfono</th>
+<th>Marca</th>
+<th>Tipo</th>
+<th>Fecha</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody id="tabla"></tbody>
+</table>
+
+</div>
+
 <script>
 
-const SCRIPT_URL = 
+const SCRIPT_URL =
 'https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
 
 const instance = 'instance174263';
@@ -18,7 +133,7 @@ estado.innerText=texto;
 
 setTimeout(()=>{
 estado.style.display='none';
-},4000);
+},3000);
 }
 
 
@@ -35,8 +150,7 @@ headers:{
 body:new URLSearchParams({
 token:token,
 to:telefono,
-body:mensaje,
-priority:10
+body:mensaje
 })
 }
 );
@@ -45,33 +159,41 @@ const data = await response.json();
 console.log("UltraMsg:", data);
 
 }catch(error){
-console.error(error);
+console.error("Error UltraMsg:", error);
 }
 }
 
 
-// ✅ PLANTILLA ADMIN
+// ✅ GENERAR MENSAJE
 function generarMensaje(nombre, marca){
 
-let plantilla = document.getElementById(`plantilla_${marca}`).value;
+let plantilla = '';
 
-if(!plantilla){
-plantilla = document.getElementById('plantilla_ADMIN').value;
+const admin = document.getElementById('plantilla_ADMIN');
+
+if(admin && admin.value){
+plantilla = admin.value;
+}else{
+plantilla = 'Hola {Nombre}';
 }
 
 return plantilla.replace('{Nombre}', nombre);
 }
 
 
-// ✅ CARGAR CONTACTOS DESDE SHEETS
+// ✅ CARGAR CONTACTOS
 async function cargarContactos(){
-
 try{
 const response = await fetch(
 SCRIPT_URL + '?t=' + new Date().getTime()
 );
 
 contactos = await response.json();
+
+if(!Array.isArray(contactos)){
+contactos = [];
+}
+
 render();
 
 }catch(error){
@@ -94,32 +216,22 @@ const mensaje = generarMensaje(nombre, marca);
 
 try{
 
-// ✅ GUARDA EN GOOGLE SHEETS
 await fetch(SCRIPT_URL,{
 method:'POST',
 headers:{
 'Content-Type':'text/plain;charset=utf-8'
 },
 body:JSON.stringify({
-nombre,
-telefono,
-marca,
-tipo,
-fecha
+nombre,telefono,marca,tipo,fecha
 })
 });
 
 mostrarEstado('Contacto guardado','success');
 
-
-// ✅ ENVÍA WHATSAPP AUTOMÁTICO
+// ✅ ENVÍO AUTOMÁTICO
 await enviarWhatsApp(telefono, mensaje);
 
-
-// recargar tabla
-setTimeout(()=>{
-cargarContactos();
-},1000);
+setTimeout(cargarContactos,1000);
 
 }catch(error){
 console.log(error);
@@ -145,13 +257,12 @@ function render(){
 const tabla = document.getElementById('tabla');
 tabla.innerHTML='';
 
-if(contactos.length===0){
+if(contactos.length === 0){
 tabla.innerHTML=`<tr><td colspan="6">No hay contactos</td></tr>`;
 return;
 }
 
-contactos.forEach(c => {
-
+contactos.forEach(c=>{
 tabla.innerHTML += `
 <tr>
 <td>${c.nombre || ''}</td>
@@ -166,14 +277,17 @@ tabla.innerHTML += `
 </td>
 </tr>
 `;
-
 });
-
 }
 
 
-// ✅ INICIO AUTOMÁTICO
+// ✅ INICIO
+window.onload = function(){
 cargarContactos();
 setInterval(cargarContactos,30000);
+};
 
 </script>
+
+</body>
+</html>
