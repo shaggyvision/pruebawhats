@@ -8,47 +8,45 @@
 body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 .container{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:20px;}
 
-.banner{
-  width:100%;
-  margin-bottom:20px;
-}
 .banner img{
-  width:100%;
-  height:160px;
-  object-fit:contain;
-  border-radius:12px;
+ width:100%;
+ height:160px;
+ object-fit:contain;
+ border-radius:12px;
 }
 
 .tabs{display:flex;gap:10px;margin-bottom:20px;justify-content:center;}
+
 .tab{
-  padding:10px 15px;
-  background:#ddd;
-  cursor:pointer;
-  border-radius:8px;
+ padding:10px 15px;
+ background:#ddd;
+ cursor:pointer;
+ border-radius:8px;
 }
+
 .tab.active{
-  background:#7e22ce;
-  color:white;
+ background:#7e22ce;
+ color:white;
 }
 
 .section{display:none;}
 .section.active{display:block;}
 
 input, textarea, select{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
+ width:100%;
+ padding:10px;
+ margin-top:10px;
 }
 
 button{
-  padding:10px;
-  border:none;
-  cursor:pointer;
-  border-radius:8px;
-  color:white;
-  display:flex;
-  align-items:center;
-  gap:6px;
+ padding:10px;
+ border:none;
+ cursor:pointer;
+ border-radius:8px;
+ color:white;
+ display:flex;
+ align-items:center;
+ gap:6px;
 }
 
 .save{background:#7e22ce;}
@@ -59,26 +57,24 @@ button{
 table{width:100%;margin-top:20px;border-collapse:collapse;}
 td,th{padding:10px;border-bottom:1px solid #ddd;}
 </style>
-</head>
 
+</head>
 <body>
 
 <div class="container">
 
-<!-- ✅ BANNER -->
 <div class="banner">
-  <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
+ <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
 </div>
 
-<!-- ✅ TABS -->
 <div class="tabs">
-  <div class="tab active" data-tab="contacto">Contacto</div>
-  <div class="tab" data-tab="plantilla">Plantilla</div>
-  <div class="tab" data-tab="lista">Contactos</div>
-  <div class="tab" data-tab="plantillas">Plantillas</div>
+ <div class="tab active" data-tab="contacto">Contacto</div>
+ <div class="tab" data-tab="plantilla">Plantilla</div>
+ <div class="tab" data-tab="lista">Contactos</div>
+ <div class="tab" data-tab="plantillas">Plantillas</div>
 </div>
 
-<!-- ✅ CONTACTO -->
+<!-- CONTACTO -->
 <div id="contacto" class="section active">
 
 <h3>Agregar contacto</h3>
@@ -95,23 +91,20 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <input type="date" id="fecha">
 
-<!-- ✅ BOTONES EN LA MISMA LÍNEA -->
-<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+<div style="display:flex;justify-content:space-between;margin-top:10px;">
 
-  <button class="save" onclick="agregarContacto()">
-    ✅ Guardar
-  </button>
+<button class="save" onclick="agregarContacto()">✅ Guardar</button>
 
-  <button class="sheet"
-    onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit')">
-    📊 BD-CONTACTOS
-  </button>
+<button class="sheet"
+onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit')">
+📊 BD-CONTACTOS
+</button>
 
 </div>
 
 </div>
 
-<!-- ✅ PLANTILLA -->
+<!-- PLANTILLA -->
 <div id="plantilla" class="section">
 
 <h3>Crear plantilla</h3>
@@ -133,7 +126,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 </div>
 
-<!-- ✅ CONTACTOS -->
+<!-- CONTACTOS -->
 <div id="lista" class="section">
 
 <h3>Contactos</h3>
@@ -154,7 +147,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 </div>
 
-<!-- ✅ PLANTILLAS -->
+<!-- PLANTILLAS -->
 <div id="plantillas" class="section">
 
 <h3>Plantillas</h3>
@@ -183,20 +176,15 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GH
 let contactos = [];
 let plantillas = [];
 
-//////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function(){
 
 document.querySelectorAll(".tab").forEach(tab=>{
 tab.addEventListener("click", function(){
-
 document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
 this.classList.add("active");
-
 let id = this.dataset.tab;
-
 document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
 document.getElementById(id).classList.add("active");
-
 });
 });
 
@@ -206,6 +194,7 @@ cargarPlantillas();
 });
 
 //////////////////////////////////////////////////
+
 async function cargarContactos(){
 let res = await fetch(SCRIPT_URL);
 contactos = await res.json();
@@ -218,6 +207,11 @@ let nombre = document.getElementById("nombre").value;
 let telefono = document.getElementById("telefono").value;
 let marca = document.getElementById("marca").value;
 let fecha = document.getElementById("fecha").value;
+
+if(!nombre || !telefono){
+alert("Completa los datos");
+return;
+}
 
 await fetch(SCRIPT_URL,{
 method:"POST",
@@ -243,6 +237,7 @@ cargarContactos();
 }
 
 //////////////////////////////////////////////////
+
 async function cargarPlantillas(){
 let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
 plantillas = await res.json();
@@ -287,12 +282,14 @@ cargarPlantillas();
 }
 
 //////////////////////////////////////////////////
+
 function render(){
 
 let t = document.getElementById("tabla");
 t.innerHTML = "";
 
 contactos.forEach(c=>{
+
 t.innerHTML += `
 <tr>
 <td>${c.nombre}</td>
@@ -303,8 +300,10 @@ t.innerHTML += `
 <button class="send" onclick="enviarAhora('${c.telefono}','${c.nombre}','${c.marca}')">📲</button>
 <button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
 </td>
-</tr>`;
+</tr>
+`;
 });
+
 }
 
 function renderPlantillas(){
@@ -313,32 +312,42 @@ let t = document.getElementById("tablaPlantillas");
 t.innerHTML = "";
 
 plantillas.forEach(p=>{
+
 t.innerHTML += `
 <tr>
 <td>${p.marca}</td>
 <td>${p.plantilla}</td>
-<td>${p.archivo || ''}</td>
+<td>${p.archivo || p.archivoURLmanual || ''}</td>
 <td>
 <button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
 </td>
-</tr>`;
+</tr>
+`;
 });
+
 }
 
 //////////////////////////////////////////////////
+
 async function enviarAhora(telefono,nombre,marca){
 
-let plantilla = plantillas.find(p=>p.marca === marca);
+if (!plantillas.length){
+alert("⚠️ Plantillas no cargadas");
+return;
+}
+
+let plantilla = plantillas.find(p => p.marca === marca);
 
 let mensaje = plantilla
-  ? plantilla.plantilla.replace("{Nombre}", nombre)
-  : "Hola " + nombre;
+? plantilla.plantilla.replace("{Nombre}", nombre)
+: "Hola " + nombre;
 
-let media = plantilla ? plantilla.archivo : "";
+let media = plantilla ? (plantilla.archivo || plantilla.archivoURLmanual) : "";
 
 try{
 
 if(media){
+
 await fetch(`https://api.ultramsg.com/instance174263/messages/image`,{
 method:'POST',
 headers:{'Content-Type':'application/x-www-form-urlencoded'},
@@ -349,7 +358,9 @@ image:media,
 caption:mensaje
 })
 });
+
 }else{
+
 await fetch(`https://api.ultramsg.com/instance174263/messages/chat`,{
 method:'POST',
 headers:{'Content-Type':'application/x-www-form-urlencoded'},
@@ -359,12 +370,13 @@ to:telefono,
 body:mensaje
 })
 });
+
 }
 
 alert("✅ Enviado");
 
 }catch(e){
-alert("Error");
+alert("❌ Error al enviar");
 console.error(e);
 }
 
