@@ -8,12 +8,15 @@
 body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 .container{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:20px;}
 
-.logo{
-  text-align:center;
-  margin-bottom:10px;
+.banner{
+  width:100%;
+  margin-bottom:20px;
 }
-.logo img{
-  max-width:200px;
+.banner img{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+  border-radius:12px;
 }
 
 .tabs{display:flex;gap:10px;margin-bottom:20px;justify-content:center;}
@@ -49,6 +52,7 @@ button{
 .save{background:#7e22ce;}
 .send{background:#16a34a;}
 .delete{background:#dc2626;}
+.sheet{background:#15803d;}
 
 table{width:100%;margin-top:20px;border-collapse:collapse;}
 td,th{padding:10px;border-bottom:1px solid #ddd;}
@@ -59,12 +63,10 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <div class="container">
 
-<!-- ✅ LOGO -->
+<!-- ✅ LOGO BANNER -->
 <div class="banner">
   <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
 </div>
-
-<h2 style="text-align:center;">CRM Happy Moments</h2>
 
 <!-- ✅ TABS -->
 <div class="tabs">
@@ -76,7 +78,13 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <!-- ✅ CONTACTO -->
 <div id="contacto" class="section active">
+
 <h3>Agregar contacto</h3>
+
+<!-- ✅ BOTÓN GOOGLE SHEETS -->
+<a href="https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit" target="_blank">
+  <button class="sheet">📊 Abrir Google Sheets</button>
+</a>
 
 <input id="nombre" placeholder="Nombre">
 <input id="telefono" placeholder="521XXXXXXXXXX">
@@ -91,6 +99,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <input type="date" id="fecha">
 
 <button class="save" onclick="agregarContacto()">Guardar contacto</button>
+
 </div>
 
 <!-- ✅ PLANTILLA -->
