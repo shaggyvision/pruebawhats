@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>CRM Happy Moments</title>
+<title>CRM Happy Moments PRO</title>
 
 <style>
 body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
@@ -31,16 +31,15 @@ input, textarea, select{
 
 button{
   padding:10px;
-  background:#7e22ce;
-  color:white;
   border:none;
   margin-top:10px;
   cursor:pointer;
   border-radius:8px;
+  color:white;
 }
-
-.delete{background:#dc2626;}
+.save{background:#7e22ce;}
 .send{background:#16a34a;}
+.delete{background:#dc2626;}
 
 table{width:100%;margin-top:20px;border-collapse:collapse;}
 td,th{padding:10px;border-bottom:1px solid #ddd;}
@@ -61,74 +60,78 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
   <div class="tab" data-tab="plantillas">Plantillas</div>
 </div>
 
-<!-- ✅ SECCIONES -->
+<!-- ✅ CONTACTO -->
 <div id="contacto" class="section active">
-  <h3>Agregar contacto</h3>
+<h3>Agregar contacto</h3>
 
-  <input id="nombre" placeholder="Nombre">
-  <input id="telefono" placeholder="521XXXXXXXXXX">
+<input id="nombre" placeholder="Nombre">
+<input id="telefono" placeholder="521XXXXXXXXXX">
 
-  <select id="marca">
-    <option>ADMIN</option>
-    <option>ADO</option>
-    <option>SUR</option>
-    <option>TRT</option>
-  </select>
+<select id="marca">
+<option>ADMIN</option>
+<option>ADO</option>
+<option>SUR</option>
+<option>TRT</option>
+</select>
 
-  <input type="date" id="fecha">
+<input type="date" id="fecha">
 
-  <button onclick="agregarContacto()">Guardar</button>
+<button class="save" onclick="agregarContacto()">Guardar contacto</button>
 </div>
 
+<!-- ✅ PLANTILLA -->
 <div id="plantilla" class="section">
-  <h3>Crear plantilla</h3>
+<h3>Crear plantilla</h3>
 
-  <select id="marcaPlantilla">
-    <option>ADMIN</option>
-    <option>ADO</option>
-    <option>SUR</option>
-    <option>TRT</option>
-  </select>
+<select id="marcaPlantilla">
+<option>ADMIN</option>
+<option>ADO</option>
+<option>SUR</option>
+<option>TRT</option>
+</select>
 
-  <textarea id="textoPlantilla">Hola {Nombre}</textarea>
+<textarea id="textoPlantilla">Hola {Nombre}</textarea>
 
-  <input id="urlMedia" placeholder="URL imagen/video">
+<input id="urlMedia" placeholder="URL imagen/video">
 
-  <button onclick="guardarPlantilla()">Guardar plantilla</button>
+<button class="save" onclick="guardarPlantilla()">Guardar plantilla</button>
 </div>
 
+<!-- ✅ CONTACTOS -->
 <div id="lista" class="section">
-  <h3>Contactos</h3>
+<h3>Contactos</h3>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Teléfono</th>
-        <th>Área</th>
-        <th>Fecha</th>
-        <th>Acción</th>
-      </tr>
-    </thead>
+<table>
+<thead>
+<tr>
+<th>Nombre</th>
+<th>Teléfono</th>
+<th>Área</th>
+<th>Fecha</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody id="tabla"></tbody>
+</table>
 
-    <tbody id="tabla"></tbody>
-  </table>
 </div>
 
+<!-- ✅ PLANTILLAS -->
 <div id="plantillas" class="section">
-  <h3>Plantillas</h3>
+<h3>Plantillas</h3>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Área</th>
-        <th>Mensaje</th>
-        <th>Media</th>
-      </tr>
-    </thead>
+<table>
+<thead>
+<tr>
+<th>Área</th>
+<th>Mensaje</th>
+<th>Media</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody id="tablaPlantillas"></tbody>
+</table>
 
-    <tbody id="tablaPlantillas"></tbody>
-  </table>
 </div>
 
 </div>
@@ -136,6 +139,8 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <script>
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec";
+const instance = "instance174263";
+const token = "a7hqz1tofhwq65b4";
 
 let contactos = [];
 let plantillas = [];
@@ -232,8 +237,24 @@ async function guardarPlantilla(){
   cargarPlantillas();
 }
 
+async function borrarPlantilla(marca){
+
+  if(!confirm("¿Eliminar plantilla de " + marca + "?")) return;
+
+  await fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({
+      tipoOperacion:"borrarPlantilla",
+      marca:marca
+    })
+  });
+
+  cargarPlantillas();
+}
+
 //////////////////////////////////////////////////
-// ✅ RENDER CONTACTOS
+// ✅ TABLAS
 //////////////////////////////////////////////////
 function render(){
 
@@ -241,7 +262,6 @@ function render(){
   t.innerHTML = "";
 
   contactos.forEach(c=>{
-
     t.innerHTML += `
     <tr>
       <td>${c.nombre}</td>
@@ -257,9 +277,6 @@ function render(){
   });
 }
 
-//////////////////////////////////////////////////
-// ✅ RENDER PLANTILLAS
-//////////////////////////////////////////////////
 function renderPlantillas(){
 
   let t = document.getElementById("tablaPlantillas");
@@ -271,13 +288,16 @@ function renderPlantillas(){
       <td>${p.marca}</td>
       <td>${p.plantilla}</td>
       <td>${p.archivo || ''}</td>
+      <td>
+        <button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
+      </td>
     </tr>
     `;
   });
 }
 
 //////////////////////////////////////////////////
-// ✅ ENVIAR WHATSAPP
+// ✅ WHATSAPP
 //////////////////////////////////////////////////
 async function enviarAhora(telefono,nombre,marca){
 
@@ -292,22 +312,22 @@ async function enviarAhora(telefono,nombre,marca){
   try{
 
     if(media){
-      await fetch(`https://api.ultramsg.com/instance174263/messages/image`,{
+      await fetch(`https://api.ultramsg.com/${instance}/messages/image`,{
         method:'POST',
         headers:{'Content-Type':'application/x-www-form-urlencoded'},
         body:new URLSearchParams({
-          token:'a7hqz1tofhwq65b4',
+          token:token,
           to:telefono,
           image:media,
           caption:mensaje
         })
       });
     }else{
-      await fetch(`https://api.ultramsg.com/instance174263/messages/chat`,{
+      await fetch(`https://api.ultramsg.com/${instance}/messages/chat`,{
         method:'POST',
         headers:{'Content-Type':'application/x-www-form-urlencoded'},
         body:new URLSearchParams({
-          token:'a7hqz1tofhwq65b4',
+          token:token,
           to:telefono,
           body:mensaje
         })
@@ -318,7 +338,7 @@ async function enviarAhora(telefono,nombre,marca){
 
   }catch(e){
     alert("Error enviando");
-    console.log(e);
+    console.error(e);
   }
 }
 
