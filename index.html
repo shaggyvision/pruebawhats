@@ -118,7 +118,7 @@ onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zx
 
 <textarea id="textoPlantilla">Hola {Nombre}</textarea>
 
-<input id="urlMedia" placeholder="URL imagen/video">
+<input id="urlMedia" placeholder="URL imagen/video (.jpg, .png, etc)">
 
 <button class="save" style="margin-top:10px;" onclick="guardarPlantilla()">
 💾 Guardar plantilla
@@ -329,6 +329,10 @@ t.innerHTML += `
 
 //////////////////////////////////////////////////
 
+function esImagenValida(url){
+return /\.(jpeg|jpg|png|webp)$/i.test(url);
+}
+
 function enviarAhora(telefono,nombre,marca){
 
 let plantilla = plantillas.find(p => p.marca === marca);
@@ -339,7 +343,7 @@ let mensaje = plantilla
 
 let media = plantilla ? (plantilla.archivo || plantilla.archivoURLmanual) : "";
 
-if(media){
+if(media && esImagenValida(media)){
 
 let url = `https://api.ultramsg.com/instance174263/messages/image?token=a7hqz1tofhwq65b4&to=${telefono}&image=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`;
 window.open(url, "_blank");
