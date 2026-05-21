@@ -60,6 +60,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <!-- ✅ AGREGAR CONTACTO -->
 <div id="contacto" class="section active">
+
 <h3>Agregar contacto</h3>
 
 <input id="nombre" placeholder="Nombre">
@@ -74,11 +75,13 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <input type="date" id="fecha">
 
-<button onclick="agregarContacto()">Guardar</button>
+<button onclick="agregarContacto()">Guardar contacto</button>
+
 </div>
 
 <!-- ✅ PLANTILLA -->
 <div id="plantilla" class="section">
+
 <h3>Crear plantilla</h3>
 
 <select id="marcaPlantilla">
@@ -90,27 +93,52 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <textarea id="textoPlantilla">Hola {Nombre}</textarea>
 
-<input id="urlMedia" placeholder="URL imagen o video">
+<input id="urlMedia" placeholder="URL imagen/video (Drive recomendado)">
 
 <button onclick="guardarPlantilla()">Guardar plantilla</button>
+
 </div>
 
 <!-- ✅ CONTACTOS -->
 <div id="lista" class="section">
+
 <h3>Contactos</h3>
+
 <table>
-<tr><th>Nombre</th><th>Teléfono</th><th>Área</th><th>Fecha</th></tr>
+<thead>
+<tr>
+<th>Nombre</th>
+<th>Teléfono</th>
+<th>Área</th>
+<th>Fecha</th>
+<th>Acción</th>
+</tr>
+</thead>
+
 <tbody id="tabla"></tbody>
+
 </table>
+
 </div>
 
 <!-- ✅ PLANTILLAS -->
 <div id="plantillasLista" class="section">
+
 <h3>Plantillas</h3>
+
 <table>
-<tr><th>Área</th><th>Mensaje</th><th>Media</th></tr>
+<thead>
+<tr>
+<th>Área</th>
+<th>Mensaje</th>
+<th>Media</th>
+</tr>
+</thead>
+
 <tbody id="tablaPlantillas"></tbody>
+
 </table>
+
 </div>
 
 </div>
@@ -119,11 +147,14 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
 
+const instance='instance174263';
+const token='a7hqz1tofhwq65b4';
+
 let contactos=[];
 let plantillas=[];
 
 //////////////////////////////////////////////////
-// ✅ TABS
+// ✅ INICIO
 //////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function(){
 
@@ -170,6 +201,7 @@ headers:{'Content-Type':'text/plain'},
 body:JSON.stringify({nombre,telefono,marca,fecha})
 });
 
+alert("Guardado ✅");
 cargarContactos();
 }
 
@@ -199,13 +231,15 @@ archivoURLmanual:url
 })
 });
 
+alert("Plantilla guardada ✅");
 cargarPlantillas();
 }
 
 //////////////////////////////////////////////////
-// ✅ MOSTRAR TABLAS
+// ✅ RENDER CONTACTOS + BOTON ENVIAR
 //////////////////////////////////////////////////
 function render(){
+
 let t=document.getElementById('tabla');
 t.innerHTML='';
 
@@ -217,25 +251,85 @@ t.innerHTML+=`
 <td>${c.telefono}</td>
 <td>${c.marca}</td>
 <td>${c.fecha}</td>
+<td>
+<button onclick="enviarAhora('${c.telefono}','${c.nombre}','${c.marca}')">
+📲 Enviar
+</button>
+</td>
 </tr>
 `;
 
 });
+
 }
 
+//////////////////////////////////////////////////
+// ✅ RENDER PLANTILLAS
+//////////////////////////////////////////////////
 function renderPlantillas(){
+
 let t=document.getElementById('tablaPlantillas');
 t.innerHTML='';
 
 plantillas.forEach(p=>{
+
 t.innerHTML+=`
 <tr>
 <td>${p.marca}</td>
 <td>${p.plantilla}</td>
-<td>${p.archivo}</td>
+<td>${p.archivo ? '✅' : '—'}</td>
 </tr>
 `;
+
 });
+
+}
+
+//////////////////////////////////////////////////
+// ✅ ENVIAR WHATSAPP MANUAL
+//////////////////////////////////////////////////
+async function enviarAhora(telefono,nombre,marca){
+
+let plantilla = plantillas.find(p => p.marca === marca);
+
+let mensaje = plantilla 
+  ? plantilla.plantilla.replace('{Nombre}', nombre)
+  : "Hola " + nombre;
+
+let media = plantilla ? plantilla.archivo : '';
+
+try{
+
+if(media){
+await fetch(`https://api.ultramsg.com/${instance}/messages/image`,{
+method:'POST',
+headers:{'Content-Type':'application/x-www-form-urlencoded'},
+body:new URLSearchParams({
+token:token,
+to:telefono,
+image:media,
+caption:mensaje
+})
+});
+}else{
+await fetch(`https://api.ultramsg.com/${instance}/messages/chat`,{
+method:'POST',
+headers:{'Content-Type':'application/x-www-form-urlencoded'},
+body:new URLSearchParams({
+token:token,
+to:telefono,
+body:mensaje
+})
+});
+}
+
+alert("Mensaje enviado ✅");
+
+}catch(e){
+alert("Error enviando");
+console.error(e);
+}
+
 }
 
 </script>
