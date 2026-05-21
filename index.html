@@ -20,7 +20,7 @@ body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 .tab{padding:10px 15px;background:#ddd;border-radius:8px;cursor:pointer;}
 .tab.active{background:#7e22ce;color:white;}
 
-/* Sections */
+/* Secciones */
 .section{display:none;}
 .section.active{display:block;}
 
@@ -30,16 +30,13 @@ input, textarea, select{
   margin-top:10px;
 }
 
-/* Buttons */
+/* Botones */
 button{
   padding:10px;
   border:none;
   border-radius:8px;
   color:white;
   cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:6px;
 }
 .save{background:#7e22ce;}
 .send{background:#16a34a;}
@@ -49,7 +46,7 @@ button{
 table{width:100%;margin-top:15px;border-collapse:collapse;}
 td,th{padding:10px;border-bottom:1px solid #ddd;}
 
-/* ✅ GALERIA */
+/* GALERIA */
 #contenedorGaleria{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
@@ -60,11 +57,6 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 #contenedorGaleria video{
   width:100%;
   border-radius:10px;
-  transition:0.3s;
-}
-#contenedorGaleria img:hover,
-#contenedorGaleria video:hover{
-  transform:scale(1.05);
 }
 </style>
 </head>
@@ -73,8 +65,10 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <div class="container">
 
-<!-- ✅ BANNER -->
-https://shaggyvision.github.io/pruebawhats/logo.png
+<!-- ✅ LOGO (ARREGLADO) -->
+<div class="banner">
+  <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
+</div>
 
 <!-- ✅ TABS -->
 <div class="tabs">
@@ -87,7 +81,6 @@ https://shaggyvision.github.io/pruebawhats/logo.png
 
 <!-- ✅ CONTACTO -->
 <div id="contacto" class="section active">
-
 <h3>Agregar contacto</h3>
 
 <input id="nombre" placeholder="Nombre">
@@ -103,14 +96,13 @@ https://shaggyvision.github.io/pruebawhats/logo.png
 <input type="date" id="fecha">
 
 <div style="display:flex;justify-content:space-between;margin-top:10px;">
-  <button class="save" onclick="agregarContacto()">✅ Guardar</button>
+  <button class="save" onclick="agregarContacto()">Guardar</button>
 
   <button class="sheet"
     onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit')">
-    📊 Sheets
+    Google Sheets
   </button>
 </div>
-
 </div>
 
 <!-- ✅ PLANTILLA -->
@@ -127,7 +119,7 @@ https://shaggyvision.github.io/pruebawhats/logo.png
 <textarea id="textoPlantilla">Hola {Nombre}</textarea>
 <input id="urlMedia" placeholder="URL imagen/video">
 
-<button class="save" onclick="guardarPlantilla()">💾 Guardar</button>
+<button class="save" onclick="guardarPlantilla()">Guardar</button>
 </div>
 
 <!-- ✅ CONTACTOS -->
@@ -144,6 +136,7 @@ https://shaggyvision.github.io/pruebawhats/logo.png
 <th>Acción</th>
 </tr>
 </thead>
+
 <tbody id="tabla"></tbody>
 </table>
 </div>
@@ -161,11 +154,12 @@ https://shaggyvision.github.io/pruebawhats/logo.png
 <th>Acción</th>
 </tr>
 </thead>
+
 <tbody id="tablaPlantillas"></tbody>
 </table>
 </div>
 
-<!-- ✅ GALERIA -->
+<!-- ✅ GALERIA (ARREGLADA) -->
 <div id="galeria" class="section">
 <h3>Galería</h3>
 <div id="contenedorGaleria"></div>
@@ -184,200 +178,150 @@ let galeria = [];
 //////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function(){
 
-document.querySelectorAll(".tab").forEach(tab=>{
-tab.addEventListener("click", function(){
+  document.querySelectorAll(".tab").forEach(tab=>{
+    tab.addEventListener("click", function(){
 
-document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-this.classList.add("active");
+      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+      this.classList.add("active");
 
-let id = this.dataset.tab;
+      let id = this.dataset.tab;
 
-document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-document.getElementById(id).classList.add("active");
+      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
 
-});
-});
+    });
+  });
 
-cargarContactos();
-cargarPlantillas();
-cargarGaleria();
+  cargarContactos();
+  cargarPlantillas();
+  cargarGaleria();
 
 });
 
 //////////////////////////////////////////////////
 async function cargarContactos(){
-let r = await fetch(SCRIPT_URL);
-contactos = await r.json();
-render();
+  let r = await fetch(SCRIPT_URL);
+  contactos = await r.json();
+  render();
 }
 
 async function agregarContacto(){
 
-let nombre = nombre.value;
-let telefono = telefono.value;
-let marca = marca.value;
-let fecha = fecha.value;
+  let nombre = document.getElementById("nombre").value;
+  let telefono = document.getElementById("telefono").value;
+  let marca = document.getElementById("marca").value;
+  let fecha = document.getElementById("fecha").value;
 
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({nombre,telefono,marca,fecha})
-});
+  await fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({nombre,telefono,marca,fecha})
+  });
 
-alert("✅ Guardado");
-cargarContactos();
+  alert("Guardado");
+  cargarContactos();
 }
 
 async function borrarContacto(telefono){
-if(!confirm("Eliminar?")) return;
-
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({accion:'borrar',telefono})
-});
-
-cargarContactos();
+  await fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({accion:'borrar',telefono})
+  });
+  cargarContactos();
 }
 
 //////////////////////////////////////////////////
 async function cargarPlantillas(){
-let r = await fetch(SCRIPT_URL+"?tipo=plantillas");
-plantillas = await r.json();
-renderPlantillas();
+  let r = await fetch(SCRIPT_URL+"?tipo=plantillas");
+  plantillas = await r.json();
+  renderPlantillas();
 }
 
 async function guardarPlantilla(){
-let marca = marcaPlantilla.value;
-let plantilla = textoPlantilla.value;
-let archivo = urlMedia.value;
+  let marca = document.getElementById("marcaPlantilla").value;
+  let plantilla = document.getElementById("textoPlantilla").value;
+  let archivo = document.getElementById("urlMedia").value;
 
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-tipoOperacion:"guardarPlantilla",
-marca,plantilla,archivoURLmanual:archivo
-})
-});
+  await fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({
+      tipoOperacion:"guardarPlantilla",
+      marca,plantilla,archivoURLmanual:archivo
+    })
+  });
 
-alert("✅ Guardada");
-cargarPlantillas();
+  cargarPlantillas();
 }
 
 async function borrarPlantilla(marca){
-
-if(!confirm("Eliminar plantilla?")) return;
-
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-tipoOperacion:"borrarPlantilla",
-marca
-})
-});
-
-cargarPlantillas();
+  await fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({
+      tipoOperacion:"borrarPlantilla",
+      marca
+    })
+  });
+  cargarPlantillas();
 }
 
 //////////////////////////////////////////////////
 function render(){
-
-tabla.innerHTML="";
-
-contactos.forEach(c=>{
-tabla.innerHTML+=`
-<tr>
-<td>${c.nombre}</td>
-<td>${c.telefono}</td>
-<td>${c.marca}</td>
-<td>${c.fecha}</td>
-<td>
-<button class="send" onclick="enviarAhora('${c.telefono}','${c.nombre}','${c.marca}')">📲</button>
-<button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
-</td>
-</tr>`;
-});
+  tabla.innerHTML="";
+  contactos.forEach(c=>{
+    tabla.innerHTML+=`
+    <tr>
+      <td>${c.nombre}</td>
+      <td>${c.telefono}</td>
+      <td>${c.marca}</td>
+      <td>${c.fecha}</td>
+      <td>
+        <button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
+      </td>
+    </tr>`;
+  });
 }
 
 function renderPlantillas(){
-
-tablaPlantillas.innerHTML="";
-
-plantillas.forEach(p=>{
-tablaPlantillas.innerHTML+=`
-<tr>
-<td>${p.marca}</td>
-<td>${p.plantilla}</td>
-<td>${p.archivo||''}</td>
-<td>
-<button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
-</td>
-</tr>`;
-});
+  tablaPlantillas.innerHTML="";
+  plantillas.forEach(p=>{
+    tablaPlantillas.innerHTML+=`
+    <tr>
+      <td>${p.marca}</td>
+      <td>${p.plantilla}</td>
+      <td>${p.archivo}</td>
+      <td>
+        <button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
+      </td>
+    </tr>`;
+  });
 }
 
 //////////////////////////////////////////////////
-// ✅ GALERIA
+// ✅ GALERIA FUNCIONANDO
 //////////////////////////////////////////////////
 async function cargarGaleria(){
-
-let r = await fetch(SCRIPT_URL+"?tipo=galeria");
-galeria = await r.json();
-
-renderGaleria();
+  let r = await fetch(SCRIPT_URL+"?tipo=galeria");
+  galeria = await r.json();
+  renderGaleria();
 }
 
 function renderGaleria(){
 
-let cont = document.getElementById("contenedorGaleria");
-cont.innerHTML="";
+  let cont = document.getElementById("contenedorGaleria");
+  cont.innerHTML="";
 
-galeria.forEach(item=>{
+  galeria.forEach(item => {
 
-if(item.tipo.includes("image")){
-cont.innerHTML+=`${item.url}`;
-}
-else if(item.tipo.includes("video")){
-cont.innerHTML+=`${item.url}`;
-}
+    if(item.tipo.includes("image")){
+      cont.innerHTML += `
+        <img src="${item.urlelse if(item.tipo.includes("video")){
+      cont.innerHTML += `
+        <video src="${item.url}" controls}
 
-});
-}
-
-//////////////////////////////////////////////////
-async function enviarAhora(t,n,m){
-
-let plantilla = plantillas.find(p=>p.marca===m);
-let msg = plantilla ? plantilla.plantilla.replace('{Nombre}',n) : "Hola";
-
-let media = plantilla ? plantilla.archivo : "";
-
-if(media){
-await fetch(`https://api.ultramsg.com/instance174263/messages/image`,{
-method:'POST',
-headers:{'Content-Type':'application/x-www-form-urlencoded'},
-body:new URLSearchParams({
-token:'a7hqz1tofhwq65b4',
-to:t,
-image:media,
-caption:msg
-})
-});
-}else{
-await fetch(`https://api.ultramsg.com/instance174263/messages/chat`,{
-method:'POST',
-headers:{'Content-Type':'application/x-www-form-urlencoded'},
-body:new URLSearchParams({
-token:'a7hqz1tofhwq65b4',
-to:t,
-body:msg
-})
-});
-}
-
-alert("✅ Enviado");
+  });
 }
 
 </script>
