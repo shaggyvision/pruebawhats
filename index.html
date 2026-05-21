@@ -22,6 +22,25 @@ body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 
 .section{display:none;}
 .section.active{display:block;}
+
+input, textarea, select{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+}
+
+button{
+  padding:10px;
+  background:#7e22ce;
+  color:white;
+  border:none;
+  margin-top:10px;
+  cursor:pointer;
+  border-radius:8px;
+}
+
+table{width:100%;margin-top:20px;border-collapse:collapse;}
+td,th{padding:10px;border-bottom:1px solid #ddd;}
 </style>
 </head>
 
@@ -29,8 +48,9 @@ body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 
 <div class="container">
 
-<h2>CRM con Pestañas</h2>
+<h2>CRM Happy Moments</h2>
 
+<!-- ✅ TABS -->
 <div class="tabs">
   <div class="tab active" data-tab="contacto">Contacto</div>
   <div class="tab" data-tab="plantilla">Plantilla</div>
@@ -38,58 +58,185 @@ body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
   <div class="tab" data-tab="plantillasLista">Plantillas</div>
 </div>
 
-<!-- SECCIONES -->
+<!-- ✅ AGREGAR CONTACTO -->
 <div id="contacto" class="section active">
-  <h3>Agregar contacto</h3>
+<h3>Agregar contacto</h3>
+
+<input id="nombre" placeholder="Nombre">
+<input id="telefono" placeholder="521XXXXXXXXXX">
+
+<select id="marca">
+<option>ADMIN</option>
+<option>ADO</option>
+<option>SUR</option>
+<option>TRT</option>
+</select>
+
+<input type="date" id="fecha">
+
+<button onclick="agregarContacto()">Guardar</button>
 </div>
 
+<!-- ✅ PLANTILLA -->
 <div id="plantilla" class="section">
-  <h3>Crear plantilla</h3>
+<h3>Crear plantilla</h3>
+
+<select id="marcaPlantilla">
+<option>ADMIN</option>
+<option>ADO</option>
+<option>SUR</option>
+<option>TRT</option>
+</select>
+
+<textarea id="textoPlantilla">Hola {Nombre}</textarea>
+
+<input id="urlMedia" placeholder="URL imagen o video">
+
+<button onclick="guardarPlantilla()">Guardar plantilla</button>
 </div>
 
+<!-- ✅ CONTACTOS -->
 <div id="lista" class="section">
-  <h3>Lista contactos</h3>
+<h3>Contactos</h3>
+<table>
+<tr><th>Nombre</th><th>Teléfono</th><th>Área</th><th>Fecha</th></tr>
+<tbody id="tabla"></tbody>
+</table>
 </div>
 
+<!-- ✅ PLANTILLAS -->
 <div id="plantillasLista" class="section">
-  <h3>Lista plantillas</h3>
+<h3>Plantillas</h3>
+<table>
+<tr><th>Área</th><th>Mensaje</th><th>Media</th></tr>
+<tbody id="tablaPlantillas"></tbody>
+</table>
 </div>
 
 </div>
 
 <script>
 
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
+
+let contactos=[];
+let plantillas=[];
+
 //////////////////////////////////////////////////
-// ✅ ESPERAR QUE CARGUE TODO EL HTML
+// ✅ TABS
 //////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function(){
 
-  const tabs = document.querySelectorAll(".tab");
+document.querySelectorAll('.tab').forEach(tab => {
 
-  tabs.forEach(function(tab){
+tab.addEventListener('click', function(){
 
-    tab.addEventListener("click", function(){
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+tab.classList.add('active');
 
-      // Quitar activo a todos
-      tabs.forEach(t => t.classList.remove("active"));
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
 
-      // Activar actual
-      tab.classList.add("active");
-
-      // Ocultar todas las secciones
-      document.querySelectorAll(".section").forEach(sec=>{
-        sec.classList.remove("active");
-      });
-
-      // Mostrar la seleccionada
-      const id = tab.getAttribute("data-tab");
-      document.getElementById(id).classList.add("active");
-
-    });
-
-  });
+let id=tab.getAttribute('data-tab');
+document.getElementById(id).classList.add('active');
 
 });
+
+});
+
+cargarContactos();
+cargarPlantillas();
+
+});
+
+//////////////////////////////////////////////////
+// ✅ CONTACTOS
+//////////////////////////////////////////////////
+async function cargarContactos(){
+let res=await fetch(SCRIPT_URL);
+contactos=await res.json();
+render();
+}
+
+async function agregarContacto(){
+
+let nombre=document.getElementById('nombre').value;
+let telefono=document.getElementById('telefono').value;
+let marca=document.getElementById('marca').value;
+let fecha=document.getElementById('fecha').value;
+
+await fetch(SCRIPT_URL,{
+method:'POST',
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({nombre,telefono,marca,fecha})
+});
+
+cargarContactos();
+}
+
+//////////////////////////////////////////////////
+// ✅ PLANTILLAS
+//////////////////////////////////////////////////
+async function cargarPlantillas(){
+let res=await fetch(SCRIPT_URL+'?tipo=plantillas');
+plantillas=await res.json();
+renderPlantillas();
+}
+
+async function guardarPlantilla(){
+
+let marca=document.getElementById('marcaPlantilla').value;
+let plantilla=document.getElementById('textoPlantilla').value;
+let url=document.getElementById('urlMedia').value;
+
+await fetch(SCRIPT_URL,{
+method:'POST',
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({
+tipoOperacion:'guardarPlantilla',
+marca:marca,
+plantilla:plantilla,
+archivoURLmanual:url
+})
+});
+
+cargarPlantillas();
+}
+
+//////////////////////////////////////////////////
+// ✅ MOSTRAR TABLAS
+//////////////////////////////////////////////////
+function render(){
+let t=document.getElementById('tabla');
+t.innerHTML='';
+
+contactos.forEach(c=>{
+
+t.innerHTML+=`
+<tr>
+<td>${c.nombre}</td>
+<td>${c.telefono}</td>
+<td>${c.marca}</td>
+<td>${c.fecha}</td>
+</tr>
+`;
+
+});
+}
+
+function renderPlantillas(){
+let t=document.getElementById('tablaPlantillas');
+t.innerHTML='';
+
+plantillas.forEach(p=>{
+t.innerHTML+=`
+<tr>
+<td>${p.marca}</td>
+<td>${p.plantilla}</td>
+<td>${p.archivo}</td>
+</tr>
+`;
+});
+}
 
 </script>
 
