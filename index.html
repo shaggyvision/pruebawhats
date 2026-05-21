@@ -48,7 +48,7 @@ button{
   color:white;
   display:flex;
   align-items:center;
-  gap:5px;
+  gap:6px;
 }
 
 .save{background:#7e22ce;}
@@ -65,7 +65,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <div class="container">
 
-<!-- ✅ BANNER CORRIGIDO -->
+<!-- ✅ BANNER -->
 <div class="banner">
   <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
 </div>
@@ -95,18 +95,17 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <input type="date" id="fecha">
 
-<!-- ✅ BOTONES ALINEADOS -->
-<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+<!-- ✅ BOTONES EN LA MISMA LÍNEA -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
 
   <button class="save" onclick="agregarContacto()">
-    Guardar contacto
+    ✅ Guardar
   </button>
 
-  <a href="https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit" target="_blank">
-    <button class="sheet">
-      📊 BD-CONTACTOS
-    </button>
-  </a>
+  <button class="sheet"
+    onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit')">
+    📊 BD-CONTACTOS
+  </button>
 
 </div>
 
@@ -129,7 +128,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <input id="urlMedia" placeholder="URL imagen/video">
 
 <button class="save" style="margin-top:10px;" onclick="guardarPlantilla()">
-Guardar plantilla
+💾 Guardar plantilla
 </button>
 
 </div>
@@ -226,7 +225,7 @@ headers:{'Content-Type':'text/plain'},
 body:JSON.stringify({nombre,telefono,marca,fecha})
 });
 
-alert("Guardado ✅");
+alert("✅ Guardado");
 cargarContactos();
 }
 
@@ -267,7 +266,7 @@ archivoURLmanual:archivo
 })
 });
 
-alert("Plantilla guardada ✅");
+alert("✅ Plantilla guardada");
 cargarPlantillas();
 }
 
@@ -362,10 +361,10 @@ body:mensaje
 });
 }
 
-alert("Enviado ✅");
+alert("✅ Enviado");
 
 }catch(e){
-alert("Error enviando");
+alert("Error");
 console.error(e);
 }
 
@@ -375,3 +374,4 @@ console.error(e);
 
 </body>
 </html>
+``
