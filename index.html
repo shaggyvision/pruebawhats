@@ -95,6 +95,13 @@ Guardar + Enviar WhatsApp
 🎉 Hola {Nombre}, hoy celebramos algo especial 🎉
 </textarea>
 
+<!-- ✅ NUEVO: SUBIR ARCHIVO -->
+<input type="file" id="archivo" accept="image/*,video/*">
+
+<button onclick="guardarPlantilla()">
+Guardar plantilla con archivo
+</button>
+
 <h2>Contactos</h2>
 
 <table>
@@ -116,13 +123,13 @@ Guardar + Enviar WhatsApp
 
 <script>
 
-// ✅ TU URL YA PUESTA
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
 
 const instance = 'instance174263';
 const token = 'a7hqz1tofhwq65b4';
 
 let contactos = [];
+let archivoGlobal = '';
 
 //////////////////////////////////////////////////
 function mostrarEstado(texto,tipo){
@@ -137,34 +144,40 @@ function mostrarEstado(texto,tipo){
 }
 
 //////////////////////////////////////////////////
-// ✅ CARGAR CONTACTOS (CORREGIDO)
+// ✅ CARGAR CONTACTOS
 //////////////////////////////////////////////////
 async function cargarContactos(){
-
   try{
     const response = await fetch(SCRIPT_URL);
-
-    if(!response.ok){
-      throw new Error('No conecta con Apps Script');
-    }
-
     const data = await response.json();
 
-    if(data.error){
-      throw new Error(data.error);
-    }
-
     if(!Array.isArray(data)){
-      console.log("Respuesta rara:", data);
-      throw new Error('Formato inválido');
+      throw new Error('Error en datos');
     }
 
     contactos = data;
     render();
 
   }catch(error){
-    console.error("ERROR REAL:", error);
-    mostrarEstado('Error: ' + error.message,'error');
+    console.error(error);
+    mostrarEstado('Error cargando','error');
+  }
+}
+
+//////////////////////////////////////////////////
+// ✅ CARGAR PLANTILLAS (MULTIMEDIA)
+//////////////////////////////////////////////////
+async function cargarPlantillas(){
+  try{
+    const res = await fetch(SCRIPT_URL + '?tipo=plantillas');
+    const data = await res.json();
+
+    if(data.length > 0){
+      archivoGlobal = data[0].archivo;
+    }
+
+  }catch(e){
+    console.error(e);
   }
 }
 
@@ -180,7 +193,7 @@ async function agregarContacto(){
   const fecha = document.getElementById('fecha').value;
 
   if(!nombre || !telefono){
-    mostrarEstado('Falta nombre o teléfono','error');
+    mostrarEstado('Faltan datos','error');
     return;
   }
 
@@ -196,7 +209,7 @@ async function agregarContacto(){
       })
     });
 
-    await enviarWhatsApp(telefono, mensaje);
+    await enviarWhatsApp(telefono, mensaje, archivoGlobal);
 
     mostrarEstado('Guardado ✅','success');
 
@@ -212,43 +225,100 @@ async function agregarContacto(){
 //////////////////////////////////////////////////
 async function borrarContacto(telefono){
 
-  if(!confirm("¿Eliminar contacto?")){
-    return;
-  }
+  if(!confirm("¿Eliminar contacto?")) return;
 
-  try{
+  await fetch(SCRIPT_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({
+      accion:'borrar',
+      telefono:telefono
+    })
+  });
 
-    await fetch(SCRIPT_URL,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({
-        accion:'borrar',
-        telefono:telefono
-      })
-    });
-
-    mostrarEstado('Eliminado ✅','success');
-    setTimeout(cargarContactos,1000);
-
-  }catch(error){
-    mostrarEstado('Error eliminando','error');
-  }
+  mostrarEstado('Eliminado ✅','success');
+  setTimeout(cargarContactos,1000);
 }
 
 //////////////////////////////////////////////////
-// ✅ WHATSAPP
+// ✅ GUARDAR PLANTILLA CON ARCHIVO
 //////////////////////////////////////////////////
-async function enviarWhatsApp(telefono, mensaje){
+async function guardarPlantilla(){
+
+  const plantilla = document.getElementById('plantilla_ADMIN').value;
+  const archivoInput = document.getElementById('archivo');
+
+  let archivoBase64 = '';
+  let nombreArchivo = '';
+
+  if(archivoInput.files.length > 0){
+
+    const file = archivoInput.files[0];
+    nombreArchivo = file.name;
+    archivoBase64 = await convertirBase64(file);
+  }
+
+  await fetch(SCRIPT_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({
+      tipoOperacion:'guardarPlantilla',
+      marca:'ADMIN',
+      plantilla:plantilla,
+      archivoBase64:archivoBase64,
+      nombreArchivo:nombreArchivo
+    })
+  });
+
+  mostrarEstado('Plantilla guardada ✅','success');
+  cargarPlantillas();
+}
+
+//////////////////////////////////////////////////
+// ✅ BASE64
+//////////////////////////////////////////////////
+function convertirBase64(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+}
+
+//////////////////////////////////////////////////
+// ✅ WHATSAPP (CON MULTIMEDIA)
+//////////////////////////////////////////////////
+async function enviarWhatsApp(telefono, mensaje, mediaURL){
+
   try{
-    await fetch(`https://api.ultramsg.com/${instance}/messages/chat`,{
-      method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:new URLSearchParams({
-        token:token,
-        to:telefono,
-        body:mensaje
-      })
-    });
+
+    if(mediaURL){
+
+      await fetch(`https://api.ultramsg.com/${instance}/messages/image`,{
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:new URLSearchParams({
+          token:token,
+          to:telefono,
+          image:mediaURL,
+          caption:mensaje
+        })
+      });
+
+    }else{
+
+      await fetch(`https://api.ultramsg.com/${instance}/messages/chat`,{
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:new URLSearchParams({
+          token:token,
+          to:telefono,
+          body:mensaje
+        })
+      });
+    }
+
   }catch(error){
     console.error(error);
   }
@@ -266,8 +336,11 @@ function generarMensaje(nombre){
 // ✅ ENVIAR AHORA
 //////////////////////////////////////////////////
 async function enviarAhora(telefono,nombre){
+
   const mensaje = generarMensaje(nombre);
-  await enviarWhatsApp(telefono, mensaje);
+
+  await enviarWhatsApp(telefono, mensaje, archivoGlobal);
+
   mostrarEstado('Enviado ✅','success');
 }
 
@@ -285,14 +358,13 @@ function render(){
   }
 
   contactos.forEach(c=>{
-
     tabla.innerHTML += `
       <tr>
-        <td>${c.nombre || ''}</td>
-        <td>${c.telefono || ''}</td>
-        <td>${c.marca || ''}</td>
-        <td>${c.tipo || ''}</td>
-        <td>${c.fecha || ''}</td>
+        <td>${c.nombre}</td>
+        <td>${c.telefono}</td>
+        <td>${c.marca}</td>
+        <td>${c.tipo}</td>
+        <td>${c.fecha}</td>
 
         <td>
           <div class="table-btn">
@@ -310,6 +382,7 @@ function render(){
 //////////////////////////////////////////////////
 window.onload = function(){
   cargarContactos();
+  cargarPlantillas();
   setInterval(cargarContactos,30000);
 };
 
