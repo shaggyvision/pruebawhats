@@ -2,15 +2,23 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>CRM Happy Moments PRO</title>
+<title>CRM Happy Moments</title>
 
 <style>
 body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 .container{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:20px;}
 
-.tabs{display:flex;gap:10px;margin-bottom:20px;}
+.logo{
+  text-align:center;
+  margin-bottom:10px;
+}
+.logo img{
+  max-width:200px;
+}
+
+.tabs{display:flex;gap:10px;margin-bottom:20px;justify-content:center;}
 .tab{
-  padding:10px;
+  padding:10px 15px;
   background:#ddd;
   cursor:pointer;
   border-radius:8px;
@@ -37,6 +45,7 @@ button{
   border-radius:8px;
   color:white;
 }
+
 .save{background:#7e22ce;}
 .send{background:#16a34a;}
 .delete{background:#dc2626;}
@@ -50,7 +59,12 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <div class="container">
 
-<h2>CRM Happy Moments</h2>
+<!-- ✅ LOGO -->
+<div class="logo">
+  <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
+</div>
+
+<h2 style="text-align:center;">CRM Happy Moments</h2>
 
 <!-- ✅ TABS -->
 <div class="tabs">
@@ -81,6 +95,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <!-- ✅ PLANTILLA -->
 <div id="plantilla" class="section">
+
 <h3>Crear plantilla</h3>
 
 <select id="marcaPlantilla">
@@ -95,10 +110,12 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <input id="urlMedia" placeholder="URL imagen/video">
 
 <button class="save" onclick="guardarPlantilla()">Guardar plantilla</button>
+
 </div>
 
 <!-- ✅ CONTACTOS -->
 <div id="lista" class="section">
+
 <h3>Contactos</h3>
 
 <table>
@@ -111,6 +128,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <th>Acción</th>
 </tr>
 </thead>
+
 <tbody id="tabla"></tbody>
 </table>
 
@@ -118,6 +136,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <!-- ✅ PLANTILLAS -->
 <div id="plantillas" class="section">
+
 <h3>Plantillas</h3>
 
 <table>
@@ -129,6 +148,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <th>Acción</th>
 </tr>
 </thead>
+
 <tbody id="tablaPlantillas"></tbody>
 </table>
 
@@ -139,8 +159,6 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <script>
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec";
-const instance = "instance174263";
-const token = "a7hqz1tofhwq65b4";
 
 let contactos = [];
 let plantillas = [];
@@ -150,107 +168,108 @@ let plantillas = [];
 //////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function(){
 
-  document.querySelectorAll(".tab").forEach(tab=>{
-    tab.addEventListener("click", function(){
+document.querySelectorAll(".tab").forEach(tab=>{
+tab.addEventListener("click", function(){
 
-      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-      this.classList.add("active");
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+this.classList.add("active");
 
-      let id = this.dataset.tab;
+let id = this.dataset.tab;
 
-      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
+document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
 
-    });
-  });
+});
+});
 
-  cargarContactos();
-  cargarPlantillas();
+cargarContactos();
+cargarPlantillas();
+
 });
 
 //////////////////////////////////////////////////
 // ✅ CONTACTOS
 //////////////////////////////////////////////////
 async function cargarContactos(){
-  let res = await fetch(SCRIPT_URL);
-  contactos = await res.json();
-  render();
+let res = await fetch(SCRIPT_URL);
+contactos = await res.json();
+render();
 }
 
 async function agregarContacto(){
 
-  let nombre = document.getElementById("nombre").value;
-  let telefono = document.getElementById("telefono").value;
-  let marca = document.getElementById("marca").value;
-  let fecha = document.getElementById("fecha").value;
+let nombre = document.getElementById("nombre").value;
+let telefono = document.getElementById("telefono").value;
+let marca = document.getElementById("marca").value;
+let fecha = document.getElementById("fecha").value;
 
-  await fetch(SCRIPT_URL,{
-    method:"POST",
-    headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({nombre,telefono,marca,fecha})
-  });
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({nombre,telefono,marca,fecha})
+});
 
-  alert("Guardado ✅");
-  cargarContactos();
+alert("Guardado ✅");
+cargarContactos();
 }
 
 async function borrarContacto(telefono){
 
-  if(!confirm("¿Eliminar contacto?")) return;
+if(!confirm("¿Eliminar contacto?")) return;
 
-  await fetch(SCRIPT_URL,{
-    method:"POST",
-    headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({accion:"borrar",telefono})
-  });
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({accion:"borrar",telefono})
+});
 
-  cargarContactos();
+cargarContactos();
 }
 
 //////////////////////////////////////////////////
 // ✅ PLANTILLAS
 //////////////////////////////////////////////////
 async function cargarPlantillas(){
-  let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
-  plantillas = await res.json();
-  renderPlantillas();
+let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
+plantillas = await res.json();
+renderPlantillas();
 }
 
 async function guardarPlantilla(){
 
-  let marca = document.getElementById("marcaPlantilla").value;
-  let plantilla = document.getElementById("textoPlantilla").value;
-  let archivo = document.getElementById("urlMedia").value;
+let marca = document.getElementById("marcaPlantilla").value;
+let plantilla = document.getElementById("textoPlantilla").value;
+let archivo = document.getElementById("urlMedia").value;
 
-  await fetch(SCRIPT_URL,{
-    method:"POST",
-    headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({
-      tipoOperacion:"guardarPlantilla",
-      marca,
-      plantilla,
-      archivoURLmanual:archivo
-    })
-  });
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({
+tipoOperacion:"guardarPlantilla",
+marca,
+plantilla,
+archivoURLmanual:archivo
+})
+});
 
-  alert("Plantilla guardada ✅");
-  cargarPlantillas();
+alert("Plantilla guardada ✅");
+cargarPlantillas();
 }
 
 async function borrarPlantilla(marca){
 
-  if(!confirm("¿Eliminar plantilla de " + marca + "?")) return;
+if(!confirm("¿Eliminar plantilla de " + marca + "?")) return;
 
-  await fetch(SCRIPT_URL,{
-    method:"POST",
-    headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({
-      tipoOperacion:"borrarPlantilla",
-      marca:marca
-    })
-  });
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({
+tipoOperacion:"borrarPlantilla",
+marca:marca
+})
+});
 
-  cargarPlantillas();
+cargarPlantillas();
 }
 
 //////////////////////////////////////////////////
@@ -258,88 +277,87 @@ async function borrarPlantilla(marca){
 //////////////////////////////////////////////////
 function render(){
 
-  let t = document.getElementById("tabla");
-  t.innerHTML = "";
+let t = document.getElementById("tabla");
+t.innerHTML = "";
 
-  contactos.forEach(c=>{
-    t.innerHTML += `
-    <tr>
-      <td>${c.nombre}</td>
-      <td>${c.telefono}</td>
-      <td>${c.marca}</td>
-      <td>${c.fecha}</td>
-      <td>
-        <button class="send" onclick="enviarAhora('${c.telefono}','${c.nombre}','${c.marca}')">📲</button>
-        <button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
-      </td>
-    </tr>
-    `;
-  });
+contactos.forEach(c=>{
+t.innerHTML += `
+<tr>
+<td>${c.nombre}</td>
+<td>${c.telefono}</td>
+<td>${c.marca}</td>
+<td>${c.fecha}</td>
+<td>
+<button class="send" onclick="enviarAhora('${c.telefono}','${c.nombre}','${c.marca}')">📲</button>
+<button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
+</td>
+</tr>`;
+});
 }
 
 function renderPlantillas(){
 
-  let t = document.getElementById("tablaPlantillas");
-  t.innerHTML = "";
+let t = document.getElementById("tablaPlantillas");
+t.innerHTML = "";
 
-  plantillas.forEach(p=>{
-    t.innerHTML += `
-    <tr>
-      <td>${p.marca}</td>
-      <td>${p.plantilla}</td>
-      <td>${p.archivo || ''}</td>
-      <td>
-        <button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
-      </td>
-    </tr>
-    `;
-  });
+plantillas.forEach(p=>{
+t.innerHTML += `
+<tr>
+<td>${p.marca}</td>
+<td>${p.plantilla}</td>
+<td>${p.archivo || ''}</td>
+<td>
+<button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
+</td>
+</tr>`;
+});
 }
 
 //////////////////////////////////////////////////
-// ✅ WHATSAPP
+// ✅ ENVIAR WHATSAPP
 //////////////////////////////////////////////////
 async function enviarAhora(telefono,nombre,marca){
 
-  let plantilla = plantillas.find(p=>p.marca === marca);
+let plantilla = plantillas.find(p=>p.marca === marca);
 
-  let mensaje = plantilla
-    ? plantilla.plantilla.replace("{Nombre}", nombre)
-    : "Hola " + nombre;
+let mensaje = plantilla
+  ? plantilla.plantilla.replace("{Nombre}", nombre)
+  : "Hola " + nombre;
 
-  let media = plantilla ? plantilla.archivo : "";
+let media = plantilla ? plantilla.archivo : "";
 
-  try{
+try{
 
-    if(media){
-      await fetch(`https://api.ultramsg.com/${instance}/messages/image`,{
-        method:'POST',
-        headers:{'Content-Type':'application/x-www-form-urlencoded'},
-        body:new URLSearchParams({
-          token:token,
-          to:telefono,
-          image:media,
-          caption:mensaje
-        })
-      });
-    }else{
-      await fetch(`https://api.ultramsg.com/${instance}/messages/chat`,{
-        method:'POST',
-        headers:{'Content-Type':'application/x-www-form-urlencoded'},
-        body:new URLSearchParams({
-          token:token,
-          to:telefono,
-          body:mensaje
-        })
-      });
-    }
+if(media){
+await fetch(`https://api.ultramsg.com/instance174263/messages/image`,{
+method:'POST',
+headers:{'Content-Type':'application/x-www-form-urlencoded'},
+body:new URLSearchParams({
+token:'a7hqz1tofhwq65b4',
+to:telefono,
+image:media,
+caption:mensaje
+})
+});
+}else{
+await fetch(`https://api.ultramsg.com/instance174263/messages/chat`,{
+method:'POST',
+headers:{'Content-Type':'application/x-www-form-urlencoded'},
+body:new URLSearchParams({
+token:'a7hqz1tofhwq65b4',
+to:telefono,
+body:mensaje
+})
+});
+}
 
-    alert("Enviado ✅");
+alert("Enviado ✅");
 
-  }catch(e){
-    alert("Error enviando");
-    console.error(e);
-  }
+}catch(e){
+alert("Error enviando");
+console.error(e);
+}
+
 }
 
 </script>
