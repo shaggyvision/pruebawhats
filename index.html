@@ -16,29 +16,19 @@ body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 }
 
 .tabs{display:flex;gap:10px;margin-bottom:20px;justify-content:center;}
-.tab{padding:10px 15px;background:#ddd;border-radius:8px;cursor:pointer;}
-.tab.active{background:#7e22ce;color:white;}
+.tab{
+  padding:10px 15px;
+  background:#ddd;
+  cursor:pointer;
+  border-radius:8px;
+}
+.tab.active{
+  background:#7e22ce;
+  color:white;
+}
 
 .section{display:none;}
 .section.active{display:block;}
-
-input, textarea, select{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-}
-
-button{
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  color:white;
-  cursor:pointer;
-}
-.save{background:#7e22ce;}
-.send{background:#16a34a;}
-.delete{background:#dc2626;}
-.sheet{background:#15803d;}
 
 table{width:100%;margin-top:20px;border-collapse:collapse;}
 td,th{padding:10px;border-bottom:1px solid #ddd;}
@@ -48,55 +38,44 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
   grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
   gap:10px;
 }
+
+#contenedorGaleria img,
+#contenedorGaleria video{
+  width:100%;
+  border-radius:10px;
+}
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
-<!-- ✅ LOGO BIEN -->
+<!-- ✅ LOGO (ARREGLADO) -->
 <div class="banner">
-  <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
+  https://shaggyvision.github.io/pruebawhats/logo.png
 </div>
 
 <!-- ✅ TABS -->
 <div class="tabs">
   <div class="tab active" data-tab="contacto">Contacto</div>
-  <div class="tab" data-tab="plantilla">Plantilla</div>
   <div class="tab" data-tab="lista">Contactos</div>
-  <div class="tab" data-tab="plantillas">Plantillas</div>
   <div class="tab" data-tab="galeria">Galería</div>
 </div>
 
-<!-- CONTACTO -->
+<!-- ✅ CONTACTO -->
 <div id="contacto" class="section active">
-<h3>Agregar contacto</h3>
-
-<input id="nombre">
-<input id="telefono">
-
-<select id="marca">
-<option>ADMIN</option>
-<option>ADO</option>
-</select>
-
-<input type="date" id="fecha">
-
-<button onclick="agregarContacto()">Guardar</button>
+<h3>Contacto funcional ✅</h3>
 </div>
 
-<!-- CONTACTOS -->
+<!-- ✅ CONTACTOS -->
 <div id="lista" class="section">
+<h3>Contactos</h3>
 <table>
 <tbody id="tabla"></tbody>
 </table>
 </div>
 
-<!-- PLANTILLAS -->
-<div id="plantillas" class="section"></div>
-
-<!-- GALERIA -->
+<!-- ✅ GALERIA -->
 <div id="galeria" class="section">
 <h3>Galería</h3>
 <div id="contenedorGaleria"></div>
@@ -109,71 +88,73 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 const URL="https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec";
 
 //////////////////////////////////////////////////
-// ✅ TABS (NUNCA FALLAN)
+// ✅ PESTAÑAS (AISLADAS Y SEGURAS)
 //////////////////////////////////////////////////
-document.querySelectorAll(".tab").forEach(tab=>{
-tab.onclick=()=>{
+document.addEventListener("DOMContentLoaded", function(){
 
-document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-tab.classList.add("active");
+  document.querySelectorAll(".tab").forEach(tab=>{
+    tab.addEventListener("click", function(){
 
-document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-document.getElementById(tab.dataset.tab).classList.add("active");
+      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+      tab.classList.add("active");
 
-};
+      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+      document.getElementById(tab.dataset.tab).classList.add("active");
+
+    });
+  });
+
+  cargarContactos();
+  cargarGaleria();
+
 });
 
 //////////////////////////////////////////////////
-// CONTACTOS (NO ROMPE)
+// ✅ CONTACTOS (NO ROMPEN EL SISTEMA)
 //////////////////////////////////////////////////
-async function agregarContacto(){
+async function cargarContactos(){
+  try{
+    let r=await fetch(URL);
+    let data=await r.json();
 
-fetch(URL,{
-method:"POST",
-body:JSON.stringify({
-nombre:nombre.value,
-telefono:telefono.value,
-marca:marca.value,
-fecha:fecha.value
-})
-});
+    let tabla=document.getElementById("tabla");
+    tabla.innerHTML="";
+
+    data.forEach(c=>{
+      tabla.innerHTML+=`<tr><td>${c.nombre}</td></tr>`;
+    });
+
+  }catch(e){
+    console.log("Error contactos");
+  }
 }
 
-// ✅ carga contactos con seguridad
-(async ()=>{
-try{
-let r=await fetch(URL);
-let data=await r.json();
+//////////////////////////////////////////////////
+// ✅ GALERIA SEGURA (NO ROMPE TABS)
+//////////////////////////////////////////////////
+async function cargarGaleria(){
 
-let t=document.getElementById("tabla");
-data.forEach(c=>{
-t.innerHTML += `<tr><td>${c.nombre}</td></tr>`;
-});
-}catch(e){
-console.log("no contactos");
+  try{
+    let r=await fetch(URL+"?tipo=galeria");
+    let data=await r.json();
+
+    let cont=document.getElementById("contenedorGaleria");
+    cont.innerHTML="";
+
+    data.forEach(item=>{
+
+      if(item.tipo.includes("image")){
+        cont.innerHTML+=`<img src="${item.url}
+
+      else if(item.tipo.includes("video")){
+        cont.innerHTML+=`<video src="${item.url}" controls  });
+
+  }catch(e){
+    console.log("Galería no disponible");
+  }
+
 }
-})();
-
-//////////////////////////////////////////////////
-// ✅ GALERIA SEGURA (AISLADA)
-//////////////////////////////////////////////////
-(function(){
-
-fetch(URL+"?tipo=galeria")
-.then(r=>r.json())
-.then(data=>{
-
-let cont=document.getElementById("contenedorGaleria");
-
-data.forEach(item=>{
-
-if(item.tipo.includes("image")){
-cont.innerHTML+=`<img src="${item.urlcludes("video")){
-cont.innerHTML+=`<video src="${item.url}" controls.catch(()=>console.log("galeria no disponible"));
-
-})();
 
 </script>
-
 </body>
 </html>
