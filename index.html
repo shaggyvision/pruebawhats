@@ -32,15 +32,12 @@ button{
   cursor:pointer;
   border-radius:8px;
 }
-button:hover{
-  opacity:0.9;
+.delete{
+  background:#dc2626;
 }
 .table-btn{
   display:flex;
   gap:5px;
-}
-.delete{
-  background:#dc2626;
 }
 table{
   width:100%;
@@ -119,14 +116,14 @@ Guardar + Enviar WhatsApp
 
 <script>
 
-const SCRIPT_URL = 'TU_URL_DE_APPS_SCRIPT'; // <-- reemplaza
+// ✅ TU URL YA PUESTA
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
+
 const instance = 'instance174263';
 const token = 'a7hqz1tofhwq65b4';
 
 let contactos = [];
 
-//////////////////////////////////////////////////
-// ✅ MENSAJES
 //////////////////////////////////////////////////
 function mostrarEstado(texto,tipo){
   const estado = document.getElementById('estado');
@@ -136,7 +133,106 @@ function mostrarEstado(texto,tipo){
 
   setTimeout(()=>{
     estado.style.display='none';
-  },3000);
+  },4000);
+}
+
+//////////////////////////////////////////////////
+// ✅ CARGAR CONTACTOS (CORREGIDO)
+//////////////////////////////////////////////////
+async function cargarContactos(){
+
+  try{
+    const response = await fetch(SCRIPT_URL);
+
+    if(!response.ok){
+      throw new Error('No conecta con Apps Script');
+    }
+
+    const data = await response.json();
+
+    if(data.error){
+      throw new Error(data.error);
+    }
+
+    if(!Array.isArray(data)){
+      console.log("Respuesta rara:", data);
+      throw new Error('Formato inválido');
+    }
+
+    contactos = data;
+    render();
+
+  }catch(error){
+    console.error("ERROR REAL:", error);
+    mostrarEstado('Error: ' + error.message,'error');
+  }
+}
+
+//////////////////////////////////////////////////
+// ✅ AGREGAR CONTACTO
+//////////////////////////////////////////////////
+async function agregarContacto(){
+
+  const nombre = document.getElementById('nombre').value;
+  const telefono = document.getElementById('telefono').value;
+  const marca = document.getElementById('marca').value;
+  const tipo = document.getElementById('tipo').value;
+  const fecha = document.getElementById('fecha').value;
+
+  if(!nombre || !telefono){
+    mostrarEstado('Falta nombre o teléfono','error');
+    return;
+  }
+
+  const mensaje = generarMensaje(nombre);
+
+  try{
+
+    await fetch(SCRIPT_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({
+        nombre,telefono,marca,tipo,fecha
+      })
+    });
+
+    await enviarWhatsApp(telefono, mensaje);
+
+    mostrarEstado('Guardado ✅','success');
+
+    setTimeout(cargarContactos,1000);
+
+  }catch(error){
+    mostrarEstado('Error guardando','error');
+  }
+}
+
+//////////////////////////////////////////////////
+// ✅ BORRAR
+//////////////////////////////////////////////////
+async function borrarContacto(telefono){
+
+  if(!confirm("¿Eliminar contacto?")){
+    return;
+  }
+
+  try{
+
+    await fetch(SCRIPT_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({
+        accion:'borrar',
+        telefono:telefono
+      })
+    });
+
+    mostrarEstado('Eliminado ✅','success');
+    setTimeout(cargarContactos,1000);
+
+  }catch(error){
+    mostrarEstado('Error eliminando','error');
+  }
 }
 
 //////////////////////////////////////////////////
@@ -167,82 +263,6 @@ function generarMensaje(nombre){
 }
 
 //////////////////////////////////////////////////
-// ✅ CARGAR CONTACTOS
-//////////////////////////////////////////////////
-async function cargarContactos(){
-  try{
-    const response = await fetch(SCRIPT_URL + '?t=' + new Date().getTime());
-    contactos = await response.json();
-    render();
-  }catch(error){
-    mostrarEstado('Error cargando','error');
-  }
-}
-
-//////////////////////////////////////////////////
-// ✅ AGREGAR
-//////////////////////////////////////////////////
-async function agregarContacto(){
-
-  const nombre = document.getElementById('nombre').value;
-  const telefono = document.getElementById('telefono').value;
-  const marca = document.getElementById('marca').value;
-  const tipo = document.getElementById('tipo').value;
-  const fecha = document.getElementById('fecha').value;
-
-  const mensaje = generarMensaje(nombre);
-
-  try{
-
-    await fetch(SCRIPT_URL,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({
-        nombre,telefono,marca,tipo,fecha
-      })
-    });
-
-    await enviarWhatsApp(telefono, mensaje);
-
-    mostrarEstado('Guardado ✅','success');
-
-    setTimeout(cargarContactos,1000);
-
-  }catch(error){
-    mostrarEstado('Error','error');
-  }
-}
-
-//////////////////////////////////////////////////
-// ✅ BORRAR (NUEVO)
-//////////////////////////////////////////////////
-async function borrarContacto(telefono){
-
-  if(!confirm("¿Eliminar contacto?")){
-    return;
-  }
-
-  try{
-
-    await fetch(SCRIPT_URL,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({
-        accion:'borrar',
-        telefono:telefono
-      })
-    });
-
-    mostrarEstado('Eliminado 🗑','success');
-
-    setTimeout(cargarContactos,1000);
-
-  }catch(error){
-    mostrarEstado('Error eliminando','error');
-  }
-}
-
-//////////////////////////////////////////////////
 // ✅ ENVIAR AHORA
 //////////////////////////////////////////////////
 async function enviarAhora(telefono,nombre){
@@ -260,33 +280,27 @@ function render(){
   tabla.innerHTML='';
 
   if(contactos.length === 0){
-    tabla.innerHTML = `<tr><td colspan="6">Sin datos</td></tr>`;
+    tabla.innerHTML = `<tr><td colspan="6">Sin contactos</td></tr>`;
     return;
   }
 
   contactos.forEach(c=>{
 
     tabla.innerHTML += `
-    <tr>
-      <td>${c.nombre}</td>
-      <td>${c.telefono}</td>
-      <td>${c.marca}</td>
-      <td>${c.tipo}</td>
-      <td>${c.fecha}</td>
+      <tr>
+        <td>${c.nombre || ''}</td>
+        <td>${c.telefono || ''}</td>
+        <td>${c.marca || ''}</td>
+        <td>${c.tipo || ''}</td>
+        <td>${c.fecha || ''}</td>
 
-      <td>
-        <div class="table-btn">
-          <button onclick="enviarAhora('${c.telefono}','${c.nombre}')">
-            📲
-          </button>
-
-          <button class="delete" onclick="borrarContacto('${c.telefono}')">
-            🗑
-          </button>
-        </div>
-      </td>
-
-    </tr>
+        <td>
+          <div class="table-btn">
+            <button onclick="enviarAhora('${c.telefono}','${c.nombre}')">📲</button>
+            <button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
+          </div>
+        </td>
+      </tr>
     `;
   });
 }
