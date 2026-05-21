@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Happy Moments CRM</title>
+<title>CRM Happy Moments</title>
 
 <style>
 body{font-family:sans-serif;background:#f4f5fb;padding:40px;}
@@ -22,40 +22,46 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <body>
 
 <div class="container">
-<h1>🎉 Happy Moments CRM PRO</h1>
 
+<h1>🎉 CRM Happy Moments PRO</h1>
+
+<!-- ================= CONTACTO ================= -->
 <h2>Agregar contacto</h2>
 
 <input id="nombre" placeholder="Nombre">
 <input id="telefono" placeholder="521XXXXXXXXXX">
 
-<select id="marca">
+<select id="marca_contacto">
 <option>ADMIN</option>
 <option>ADO</option>
 <option>SUR</option>
 <option>TRT</option>
 </select>
 
-<select id="tipo">
-<option value="cumpleaños">Cumpleaños</option>
-<option value="aniversario">Aniversario</option>
-</select>
-
 <input type="date" id="fecha">
 
-<button onclick="agregarContacto()">Guardar + Enviar</button>
+<button onclick="agregarContacto()">Guardar contacto</button>
 
 <div id="estado" class="status"></div>
 
-<h2>Plantilla por área</h2>
+<!-- ================= PLANTILLA ================= -->
+<h2>Crear plantilla</h2>
 
-<textarea id="plantilla">🎉 Hola {Nombre}, feliz día 🎉</textarea>
+<label>Selecciona área de la plantilla:</label>
+<select id="marca_plantilla">
+<option>ADMIN</option>
+<option>ADO</option>
+<option>SUR</option>
+<option>TRT</option>
+</select>
 
-<input type="file" id="archivo" accept="image/*">
-<input type="text" id="archivoURL" placeholder="Pegar URL de video o imagen (Drive recomendado)">
+<textarea id="plantilla">🎉 Hola {Nombre}, feliz cumpleaños 🎉</textarea>
+
+<input type="text" id="archivoURL" placeholder="Pega URL de imagen o video (Drive)">
 
 <button onclick="guardarPlantilla()">Guardar plantilla</button>
 
+<!-- ================= TABLA ================= -->
 <h2>Contactos</h2>
 
 <table>
@@ -63,8 +69,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <tr>
 <th>Nombre</th>
 <th>Teléfono</th>
-<th>Marca</th>
-<th>Tipo</th>
+<th>Área</th>
 <th>Fecha</th>
 <th>Acción</th>
 </tr>
@@ -78,12 +83,14 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <script>
 
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
+
 const instance = 'instance174263';
 const token = 'a7hqz1tofhwq65b4';
 
 let contactos = [];
 let plantillas = [];
 
+//////////////////////////////////////////////
 function mostrarEstado(texto,tipo){
 let e = document.getElementById('estado');
 e.style.display='block';
@@ -92,59 +99,47 @@ e.innerText=texto;
 setTimeout(()=>{e.style.display='none';},4000);
 }
 
-//////////////////////////////////////////////////
-// CONTACTOS
-//////////////////////////////////////////////////
+//////////////////////////////////////////////
+// ✅ CARGAR DATOS
+//////////////////////////////////////////////
 async function cargarContactos(){
-try{
 let res = await fetch(SCRIPT_URL);
 contactos = await res.json();
 render();
-}catch(e){
-mostrarEstado('Error cargando','error');
-}
 }
 
-//////////////////////////////////////////////////
-// PLANTILLAS
-//////////////////////////////////////////////////
 async function cargarPlantillas(){
 let res = await fetch(SCRIPT_URL+'?tipo=plantillas');
 plantillas = await res.json();
 }
 
-//////////////////////////////////////////////////
-// GUARDAR CONTACTO
-//////////////////////////////////////////////////
+//////////////////////////////////////////////
+// ✅ AGREGAR CONTACTO
+//////////////////////////////////////////////
 async function agregarContacto(){
 
 let nombre = document.getElementById('nombre').value;
 let telefono = document.getElementById('telefono').value;
-let marca = document.getElementById('marca').value;
-let tipo = document.getElementById('tipo').value;
+let marca = document.getElementById('marca_contacto').value;
 let fecha = document.getElementById('fecha').value;
-
-let mensaje = generarMensaje(nombre,marca);
-let plantilla = plantillas.find(p=>p.marca===marca);
-let media = plantilla ? plantilla.archivo : '';
 
 await fetch(SCRIPT_URL,{
 method:'POST',
 headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({nombre,telefono,marca,tipo,fecha})
+body:JSON.stringify({nombre,telefono,marca,fecha})
 });
 
-await enviarWhatsApp(telefono,mensaje,media);
+mostrarEstado('Contacto guardado ✅','success');
 
-mostrarEstado('Guardado ✅','success');
-setTimeout(cargarContactos,1000);
+setTimeout(cargarContactos,800);
 }
 
-//////////////////////////////////////////////////
-// BORRAR
-//////////////////////////////////////////////////
+//////////////////////////////////////////////
+// ✅ BORRAR
+//////////////////////////////////////////////
 async function borrarContacto(telefono){
-if(!confirm("¿Eliminar?")) return;
+
+if(!confirm("¿Eliminar contacto?")) return;
 
 await fetch(SCRIPT_URL,{
 method:'POST',
@@ -152,29 +147,17 @@ headers:{'Content-Type':'text/plain'},
 body:JSON.stringify({accion:'borrar',telefono})
 });
 
-mostrarEstado('Eliminado','success');
 cargarContactos();
 }
 
-//////////////////////////////////////////////////
-// GUARDAR PLANTILLA
-//////////////////////////////////////////////////
+//////////////////////////////////////////////
+// ✅ GUARDAR PLANTILLA (CORREGIDO)
+//////////////////////////////////////////////
 async function guardarPlantilla(){
 
+let marca = document.getElementById('marca_plantilla').value;
 let plantilla = document.getElementById('plantilla').value;
-let marca = document.getElementById('marca').value;
-
-let archivoInput = document.getElementById('archivo');
-let archivoURLmanual = document.getElementById('archivoURL').value;
-
-let archivoBase64 = '';
-let nombreArchivo = '';
-
-if(archivoInput.files.length>0){
-let file = archivoInput.files[0];
-nombreArchivo = file.name;
-archivoBase64 = await convertirBase64(file);
-}
+let archivoURL = document.getElementById('archivoURL').value;
 
 await fetch(SCRIPT_URL,{
 method:'POST',
@@ -183,37 +166,30 @@ body:JSON.stringify({
 tipoOperacion:'guardarPlantilla',
 marca:marca,
 plantilla:plantilla,
-archivoBase64:archivoBase64,
-nombreArchivo:nombreArchivo,
-archivoURLmanual:archivoURLmanual
+archivoURLmanual:archivoURL
 })
 });
 
 mostrarEstado('Plantilla guardada ✅','success');
+
 cargarPlantillas();
 }
 
-function convertirBase64(file){
-return new Promise((res,rej)=>{
-let reader=new FileReader();
-reader.readAsDataURL(file);
-reader.onload=()=>res(reader.result);
-reader.onerror=err=>rej(err);
-});
-}
-
-//////////////////////////////////////////////////
-// GENERAR MENSAJE
-//////////////////////////////////////////////////
+//////////////////////////////////////////////
+// ✅ GENERAR MENSAJE
+//////////////////////////////////////////////
 function generarMensaje(nombre,marca){
-let p = plantillas.find(p=>p.marca===marca);
-if(!p) return "Hola "+nombre;
+
+let p = plantillas.find(x=>x.marca === marca);
+
+if(!p) return "Hola " + nombre;
+
 return p.plantilla.replace('{Nombre}',nombre);
 }
 
-//////////////////////////////////////////////////
-// WHATSAPP
-//////////////////////////////////////////////////
+//////////////////////////////////////////////
+// ✅ WHATSAPP
+//////////////////////////////////////////////
 async function enviarWhatsApp(telefono,mensaje,media){
 
 if(media){
@@ -240,45 +216,46 @@ body:mensaje
 }
 }
 
-//////////////////////////////////////////////////
-// ENVÍO AUTOMÁTICO 🎂
-//////////////////////////////////////////////////
+//////////////////////////////////////////////
+// ✅ ENVÍO AUTOMÁTICO 🎂
+//////////////////////////////////////////////
 function envioAutomatico(){
 
 let hoy = new Date().toISOString().split('T')[0];
 
 contactos.forEach(c=>{
+
 if(c.fecha === hoy){
+
+let media = (plantillas.find(p=>p.marca === c.marca)||{}).archivo;
+
 enviarWhatsApp(
 c.telefono,
 generarMensaje(c.nombre,c.marca),
-(plantillas.find(p=>p.marca===c.marca)||{}).archivo
+media
 );
+
 }
+
 });
 
 }
 
-//////////////////////////////////////////////////
-// TABLA
-//////////////////////////////////////////////////
+//////////////////////////////////////////////
+// ✅ TABLA
+//////////////////////////////////////////////
 function render(){
 
 let tabla = document.getElementById('tabla');
 tabla.innerHTML='';
 
-if(contactos.length===0){
-tabla.innerHTML='<tr><td colspan="6">Sin datos</td></tr>';
-return;
-}
-
 contactos.forEach(c=>{
+
 tabla.innerHTML+=`
 <tr>
 <td>${c.nombre}</td>
 <td>${c.telefono}</td>
 <td>${c.marca}</td>
-<td>${c.tipo}</td>
 <td>${c.fecha}</td>
 <td>
 <div class="table-btn">
@@ -289,21 +266,23 @@ tabla.innerHTML+=`
 </tr>
 `;
 });
+
 }
 
 async function enviarAhora(t,n,m){
-let media=(plantillas.find(p=>p.marca===m)||{}).archivo;
+
+let media = (plantillas.find(p=>p.marca === m)||{}).archivo;
+
 await enviarWhatsApp(t,generarMensaje(n,m),media);
+
 mostrarEstado('Enviado ✅','success');
 }
 
-//////////////////////////////////////////////////
-// INIT
-//////////////////////////////////////////////////
+//////////////////////////////////////////////
 window.onload=()=>{
 cargarContactos();
 cargarPlantillas();
-setInterval(envioAutomatico,60000); // ✅ automático cada minuto
+setInterval(envioAutomatico,60000);
 };
 
 </script>
