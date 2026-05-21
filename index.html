@@ -16,16 +16,8 @@ body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 }
 
 .tabs{display:flex;gap:10px;margin-bottom:20px;justify-content:center;}
-.tab{
-  padding:10px 15px;
-  background:#ddd;
-  cursor:pointer;
-  border-radius:8px;
-}
-.tab.active{
-  background:#7e22ce;
-  color:white;
-}
+.tab{padding:10px 15px;background:#ddd;border-radius:8px;cursor:pointer;}
+.tab.active{background:#7e22ce;color:white;}
 
 .section{display:none;}
 .section.active{display:block;}
@@ -39,9 +31,9 @@ input, textarea, select{
 button{
   padding:10px;
   border:none;
-  cursor:pointer;
   border-radius:8px;
   color:white;
+  cursor:pointer;
 }
 .save{background:#7e22ce;}
 .send{background:#16a34a;}
@@ -56,7 +48,6 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
   grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
   gap:10px;
 }
-
 #contenedorGaleria img,
 #contenedorGaleria video{
   width:100%;
@@ -69,7 +60,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <div class="container">
 
-<!-- ✅ LOGO CORRECTO -->
+<!-- ✅ LOGO -->
 <div class="banner">
   <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
 </div>
@@ -85,87 +76,60 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <!-- ✅ CONTACTO -->
 <div id="contacto" class="section active">
-
 <h3>Agregar contacto</h3>
 
-<input id="nombre" placeholder="Nombre">
-<input id="telefono" placeholder="521XXXXXXXXXX">
+<input id="nombre">
+<input id="telefono">
 
 <select id="marca">
-<option>ADMIN</option>
-<option>ADO</option>
-<option>SUR</option>
-<option>TRT</option>
+<option>ADMIN</option><option>ADO</option><option>SUR</option><option>TRT</option>
 </select>
 
 <input type="date" id="fecha">
 
-<div style="display:flex;justify-content:space-between;margin-top:10px;">
-  <button class="save" onclick="agregarContacto()">Guardar</button>
-
-  <button class="sheet"
-    onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit')">
-    Google Sheets
-  </button>
+<div style="display:flex;justify-content:space-between;">
+<button class="save" onclick="agregarContacto()">Guardar</button>
+<button class="sheet" onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit')">
+Sheets
+</button>
 </div>
-
 </div>
 
 <!-- ✅ PLANTILLA -->
 <div id="plantilla" class="section">
-<h3>Crear plantilla</h3>
+<h3>Plantillas</h3>
 
 <select id="marcaPlantilla">
-<option>ADMIN</option>
-<option>ADO</option>
-<option>SUR</option>
-<option>TRT</option>
+<option>ADMIN</option><option>ADO</option><option>SUR</option><option>TRT</option>
 </select>
 
 <textarea id="textoPlantilla">Hola {Nombre}</textarea>
-<input id="urlMedia" placeholder="URL imagen/video">
+<input id="urlMedia">
 
 <button class="save" onclick="guardarPlantilla()">Guardar</button>
 </div>
 
 <!-- ✅ CONTACTOS -->
 <div id="lista" class="section">
-<h3>Contactos</h3>
-
 <table>
 <thead>
-<tr>
-<th>Nombre</th>
-<th>Teléfono</th>
-<th>Área</th>
-<th>Fecha</th>
-<th>Acción</th>
-</tr>
+<tr><th>Nombre</th><th>Tel</th><th>Área</th><th>Fecha</th><th></th></tr>
 </thead>
-
 <tbody id="tabla"></tbody>
 </table>
 </div>
 
 <!-- ✅ PLANTILLAS -->
 <div id="plantillas" class="section">
-<h3>Plantillas</h3>
-
 <table>
 <thead>
-<tr>
-<th>Área</th>
-<th>Mensaje</th>
-<th>Media</th>
-<th>Acción</th>
-</tr>
+<tr><th>Área</th><th>Mensaje</th><th>Media</th><th></th></tr>
 </thead>
-
 <tbody id="tablaPlantillas"></tbody>
 </table>
 </div>
 
-<!-- ✅ GALERIA (NUEVA) -->
+<!-- ✅ GALERIA -->
 <div id="galeria" class="section">
 <h3>Galería</h3>
 <div id="contenedorGaleria"></div>
@@ -175,116 +139,42 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <script>
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec";
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec";
 
-let contactos = [];
-let plantillas = [];
-let galeria = [];
+let contactos=[],plantillas=[],galeria=[];
 
 //////////////////////////////////////////////////
-// ✅ TABS (NO TOCADO)
-//////////////////////////////////////////////////
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener("DOMContentLoaded", ()=>{
 
 document.querySelectorAll(".tab").forEach(tab=>{
-tab.addEventListener("click", function(){
+tab.onclick=()=>{
 
 document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-this.classList.add("active");
-
-let id = this.dataset.tab;
+tab.classList.add("active");
 
 document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-document.getElementById(id).classList.add("active");
+document.getElementById(tab.dataset.tab).classList.add("active");
 
-});
+};
 });
 
 cargarContactos();
 cargarPlantillas();
-cargarGaleria(); // ✅ agregado correcto
-
+cargarGaleria();
 });
 
 //////////////////////////////////////////////////
-// CONTACTOS
-//////////////////////////////////////////////////
 async function cargarContactos(){
-let res = await fetch(SCRIPT_URL);
-contactos = await res.json();
+let r=await fetch(SCRIPT_URL);
+contactos=await r.json();
 render();
 }
 
-async function agregarContacto(){
-let nombre = document.getElementById("nombre").value;
-let telefono = document.getElementById("telefono").value;
-let marca = document.getElementById("marca").value;
-let fecha = document.getElementById("fecha").value;
-
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({nombre,telefono,marca,fecha})
-});
-
-cargarContactos();
-}
-
-async function borrarContacto(telefono){
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({accion:"borrar",telefono})
-});
-cargarContactos();
-}
-
-//////////////////////////////////////////////////
-// PLANTILLAS
-//////////////////////////////////////////////////
-async function cargarPlantillas(){
-let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
-plantillas = await res.json();
-renderPlantillas();
-}
-
-async function guardarPlantilla(){
-let marca = marcaPlantilla.value;
-let plantilla = textoPlantilla.value;
-let archivo = urlMedia.value;
-
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-tipoOperacion:"guardarPlantilla",
-marca,
-plantilla,
-archivoURLmanual:archivo
-})
-});
-cargarPlantillas();
-}
-
-async function borrarPlantilla(marca){
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-tipoOperacion:"borrarPlantilla",
-marca
-})
-});
-cargarPlantillas();
-}
-
-//////////////////////////////////////////////////
-// TABLAS
-//////////////////////////////////////////////////
 function render(){
-tabla.innerHTML="";
+let t=document.getElementById("tabla");
+t.innerHTML="";
 contactos.forEach(c=>{
-tabla.innerHTML+=`
+t.innerHTML+=`
 <tr>
 <td>${c.nombre}</td>
 <td>${c.telefono}</td>
@@ -298,77 +188,44 @@ tabla.innerHTML+=`
 });
 }
 
+//////////////////////////////////////////////////
+async function cargarPlantillas(){
+let r=await fetch(SCRIPT_URL+"?tipo=plantillas");
+plantillas=await r.json();
+renderPlantillas();
+}
+
 function renderPlantillas(){
-tablaPlantillas.innerHTML="";
+let t=document.getElementById("tablaPlantillas");
+t.innerHTML="";
 plantillas.forEach(p=>{
-tablaPlantillas.innerHTML+=`
+t.innerHTML+=`
 <tr>
 <td>${p.marca}</td>
 <td>${p.plantilla}</td>
-<td>${p.archivo || ''}</td>
-<td>
-<button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
-</td>
+<td>${p.archivo||""}</td>
+<td><button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button></td>
 </tr>`;
 });
 }
 
 //////////////////////////////////////////////////
-// ✅ GALERIA ARREGLADA
+// ✅ GALERIA
 //////////////////////////////////////////////////
 async function cargarGaleria(){
-let res = await fetch(SCRIPT_URL + "?tipo=galeria");
-galeria = await res.json();
+let r=await fetch(SCRIPT_URL+"?tipo=galeria");
+galeria=await r.json();
 renderGaleria();
 }
 
 function renderGaleria(){
+let cont=document.getElementById("contenedorGaleria");
+cont.innerHTML="";
 
-let cont = document.getElementById("contenedorGaleria");
-cont.innerHTML = "";
-
-galeria.forEach(item => {
+galeria.forEach(item=>{
 
 if(item.tipo.includes("image")){
-cont.innerHTML += `<img src="${itemm.tipo.includes("video")){
-cont.innerHTML += `<video src="${item.url}"
-});
-}
-
-//////////////////////////////////////////////////
-async function enviarAhora(t,n,m){
-
-let p = plantillas.find(x=>x.marca===m);
-let msg = p ? p.plantilla.replace('{Nombre}',n) : "Hola";
-
-let media = p ? p.archivo : "";
-
-if(media){
-await fetch(`https://api.ultramsg.com/instance174263/messages/image`,{
-method:'POST',
-headers:{'Content-Type':'application/x-www-form-urlencoded'},
-body:new URLSearchParams({
-token:'a7hqz1tofhwq65b4',
-to:t,
-image:media,
-caption:msg
-})
-});
-}else{
-await fetch(`https://api.ultramsg.com/instance174263/messages/chat`,{
-method:'POST',
-headers:{'Content-Type':'application/x-www-form-urlencoded'},
-body:new URLSearchParams({
-token:'a7hqz1tofhwq65b4',
-to:t,
-body:msg
-})
-});
-}
-
-alert("✅ Enviado");
-}
-
-</script>
+cont.innerHTML+=`<img src="${item.url}o.includes("video")){
+cont.innerHTML+=`<video src="${item.url}" controls/script>
 </body>
 </html>
