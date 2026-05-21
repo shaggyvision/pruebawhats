@@ -5,17 +5,51 @@
 <title>CRM Happy Moments PRO</title>
 
 <style>
-body{font-family:sans-serif;background:#f4f5fb;padding:40px;}
-.container{max-width:1100px;margin:auto;background:white;padding:30px;border-radius:20px;}
-input, textarea, select{width:100%;padding:12px;margin-top:10px;}
-button{padding:10px;background:#7e22ce;color:white;border:none;margin-top:10px;cursor:pointer;border-radius:8px;}
+body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
+.container{max-width:1100px;margin:auto;background:white;padding:20px;border-radius:20px;}
+
+/* ✅ TABS */
+.tabs{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+}
+.tab{
+  padding:10px 15px;
+  background:#ddd;
+  cursor:pointer;
+  border-radius:8px;
+}
+.tab.active{
+  background:#7e22ce;
+  color:white;
+}
+
+/* ✅ SECCIONES */
+.section{display:none;}
+.section.active{display:block;}
+
+input, textarea, select{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+}
+button{
+  padding:10px;
+  background:#7e22ce;
+  color:white;
+  border:none;
+  margin-top:10px;
+  cursor:pointer;
+  border-radius:8px;
+}
 .delete{background:#dc2626;}
-.table-btn{display:flex;gap:5px;}
 table{width:100%;margin-top:20px;border-collapse:collapse;}
 td,th{padding:10px;border-bottom:1px solid #ddd;}
 .status{padding:10px;margin-top:10px;display:none;}
 .success{background:#dcfce7;}
 .error{background:#fee2e2;}
+
 #previewBox{margin-top:15px;}
 </style>
 </head>
@@ -26,7 +60,19 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <h1>🎉 CRM Happy Moments PRO</h1>
 
-<!-- ================= CONTACTO ================= -->
+<!-- ✅ PESTAÑAS -->
+<div class="tabs">
+  <div class="tab active" onclick="cambiarTab('contacto')">Agregar Contacto</div>
+  <div class="tab" onclick="cambiarTab('plantilla')">Plantillas</div>
+  <div class="tab" onclick="cambiarTab('lista')">Ver Contactos</div>
+  <div class="tab" onclick="cambiarTab('plantillasLista')">Ver Plantillas</div>
+</div>
+
+<div id="estado" class="status"></div>
+
+<!-- ================= CONTACTOS ================= -->
+<div id="contacto" class="section active">
+
 <h2>Agregar contacto</h2>
 
 <input id="nombre" placeholder="Nombre">
@@ -43,12 +89,13 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <button onclick="agregarContacto()">Guardar contacto</button>
 
-<div id="estado" class="status"></div>
+</div>
 
 <!-- ================= PLANTILLA ================= -->
+<div id="plantilla" class="section">
+
 <h2>Crear plantilla</h2>
 
-<label>Selecciona área de la plantilla:</label>
 <select id="marca_plantilla">
 <option>ADMIN</option>
 <option>ADO</option>
@@ -56,18 +103,20 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <option>TRT</option>
 </select>
 
-<textarea id="plantilla">🎉 Hola {Nombre}, feliz día 🎉</textarea>
+<textarea id="plantillaTexto">🎉 Hola {Nombre}, feliz día 🎉</textarea>
 
 <input type="file" id="archivo" accept="image/*,video/*" onchange="mostrarPreviewArchivo()">
-
-<input type="text" id="archivoURL" placeholder="Pega URL de imagen o video"
-oninput="mostrarPreviewURL()">
+<input id="archivoURL" placeholder="URL de imagen o video" oninput="mostrarPreviewURL()">
 
 <div id="previewBox"></div>
 
 <button onclick="guardarPlantilla()">Guardar plantilla</button>
 
-<!-- ================= TABLA ================= -->
+</div>
+
+<!-- ================= LISTA CONTACTOS ================= -->
+<div id="lista" class="section">
+
 <h2>Contactos</h2>
 
 <table>
@@ -80,54 +129,85 @@ oninput="mostrarPreviewURL()">
 <th>Acción</th>
 </tr>
 </thead>
-
 <tbody id="tabla"></tbody>
 </table>
 
 </div>
 
+<!-- ================= LISTA PLANTILLAS ================= -->
+<div id="plantillasLista" class="section">
+
+<h2>Plantillas guardadas</h2>
+
+<table>
+<thead>
+<tr>
+<th>Área</th>
+<th>Mensaje</th>
+<th>Media</th>
+</tr>
+</thead>
+<tbody id="tablaPlantillas"></tbody>
+</table>
+
+</div>
+
+</div>
+
 <script>
 
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec';
+const instance='instance174263';
+const token='a7hqz1tofhwq65b4';
 
-const instance = 'instance174263';
-const token = 'a7hqz1tofhwq65b4';
-
-let contactos = [];
-let plantillas = [];
+let contactos=[];
+let plantillas=[];
 
 //////////////////////////////////////////////////
-function mostrarEstado(texto,tipo){
-let e = document.getElementById('estado');
-e.style.display='block';
-e.className=`status ${tipo}`;
-e.innerText=texto;
-setTimeout(()=>{e.style.display='none';},4000);
+// ✅ TABS
+//////////////////////////////////////////////////
+function cambiarTab(id){
+
+document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+event.target.classList.add('active');
 }
 
 //////////////////////////////////////////////////
-// ✅ CARGAR DATOS
+function mostrarEstado(t,tipo){
+let e=document.getElementById('estado');
+e.style.display='block';
+e.className=`status ${tipo}`;
+e.innerText=t;
+setTimeout(()=>e.style.display='none',3000);
+}
+
+//////////////////////////////////////////////////
+// ✅ CARGAR
 //////////////////////////////////////////////////
 async function cargarContactos(){
-let res = await fetch(SCRIPT_URL);
-contactos = await res.json();
+let res=await fetch(SCRIPT_URL);
+contactos=await res.json();
 render();
 }
 
 async function cargarPlantillas(){
-let res = await fetch(SCRIPT_URL+'?tipo=plantillas');
-plantillas = await res.json();
+let res=await fetch(SCRIPT_URL+'?tipo=plantillas');
+plantillas=await res.json();
+renderPlantillas();
 }
 
 //////////////////////////////////////////////////
-// ✅ AGREGAR CONTACTO
+// ✅ CONTACTO
 //////////////////////////////////////////////////
 async function agregarContacto(){
 
-let nombre = document.getElementById('nombre').value;
-let telefono = document.getElementById('telefono').value;
-let marca = document.getElementById('marca_contacto').value;
-let fecha = document.getElementById('fecha').value;
+let nombre=document.getElementById('nombre').value;
+let telefono=document.getElementById('telefono').value;
+let marca=document.getElementById('marca_contacto').value;
+let fecha=document.getElementById('fecha').value;
 
 await fetch(SCRIPT_URL,{
 method:'POST',
@@ -135,43 +215,38 @@ headers:{'Content-Type':'text/plain'},
 body:JSON.stringify({nombre,telefono,marca,fecha})
 });
 
-mostrarEstado('Contacto guardado ✅','success');
-setTimeout(cargarContactos,800);
+mostrarEstado('Guardado ✅','success');
+cargarContactos();
 }
 
-//////////////////////////////////////////////////
-// ✅ BORRAR
-//////////////////////////////////////////////////
-async function borrarContacto(telefono){
+async function borrarContacto(tel){
 
-if(!confirm("¿Eliminar contacto?")) return;
+if(!confirm("Eliminar?")) return;
 
 await fetch(SCRIPT_URL,{
 method:'POST',
 headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({accion:'borrar',telefono})
+body:JSON.stringify({accion:'borrar',telefono:tel})
 });
 
 cargarContactos();
 }
 
 //////////////////////////////////////////////////
-// ✅ GUARDAR PLANTILLA
+// ✅ PLANTILLA
 //////////////////////////////////////////////////
 async function guardarPlantilla(){
 
-let marca = document.getElementById('marca_plantilla').value;
-let plantilla = document.getElementById('plantilla').value;
-let archivoURL = document.getElementById('archivoURL').value;
+let marca=document.getElementById('marca_plantilla').value;
+let plantilla=document.getElementById('plantillaTexto').value;
+let archivoURL=document.getElementById('archivoURL').value;
 
 await fetch(SCRIPT_URL,{
 method:'POST',
 headers:{'Content-Type':'text/plain'},
 body:JSON.stringify({
 tipoOperacion:'guardarPlantilla',
-marca:marca,
-plantilla:plantilla,
-archivoURLmanual:archivoURL
+marca,plantilla,archivoURLmanual:archivoURL
 })
 });
 
@@ -180,140 +255,96 @@ cargarPlantillas();
 }
 
 //////////////////////////////////////////////////
-// ✅ PREVIEW ARCHIVO
+// ✅ PREVIEW
 //////////////////////////////////////////////////
 function mostrarPreviewArchivo(){
 
-const file = document.getElementById('archivo').files[0];
-const preview = document.getElementById('previewBox');
+let file=document.getElementById('archivo').files[0];
+let p=document.getElementById('previewBox');
+p.innerHTML='';
 
-preview.innerHTML='';
+if(!file)return;
 
-if(!file) return;
-
-const url = URL.createObjectURL(file);
+let url=URL.createObjectURL(file);
 
 if(file.type.startsWith('image')){
-preview.innerHTML=`<p>Vista previa:</p>
-<img src="${url}" style="max-width:300px;border-radius:10ew.innerHTML=`<p>Vista previa:</p>
-<video src="${url}" controls style="max-width:300px;border-radius///////
-// ✅ PREVIEW URL
+p.innerHTML=`<img src="${url}" style="max-width: src="${url}" controls style="maxreviewURL(){
+
+let url=document.getElementById('archivoURL').value;
+let p=document.getElementById('previewBox');
+
+p.innerHTML='';
+
+if(!url)return;
+
+if(url.includes('mp4')){
+p.innerHTML=`<video src="${url}" controls style="max-width:"${url}" style="max-width:300//////////////////////////
+// ✅ MENSAJE
 //////////////////////////////////////////////////
-function mostrarPreviewURL(){
-
-const url=document.getElementById('archivoURL').value;
-const preview=document.getElementById('previewBox');
-
-preview.innerHTML='';
-
-if(!url) return;
-
-if(url.includes("mp4")||url.includes("video")){
-preview.innerHTML=`<p>Vista previa:</p>
-<video src="${url}" controls style="rHTML=`<p>Vista previa:</p>
-<img src="${url}" style="///////////////////////////////////////
-// ✅ GENERAR MENSAJE
-//////////////////////////////////////////////////
-function generarMensaje(nombre,marca){
-let p = plantillas.find(x=>x.marca===marca);
-if(!p) return "Hola "+nombre;
-return p.plantilla.replace('{Nombre}',nombre);
+function generarMensaje(n,m){
+let p=plantillas.find(x=>x.marca===m);
+return p ? p.plantilla.replace('{Nombre}',n) : "Hola "+n;
 }
 
 //////////////////////////////////////////////////
 // ✅ WHATSAPP
 //////////////////////////////////////////////////
-async function enviarWhatsApp(telefono,mensaje,media){
+async function enviarWhatsApp(t,m,media){
 
 if(media){
 await fetch(`https://api.ultramsg.com/${instance}/messages/image`,{
 method:'POST',
 headers:{'Content-Type':'application/x-www-form-urlencoded'},
-body:new URLSearchParams({
-token:token,
-to:telefono,
-image:media,
-caption:mensaje
-})
-});
-}else{
-await fetch(`https://api.ultramsg.com/${instance}/messages/chat`,{
-method:'POST',
-headers:{'Content-Type':'application/x-www-form-urlencoded'},
-body:new URLSearchParams({
-token:token,
-to:telefono,
-body:mensaje
-})
+body:new URLSearchParams({token,to:t,image:media,caption:m})
 });
 }
 }
 
 //////////////////////////////////////////////////
-// ✅ AUTOMÁTICO POR FECHA 🎂
-//////////////////////////////////////////////////
-function envioAutomatico(){
-
-let hoy=new Date().toISOString().split('T')[0];
-
-contactos.forEach(c=>{
-
-if(c.fecha===hoy){
-
-let media=(plantillas.find(p=>p.marca===c.marca)||{}).archivo;
-
-enviarWhatsApp(
-c.telefono,
-generarMensaje(c.nombre,c.marca),
-media
-);
-
-}
-
-});
-
-}
-
-//////////////////////////////////////////////////
-// ✅ TABLA
+// ✅ TABLAS
 //////////////////////////////////////////////////
 function render(){
 
-let tabla=document.getElementById('tabla');
-tabla.innerHTML='';
+let t=document.getElementById('tabla');
+t.innerHTML='';
 
 contactos.forEach(c=>{
-
-tabla.innerHTML+=`
+t.innerHTML+=`
 <tr>
 <td>${c.nombre}</td>
 <td>${c.telefono}</td>
 <td>${c.marca}</td>
 <td>${c.fecha}</td>
 <td>
-<div class="table-btn">
-<button onclick="enviarAhora('${c.telefono}','${c.nombre}','${c.marca}')">📲</button>
-<button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
-</div>
+<button onclick="borrarContacto('${c.telefono}')">🗑</button>
 </td>
 </tr>`;
 });
 }
 
-async function enviarAhora(t,n,m){
-let media=(plantillas.find(p=>p.marca===m)||{}).archivo;
-await enviarWhatsApp(t,generarMensaje(n,m),media);
-mostrarEstado('Enviado ✅','success');
+function renderPlantillas(){
+
+let t=document.getElementById('tablaPlantillas');
+t.innerHTML='';
+
+plantillas.forEach(p=>{
+t.innerHTML+=`
+<tr>
+<td>${p.marca}</td>
+<td>${p.plantilla}</td>
+<td>${p.archivo ? '✅' : '❌'}</td>
+</tr>`;
+});
 }
 
 //////////////////////////////////////////////////
 window.onload=()=>{
 cargarContactos();
 cargarPlantillas();
-setInterval(envioAutomatico,60000);
 };
 
 </script>
 
 </body>
 </html>
+``
