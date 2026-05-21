@@ -48,10 +48,6 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
   grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
   gap:10px;
 }
-#contenedorGaleria img,#contenedorGaleria video{
-  width:100%;
-  border-radius:10px;
-}
 </style>
 </head>
 
@@ -59,10 +55,12 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <div class="container">
 
+<!-- ✅ LOGO BIEN -->
 <div class="banner">
   <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
 </div>
 
+<!-- ✅ TABS -->
 <div class="tabs">
   <div class="tab active" data-tab="contacto">Contacto</div>
   <div class="tab" data-tab="plantilla">Plantilla</div>
@@ -73,29 +71,34 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <!-- CONTACTO -->
 <div id="contacto" class="section active">
-<input id="nombre" placeholder="Nombre">
-<input id="telefono" placeholder="Teléfono">
-<select id="marca"><option>ADMIN</option><option>ADO</option></select>
+<h3>Agregar contacto</h3>
+
+<input id="nombre">
+<input id="telefono">
+
+<select id="marca">
+<option>ADMIN</option>
+<option>ADO</option>
+</select>
+
 <input type="date" id="fecha">
 
-<div style="display:flex;justify-content:space-between;">
-<button class="save" onclick="agregarContacto()">Guardar</button>
-<button class="sheet" onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit')">Sheets</button>
-</div>
+<button onclick="agregarContacto()">Guardar</button>
 </div>
 
 <!-- CONTACTOS -->
 <div id="lista" class="section">
-<table><tbody id="tabla"></tbody></table>
+<table>
+<tbody id="tabla"></tbody>
+</table>
 </div>
 
 <!-- PLANTILLAS -->
-<div id="plantillas" class="section">
-<table><tbody id="tablaPlantillas"></tbody></table>
-</div>
+<div id="plantillas" class="section"></div>
 
 <!-- GALERIA -->
 <div id="galeria" class="section">
+<h3>Galería</h3>
 <div id="contenedorGaleria"></div>
 </div>
 
@@ -103,15 +106,11 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <script>
 
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec";
-
-let contactos=[],galeria=[];
+const URL="https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec";
 
 //////////////////////////////////////////////////
-// ✅ TABS SIEMPRE FUNCIONAN
+// ✅ TABS (NUNCA FALLAN)
 //////////////////////////////////////////////////
-document.addEventListener("DOMContentLoaded", ()=>{
-
 document.querySelectorAll(".tab").forEach(tab=>{
 tab.onclick=()=>{
 
@@ -124,67 +123,55 @@ document.getElementById(tab.dataset.tab).classList.add("active");
 };
 });
 
-// ✅ cargar sin romper sistema
-cargarContactos();
-cargarGaleria();
+//////////////////////////////////////////////////
+// CONTACTOS (NO ROMPE)
+//////////////////////////////////////////////////
+async function agregarContacto(){
 
+fetch(URL,{
+method:"POST",
+body:JSON.stringify({
+nombre:nombre.value,
+telefono:telefono.value,
+marca:marca.value,
+fecha:fecha.value
+})
 });
-
-//////////////////////////////////////////////////
-// CONTACTOS
-//////////////////////////////////////////////////
-async function cargarContactos(){
-try{
-let r=await fetch(SCRIPT_URL);
-contactos=await r.json();
-render();
-}catch(e){console.log("Error contactos");}
 }
 
-function render(){
+// ✅ carga contactos con seguridad
+(async ()=>{
+try{
+let r=await fetch(URL);
+let data=await r.json();
+
 let t=document.getElementById("tabla");
-if(!t) return;
-
-t.innerHTML="";
-contactos.forEach(c=>{
-t.innerHTML+=`<tr><td>${c.nombre}</td></tr>`;
+data.forEach(c=>{
+t.innerHTML += `<tr><td>${c.nombre}</td></tr>`;
 });
-}
-
-//////////////////////////////////////////////////
-// ✅ GALERIA SEGURA (NO ROMPE SISTEMA)
-//////////////////////////////////////////////////
-async function cargarGaleria(){
-try{
-let r=await fetch(SCRIPT_URL+"?tipo=galeria");
-galeria=await r.json();
-renderGaleria();
 }catch(e){
-console.log("Galería no disponible");
+console.log("no contactos");
 }
-}
+})();
 
-function renderGaleria(){
+//////////////////////////////////////////////////
+// ✅ GALERIA SEGURA (AISLADA)
+//////////////////////////////////////////////////
+(function(){
+
+fetch(URL+"?tipo=galeria")
+.then(r=>r.json())
+.then(data=>{
 
 let cont=document.getElementById("contenedorGaleria");
-if(!cont) return;
 
-cont.innerHTML="";
-
-galeria.forEach(item=>{
+data.forEach(item=>{
 
 if(item.tipo.includes("image")){
-cont.innerHTML+=`<img src="${item.urlpo.includes("video")){
-cont.innerHTML+=`<video src="${ideo>`;
-}
+cont.innerHTML+=`<img src="${item.urlcludes("video")){
+cont.innerHTML+=`<video src="${item.url}" controls.catch(()=>console.log("galeria no disponible"));
 
-});
-}
-
-// ✅ función dummy para evitar errores
-function agregarContacto(){
-alert("Funciona ✅");
-}
+})();
 
 </script>
 
