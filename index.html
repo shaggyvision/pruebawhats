@@ -8,10 +8,6 @@
 body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 .container{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:20px;}
 
-.banner{
-  width:100%;
-  margin-bottom:20px;
-}
 .banner img{
   width:100%;
   height:160px;
@@ -19,18 +15,12 @@ body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
   border-radius:12px;
 }
 
-.tabs{display:flex;gap:10px;margin-bottom:20px;justify-content:center;}
-.tab{
-  padding:10px 15px;
-  background:#ddd;
-  cursor:pointer;
-  border-radius:8px;
-}
-.tab.active{
-  background:#7e22ce;
-  color:white;
-}
+/* Tabs */
+.tabs{display:flex;gap:10px;margin:20px 0;justify-content:center;}
+.tab{padding:10px 15px;background:#ddd;border-radius:8px;cursor:pointer;}
+.tab.active{background:#7e22ce;color:white;}
 
+/* Sections */
 .section{display:none;}
 .section.active{display:block;}
 
@@ -40,24 +30,42 @@ input, textarea, select{
   margin-top:10px;
 }
 
+/* Buttons */
 button{
   padding:10px;
   border:none;
-  cursor:pointer;
   border-radius:8px;
   color:white;
+  cursor:pointer;
   display:flex;
   align-items:center;
   gap:6px;
 }
-
 .save{background:#7e22ce;}
 .send{background:#16a34a;}
 .delete{background:#dc2626;}
 .sheet{background:#15803d;}
 
-table{width:100%;margin-top:20px;border-collapse:collapse;}
+table{width:100%;margin-top:15px;border-collapse:collapse;}
 td,th{padding:10px;border-bottom:1px solid #ddd;}
+
+/* ✅ GALERIA */
+#contenedorGaleria{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:10px;
+}
+
+#contenedorGaleria img,
+#contenedorGaleria video{
+  width:100%;
+  border-radius:10px;
+  transition:0.3s;
+}
+#contenedorGaleria img:hover,
+#contenedorGaleria video:hover{
+  transform:scale(1.05);
+}
 </style>
 </head>
 
@@ -66,9 +74,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <div class="container">
 
 <!-- ✅ BANNER -->
-<div class="banner">
-  <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
-</div>
+https://shaggyvision.github.io/pruebawhats/logo.png
 
 <!-- ✅ TABS -->
 <div class="tabs">
@@ -76,6 +82,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
   <div class="tab" data-tab="plantilla">Plantilla</div>
   <div class="tab" data-tab="lista">Contactos</div>
   <div class="tab" data-tab="plantillas">Plantillas</div>
+  <div class="tab" data-tab="galeria">Galería</div>
 </div>
 
 <!-- ✅ CONTACTO -->
@@ -95,25 +102,19 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <input type="date" id="fecha">
 
-<!-- ✅ BOTONES EN LA MISMA LÍNEA -->
-<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
-
-  <button class="save" onclick="agregarContacto()">
-    ✅ Guardar
-  </button>
+<div style="display:flex;justify-content:space-between;margin-top:10px;">
+  <button class="save" onclick="agregarContacto()">✅ Guardar</button>
 
   <button class="sheet"
     onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit')">
-    📊 BD-CONTACTOS
+    📊 Sheets
   </button>
-
 </div>
 
 </div>
 
 <!-- ✅ PLANTILLA -->
 <div id="plantilla" class="section">
-
 <h3>Crear plantilla</h3>
 
 <select id="marcaPlantilla">
@@ -124,18 +125,13 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 </select>
 
 <textarea id="textoPlantilla">Hola {Nombre}</textarea>
-
 <input id="urlMedia" placeholder="URL imagen/video">
 
-<button class="save" style="margin-top:10px;" onclick="guardarPlantilla()">
-💾 Guardar plantilla
-</button>
-
+<button class="save" onclick="guardarPlantilla()">💾 Guardar</button>
 </div>
 
 <!-- ✅ CONTACTOS -->
 <div id="lista" class="section">
-
 <h3>Contactos</h3>
 
 <table>
@@ -148,15 +144,12 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <th>Acción</th>
 </tr>
 </thead>
-
 <tbody id="tabla"></tbody>
 </table>
-
 </div>
 
 <!-- ✅ PLANTILLAS -->
 <div id="plantillas" class="section">
-
 <h3>Plantillas</h3>
 
 <table>
@@ -168,10 +161,14 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <th>Acción</th>
 </tr>
 </thead>
-
 <tbody id="tablaPlantillas"></tbody>
 </table>
+</div>
 
+<!-- ✅ GALERIA -->
+<div id="galeria" class="section">
+<h3>Galería</h3>
+<div id="contenedorGaleria"></div>
 </div>
 
 </div>
@@ -182,6 +179,7 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GH
 
 let contactos = [];
 let plantillas = [];
+let galeria = [];
 
 //////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function(){
@@ -202,22 +200,23 @@ document.getElementById(id).classList.add("active");
 
 cargarContactos();
 cargarPlantillas();
+cargarGaleria();
 
 });
 
 //////////////////////////////////////////////////
 async function cargarContactos(){
-let res = await fetch(SCRIPT_URL);
-contactos = await res.json();
+let r = await fetch(SCRIPT_URL);
+contactos = await r.json();
 render();
 }
 
 async function agregarContacto(){
 
-let nombre = document.getElementById("nombre").value;
-let telefono = document.getElementById("telefono").value;
-let marca = document.getElementById("marca").value;
-let fecha = document.getElementById("fecha").value;
+let nombre = nombre.value;
+let telefono = telefono.value;
+let marca = marca.value;
+let fecha = fecha.value;
 
 await fetch(SCRIPT_URL,{
 method:"POST",
@@ -230,13 +229,12 @@ cargarContactos();
 }
 
 async function borrarContacto(telefono){
-
-if(!confirm("¿Eliminar contacto?")) return;
+if(!confirm("Eliminar?")) return;
 
 await fetch(SCRIPT_URL,{
 method:"POST",
 headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({accion:"borrar",telefono})
+body:JSON.stringify({accion:'borrar',telefono})
 });
 
 cargarContactos();
@@ -244,42 +242,39 @@ cargarContactos();
 
 //////////////////////////////////////////////////
 async function cargarPlantillas(){
-let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
-plantillas = await res.json();
+let r = await fetch(SCRIPT_URL+"?tipo=plantillas");
+plantillas = await r.json();
 renderPlantillas();
 }
 
 async function guardarPlantilla(){
-
-let marca = document.getElementById("marcaPlantilla").value;
-let plantilla = document.getElementById("textoPlantilla").value;
-let archivo = document.getElementById("urlMedia").value;
+let marca = marcaPlantilla.value;
+let plantilla = textoPlantilla.value;
+let archivo = urlMedia.value;
 
 await fetch(SCRIPT_URL,{
 method:"POST",
 headers:{'Content-Type':'text/plain'},
 body:JSON.stringify({
 tipoOperacion:"guardarPlantilla",
-marca,
-plantilla,
-archivoURLmanual:archivo
+marca,plantilla,archivoURLmanual:archivo
 })
 });
 
-alert("✅ Plantilla guardada");
+alert("✅ Guardada");
 cargarPlantillas();
 }
 
 async function borrarPlantilla(marca){
 
-if(!confirm("¿Eliminar plantilla de " + marca + "?")) return;
+if(!confirm("Eliminar plantilla?")) return;
 
 await fetch(SCRIPT_URL,{
 method:"POST",
 headers:{'Content-Type':'text/plain'},
 body:JSON.stringify({
 tipoOperacion:"borrarPlantilla",
-marca:marca
+marca
 })
 });
 
@@ -289,11 +284,10 @@ cargarPlantillas();
 //////////////////////////////////////////////////
 function render(){
 
-let t = document.getElementById("tabla");
-t.innerHTML = "";
+tabla.innerHTML="";
 
 contactos.forEach(c=>{
-t.innerHTML += `
+tabla.innerHTML+=`
 <tr>
 <td>${c.nombre}</td>
 <td>${c.telefono}</td>
@@ -309,15 +303,14 @@ t.innerHTML += `
 
 function renderPlantillas(){
 
-let t = document.getElementById("tablaPlantillas");
-t.innerHTML = "";
+tablaPlantillas.innerHTML="";
 
 plantillas.forEach(p=>{
-t.innerHTML += `
+tablaPlantillas.innerHTML+=`
 <tr>
 <td>${p.marca}</td>
 <td>${p.plantilla}</td>
-<td>${p.archivo || ''}</td>
+<td>${p.archivo||''}</td>
 <td>
 <button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
 </td>
@@ -326,17 +319,40 @@ t.innerHTML += `
 }
 
 //////////////////////////////////////////////////
-async function enviarAhora(telefono,nombre,marca){
+// ✅ GALERIA
+//////////////////////////////////////////////////
+async function cargarGaleria(){
 
-let plantilla = plantillas.find(p=>p.marca === marca);
+let r = await fetch(SCRIPT_URL+"?tipo=galeria");
+galeria = await r.json();
 
-let mensaje = plantilla
-  ? plantilla.plantilla.replace("{Nombre}", nombre)
-  : "Hola " + nombre;
+renderGaleria();
+}
+
+function renderGaleria(){
+
+let cont = document.getElementById("contenedorGaleria");
+cont.innerHTML="";
+
+galeria.forEach(item=>{
+
+if(item.tipo.includes("image")){
+cont.innerHTML+=`${item.url}`;
+}
+else if(item.tipo.includes("video")){
+cont.innerHTML+=`${item.url}`;
+}
+
+});
+}
+
+//////////////////////////////////////////////////
+async function enviarAhora(t,n,m){
+
+let plantilla = plantillas.find(p=>p.marca===m);
+let msg = plantilla ? plantilla.plantilla.replace('{Nombre}',n) : "Hola";
 
 let media = plantilla ? plantilla.archivo : "";
-
-try{
 
 if(media){
 await fetch(`https://api.ultramsg.com/instance174263/messages/image`,{
@@ -344,9 +360,9 @@ method:'POST',
 headers:{'Content-Type':'application/x-www-form-urlencoded'},
 body:new URLSearchParams({
 token:'a7hqz1tofhwq65b4',
-to:telefono,
+to:t,
 image:media,
-caption:mensaje
+caption:msg
 })
 });
 }else{
@@ -355,23 +371,16 @@ method:'POST',
 headers:{'Content-Type':'application/x-www-form-urlencoded'},
 body:new URLSearchParams({
 token:'a7hqz1tofhwq65b4',
-to:telefono,
-body:mensaje
+to:t,
+body:msg
 })
 });
 }
 
 alert("✅ Enviado");
-
-}catch(e){
-alert("Error");
-console.error(e);
-}
-
 }
 
 </script>
 
 </body>
 </html>
-``
