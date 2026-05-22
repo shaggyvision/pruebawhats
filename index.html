@@ -3,41 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <title>CRM Happy Moments</title>
-
 <style>
 body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 .container{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:20px;}
-
 .banner img{
  width:100%;
  height:160px;
  object-fit:contain;
  border-radius:12px;
 }
-
 .tabs{display:flex;gap:10px;margin-bottom:20px;justify-content:center;}
-
 .tab{
  padding:10px 15px;
  background:#ddd;
  cursor:pointer;
  border-radius:8px;
 }
-
 .tab.active{
  background:#7e22ce;
  color:white;
 }
-
 .section{display:none;}
 .section.active{display:block;}
-
 input, textarea, select{
  width:100%;
  padding:10px;
  margin-top:10px;
 }
-
 button{
  padding:10px;
  border:none;
@@ -48,17 +40,14 @@ button{
  align-items:center;
  gap:6px;
 }
-
 .save{background:#7e22ce;}
 .send{background:#16a34a;}
 .delete{background:#dc2626;}
 .sheet{background:#15803d;}
-
 table{width:100%;margin-top:20px;border-collapse:collapse;}
 td,th{padding:10px;border-bottom:1px solid #ddd;}
 </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -82,23 +71,31 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <input id="telefono" placeholder="521XXXXXXXXXX">
 
 <select id="marca">
-<option>ADMIN</option>
-<option>ADO</option>
-<option>SUR</option>
-<option>TRT</option>
+<option>ADMIN CUMPLEAÑOS</option>
+<option>ADMIN ANIVERSARIO</option>
+<option>ADMIN RECONOCIMIENTO</option>
+<option>ADO CUMPLEAÑOS</option>
+<option>ADO ANIVERSARIO</option>
+<option>ADO RECONOCIMIENTO</option>
+<option>SUR CUMPLEAÑOS</option>
+<option>SUR ANIVERSARIO</option>
+<option>SUR RECONOCIMIENTO</option>
+<option>TRT CUMPLEAÑOS</option>
+<option>TRT ANIVERSARIO</option>
+<option>TRT RECONOCIMIENTO</option>
+<option>GERENTE CUMPLEAÑOS</option>
+<option>GERENTE ANIVERSARIO</option>
+<option>GERENTE RECONOCIMIENTO</option>
 </select>
 
 <input type="date" id="fecha">
 
 <div style="display:flex;justify-content:space-between;margin-top:10px;">
-
 <button class="save" onclick="agregarContacto()">✅ Guardar</button>
-
 <button class="sheet"
 onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit')">
 📊 BD-CONTACTOS
 </button>
-
 </div>
 </div>
 
@@ -107,14 +104,24 @@ onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zx
 <h3>Crear plantilla</h3>
 
 <select id="marcaPlantilla">
-<option>ADMIN</option>
-<option>ADO</option>
-<option>SUR</option>
-<option>TRT</option>
+<option>ADMIN CUMPLEAÑOS</option>
+<option>ADMIN ANIVERSARIO</option>
+<option>ADMIN RECONOCIMIENTO</option>
+<option>ADO CUMPLEAÑOS</option>
+<option>ADO ANIVERSARIO</option>
+<option>ADO RECONOCIMIENTO</option>
+<option>SUR CUMPLEAÑOS</option>
+<option>SUR ANIVERSARIO</option>
+<option>SUR RECONOCIMIENTO</option>
+<option>TRT CUMPLEAÑOS</option>
+<option>TRT ANIVERSARIO</option>
+<option>TRT RECONOCIMIENTO</option>
+<option>GERENTE CUMPLEAÑOS</option>
+<option>GERENTE ANIVERSARIO</option>
+<option>GERENTE RECONOCIMIENTO</option>
 </select>
 
 <textarea id="textoPlantilla">Hola {Nombre}</textarea>
-
 <input id="urlMedia" placeholder="URL imagen/video">
 
 <button class="save" style="margin-top:10px;" onclick="guardarPlantilla()">
@@ -124,9 +131,7 @@ onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zx
 
 <!-- CONTACTOS -->
 <div id="lista" class="section">
-
 <h3>Contactos</h3>
-
 <table>
 <thead>
 <tr>
@@ -137,16 +142,13 @@ onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zx
 <th>Acción</th>
 </tr>
 </thead>
-
 <tbody id="tabla"></tbody>
 </table>
 </div>
 
 <!-- PLANTILLAS -->
 <div id="plantillas" class="section">
-
 <h3>Plantillas</h3>
-
 <table>
 <thead>
 <tr>
@@ -156,7 +158,6 @@ onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zx
 <th>Acción</th>
 </tr>
 </thead>
-
 <tbody id="tablaPlantillas"></tbody>
 </table>
 </div>
@@ -164,29 +165,22 @@ onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zx
 </div>
 
 <script>
-
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec";
-
 let contactos = [];
 let plantillas = [];
 
 document.addEventListener("DOMContentLoaded", function(){
-
 document.querySelectorAll(".tab").forEach(tab=>{
 tab.addEventListener("click", function(){
 document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
 this.classList.add("active");
-
 let id = this.dataset.tab;
-
 document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
 document.getElementById(id).classList.add("active");
 });
 });
-
 cargarContactos();
 cargarPlantillas();
-
 });
 
 //////////////////////////////////////////////////
@@ -198,7 +192,6 @@ render();
 }
 
 async function agregarContacto(){
-
 let nombre = document.getElementById("nombre").value;
 let telefono = document.getElementById("telefono").value;
 let marca = document.getElementById("marca").value;
@@ -215,7 +208,6 @@ cargarContactos();
 }
 
 async function borrarContacto(telefono){
-
 if(!confirm("¿Eliminar contacto?")) return;
 
 await fetch(SCRIPT_URL,{
@@ -236,7 +228,6 @@ renderPlantillas();
 }
 
 async function guardarPlantilla(){
-
 let marca = document.getElementById("marcaPlantilla").value;
 let plantilla = document.getElementById("textoPlantilla").value;
 let archivo = document.getElementById("urlMedia").value;
@@ -257,7 +248,6 @@ cargarPlantillas();
 }
 
 async function borrarPlantilla(marca){
-
 if(!confirm("¿Eliminar plantilla de " + marca + "?")) return;
 
 await fetch(SCRIPT_URL,{
@@ -275,12 +265,10 @@ cargarPlantillas();
 //////////////////////////////////////////////////
 
 function render(){
-
 let t = document.getElementById("tabla");
 t.innerHTML = "";
 
 contactos.forEach(c=>{
-
 t.innerHTML += `
 <tr>
 <td>${c.nombre}</td>
@@ -288,15 +276,12 @@ t.innerHTML += `
 <td>${c.marca}</td>
 <td>${c.fecha}</td>
 <td>
-
 <button class="send"
 data-tel="${c.telefono}"
 data-nombre="${c.nombre}"
 data-marca="${c.marca}"
 onclick="enviarDesdeBoton(this)">📲</button>
-
 <button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
-
 </td>
 </tr>
 `;
@@ -304,79 +289,3 @@ onclick="enviarDesdeBoton(this)">📲</button>
 }
 
 function renderPlantillas(){
-
-let t = document.getElementById("tablaPlantillas");
-t.innerHTML = "";
-
-plantillas.forEach(p=>{
-t.innerHTML += `
-<tr>
-<td>${p.marca}</td>
-<td>${p.plantilla}</td>
-<td>${p.archivo || p.archivoURLmanual || ''}</td>
-<td>
-<button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
-</td>
-</tr>`;
-});
-}
-
-//////////////////////////////////////////////////
-
-function enviarDesdeBoton(btn){
-
-let telefono = btn.dataset.tel.replace(/\D/g,'');
-let nombre = btn.dataset.nombre;
-let marca = btn.dataset.marca;
-
-enviarAhora(telefono,nombre,marca);
-}
-
-function tipoMedia(url){
-
-  if(/\.(jpg|jpeg|png|webp)$/i.test(url)){
-    return "imagen";
-  }
-
-  if(/\.(mp4|mov|avi)$/i.test(url)){
-    return "video";
-  }
-
-  return "ninguno";
-}
-
-function enviarAhora(telefono,nombre,marca){
-
-  let plantilla = plantillas.find(p => p.marca === marca);
-
-  let mensaje = plantilla
-    ? plantilla.plantilla.replace("{Nombre}",nombre)
-    : "Hola " + nombre;
-
-  let media = plantilla ? (plantilla.archivo || plantilla.archivoURLmanual) : "";
-
-  let tipo = tipoMedia(media);
-
-  if(tipo === "imagen"){
-
-    let url = `https://api.ultramsg.com/instance174263/messages/image?token=a7hqz1tofhwq65b4&to=${telefono}&image=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`;
-    window.open(url,"_blank");
-
-  } else if(tipo === "video"){
-
-    let url = `https://api.ultramsg.com/instance174263/messages/video?token=a7hqz1tofhwq65b4&to=${telefono}&video=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`;
-    window.open(url,"_blank");
-
-  } else {
-
-    let url = `https://api.ultramsg.com/instance174263/messages/chat?token=a7hqz1tofhwq65b4&to=${telefono}&body=${encodeURIComponent(mensaje)}`;
-    window.open(url,"_blank");
-  }
-
-  alert("✅ Enviando a " + telefono);
-}
-
-</script>
-
-</body>
-</html>
