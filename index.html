@@ -3,43 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <title>CRM Happy Moments</title>
+
 <style>
 body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 .container{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:20px;}
-.banner img{
- width:100%;
- height:160px;
- object-fit:contain;
- border-radius:12px;
-}
+.banner img{width:100%;height:160px;object-fit:contain;border-radius:12px;}
 .tabs{display:flex;gap:10px;margin-bottom:20px;justify-content:center;}
-.tab{
- padding:10px 15px;
- background:#ddd;
- cursor:pointer;
- border-radius:8px;
-}
-.tab.active{
- background:#7e22ce;
- color:white;
-}
+.tab{padding:10px 15px;background:#ddd;cursor:pointer;border-radius:8px;}
+.tab.active{background:#7e22ce;color:white;}
 .section{display:none;}
 .section.active{display:block;}
-input, textarea, select{
- width:100%;
- padding:10px;
- margin-top:10px;
-}
-button{
- padding:10px;
- border:none;
- cursor:pointer;
- border-radius:8px;
- color:white;
- display:flex;
- align-items:center;
- gap:6px;
-}
+input, textarea, select{width:100%;padding:10px;margin-top:10px;}
+button{padding:10px;border:none;cursor:pointer;border-radius:8px;color:white;display:flex;align-items:center;gap:6px;}
 .save{background:#7e22ce;}
 .send{background:#16a34a;}
 .delete{background:#dc2626;}
@@ -48,6 +23,7 @@ table{width:100%;margin-top:20px;border-collapse:collapse;}
 td,th{padding:10px;border-bottom:1px solid #ddd;}
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -57,10 +33,10 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 </div>
 
 <div class="tabs">
- <div class="tab active" data-tab="contacto">Contacto</div>
- <div class="tab" data-tab="plantilla">Plantilla</div>
- <div class="tab" data-tab="lista">Contactos</div>
- <div class="tab" data-tab="plantillas">Plantillas</div>
+<div class="tab active" data-tab="contacto">Contacto</div>
+<div class="tab" data-tab="plantilla">Plantilla</div>
+<div class="tab" data-tab="lista">Contactos</div>
+<div class="tab" data-tab="plantillas">Plantillas</div>
 </div>
 
 <!-- CONTACTO -->
@@ -90,13 +66,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <input type="date" id="fecha">
 
-<div style="display:flex;justify-content:space-between;margin-top:10px;">
 <button class="save" onclick="agregarContacto()">✅ Guardar</button>
-<button class="sheet"
-onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit')">
-📊 BD-CONTACTOS
-</button>
-</div>
 </div>
 
 <!-- PLANTILLA -->
@@ -124,9 +94,7 @@ onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zx
 <textarea id="textoPlantilla">Hola {Nombre}</textarea>
 <input id="urlMedia" placeholder="URL imagen/video">
 
-<button class="save" style="margin-top:10px;" onclick="guardarPlantilla()">
-💾 Guardar plantilla
-</button>
+<button class="save" onclick="guardarPlantilla()">💾 Guardar plantilla</button>
 </div>
 
 <!-- CONTACTOS -->
@@ -165,13 +133,13 @@ onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zx
 </div>
 
 <script>
+
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec";
 
 let contactos = [];
 let plantillas = [];
 
-document.addEventListener("DOMContentLoaded", function(){
-
+document.addEventListener("DOMContentLoaded", () => {
 document.querySelectorAll(".tab").forEach(tab=>{
 tab.addEventListener("click", function(){
 document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
@@ -184,8 +152,117 @@ document.getElementById(id).classList.add("active");
 
 cargarContactos();
 cargarPlantillas();
-
 });
+
+//////////////////////////////////////////////////
+
+async function cargarContactos(){
+let res = await fetch(SCRIPT_URL);
+contactos = await res.json();
+render();
+}
+
+async function agregarContacto(){
+let nombre = nombre.value;
+let telefono = telefono.value;
+let marca = marca.value;
+let fecha = fecha.value;
+
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({nombre,telefono,marca,fecha})
+});
+
+alert("Guardado");
+cargarContactos();
+}
+
+//////////////////////////////////////////////////
+
+async function cargarPlantillas(){
+let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
+plantillas = await res.json();
+renderPlantillas();
+}
+
+async function guardarPlantilla(){
+let marca = marcaPlantilla.value;
+let plantilla = textoPlantilla.value;
+let archivo = urlMedia.value;
+
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({
+tipoOperacion:"guardarPlantilla",
+marca,
+plantilla,
+archivoURLmanual:archivo
+})
+});
+
+alert("Plantilla guardada");
+cargarPlantillas();
+}
+
+//////////////////////////////////////////////////
+
+function render(){
+let t = document.getElementById("tabla");
+t.innerHTML = "";
+
+contactos.forEach(c=>{
+t.innerHTML += `
+<tr>
+<td>${c.nombre}</td>
+<td>${c.telefono}</td>
+<td>${c.marca}</td>
+<td>${c.fecha}</td>
+<td>
+<button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
+</td>
+</tr>`;
+});
+}
+
+function renderPlantillas(){
+let t = document.getElementById("tablaPlantillas");
+t.innerHTML = "";
+
+plantillas.forEach(p=>{
+t.innerHTML += `
+<tr>
+<td>${p.marca}</td>
+<td>${p.plantilla}</td>
+<td>${p.archivoURLmanual || ''}</td>
+<td>
+<button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
+</td>
+</tr>`;
+});
+}
+
+//////////////////////////////////////////////////
+
+async function borrarContacto(telefono){
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({accion:"borrar",telefono})
+});
+cargarContactos();
+}
+
+async function borrarPlantilla(marca){
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({tipoOperacion:"borrarPlantilla",marca})
+});
+cargarPlantillas();
+}
+
 </script>
 
 </body>
