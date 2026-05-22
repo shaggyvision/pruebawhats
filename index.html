@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>CRM Happy Moments</title>
-
 <style>
 body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 .container{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:20px;}
@@ -25,9 +24,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 </head>
 
 <body>
-
 <div class="container">
-
 <div class="banner">
 <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
 </div>
@@ -44,7 +41,6 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <h3>Agregar contacto</h3>
 <input id="nombre" placeholder="Nombre">
 <input id="telefono" placeholder="521XXXXXXXXXX">
-
 <select id="marca">
 <option>ADMIN CUMPLEAÑOS</option>
 <option>ADMIN ANIVERSARIO</option>
@@ -59,7 +55,6 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <option>TRT ANIVERSARIO</option>
 <option>TRT RECONOCIMIENTO</option>
 </select>
-
 <input type="date" id="fecha">
 
 <div style="display:flex;justify-content:space-between;margin-top:10px;">
@@ -73,7 +68,6 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <!-- PLANTILLA -->
 <div id="plantilla" class="section">
 <h3>Crear plantilla</h3>
-
 <select id="marcaPlantilla">
 <option>ADMIN CUMPLEAÑOS</option>
 <option>ADMIN ANIVERSARIO</option>
@@ -117,6 +111,13 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <!-- PLANTILLAS -->
 <div id="plantillas" class="section">
 <h3>Plantillas</h3>
+
+<!-- ✅ BOTÓN NUEVO -->
+<button class="save" style="margin-bottom:10px;"
+onclick="window.open('https://console.cloudinary.com')">
+☁️ Abrir Cloudinary
+</button>
+
 <table>
 <thead>
 <tr>
@@ -133,37 +134,29 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 </div>
 
 <script>
-
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec";
 
 let contactos = [];
 let plantillas = [];
 
 document.addEventListener("DOMContentLoaded", function(){
-
 document.querySelectorAll(".tab").forEach(tab =>{
 tab.addEventListener("click", function(){
 document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
 this.classList.add("active");
-
 let id = this.dataset.tab;
 document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
 document.getElementById(id).classList.add("active");
 });
 });
-
 cargarContactos();
 cargarPlantillas();
-
 });
 
-// ✅ CARGA CONTACTOS + AUTOENVÍO
 async function cargarContactos(){
 let res = await fetch(SCRIPT_URL);
 contactos = await res.json();
 render();
-
-// 🔥 AUTOMÁTICO
 revisarFechasAutomatico();
 }
 
@@ -253,7 +246,6 @@ data-tel="${c.telefono}"
 data-nombre="${c.nombre}"
 data-marca="${c.marca}"
 onclick="enviarDesdeBoton(this)">📲</button>
-
 <button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
 </td>
 </tr>`;
@@ -277,45 +269,32 @@ t.innerHTML += `
 });
 }
 
-// ✅ BOTÓN MANUAL
 function enviarDesdeBoton(btn){
 let telefono = btn.dataset.tel.replace(/\D/g,'');
 let nombre = btn.dataset.nombre;
 let marca = btn.dataset.marca;
-
 enviarAhora(telefono,nombre,marca);
 }
 
-// ✅ AUTOMÁTICO (LO NUEVO)
 function revisarFechasAutomatico(){
-
 let hoy = new Date();
 let diaHoy = hoy.getDate();
 let mesHoy = hoy.getMonth() + 1;
 let claveHoy = hoy.toDateString();
 
 contactos.forEach(c=>{
-
 if(!c.fecha) return;
-
 let fecha = new Date(c.fecha);
 
 if(fecha.getDate()==diaHoy && (fecha.getMonth()+1)==mesHoy){
-
 let clave = c.telefono + "_" + claveHoy;
 
-// evitar duplicados
 if(localStorage.getItem(clave)) return;
 
 localStorage.setItem(clave,"ENVIADO");
 
-console.log("🎉 Envío automático:", c.nombre);
-
-// usa tu función actual
 enviarAhora(c.telefono,c.nombre,c.marca);
-
 }
-
 });
 }
 
@@ -326,7 +305,6 @@ return "ninguno";
 }
 
 function enviarAhora(telefono,nombre,marca){
-
 let plantilla = plantillas.find(p =>
 p.marca.trim().toUpperCase() === marca.trim().toUpperCase()
 );
@@ -336,7 +314,6 @@ let mensaje = plantilla
 : "Hola " + nombre;
 
 let media = plantilla ? plantilla.archivo : "";
-
 let tipo = tipoMedia(media);
 
 if(tipo === "imagen"){
@@ -351,7 +328,6 @@ window.open(`https://api.ultramsg.com/instance174263/messages/chat?token=a7hqz1t
 
 console.log("✅ Enviando a " + telefono);
 }
-
 </script>
 
 </body>
