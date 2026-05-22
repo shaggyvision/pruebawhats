@@ -327,7 +327,9 @@ return "ninguno";
 
 function enviarAhora(telefono,nombre,marca){
 
-let plantilla = plantillas.find(p => p.marca === marca);
+let plantilla = plantillas.find(p =>
+p.marca.trim().toUpperCase() === marca.trim().toUpperCase()
+);
 
 let mensaje = plantilla
 ? plantilla.plantilla.replace("{Nombre}",nombre)
