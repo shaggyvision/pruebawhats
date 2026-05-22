@@ -118,7 +118,6 @@ onclick="window.open('https://console.cloudinary.com/app/c-5bc2ef093db7a7aebd17f
 <!-- PLANTILLAS -->
 <div id="plantillas" class="section">
 <h3>Plantillas</h3>
-
 <table>
 <thead>
 <tr>
@@ -161,26 +160,16 @@ render();
 revisarFechasAutomatico();
 }
 
-async function agregarContacto(){
-let nombre = document.getElementById("nombre").value;
-let telefono = document.getElementById("telefono").value;
-let marca = document.getElementById("marca").value;
-let fecha = document.getElementById("fecha").value;
+async function borrarContacto(telefono){
+if(!confirm("¿Eliminar contacto?")) return;
 
 await fetch(SCRIPT_URL,{
 method:"POST",
 headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({nombre,telefono,marca,fecha})
+body:JSON.stringify({accion:"borrar",telefono})
 });
 
-alert("✅ Guardado");
 cargarContactos();
-}
-
-async function cargarPlantillas(){
-let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
-plantillas = await res.json();
-renderPlantillas();
 }
 
 function revisarFechasAutomatico(){
@@ -192,21 +181,15 @@ let claveHoy = hoy.toDateString();
 contactos.forEach(c=>{
 if(!c.fecha) return;
 
-// ✅ FIX DEFINITIVO
 let fecha = new Date(c.fecha + "T00:00:00");
 
-let dia = fecha.getDate();
-let mes = fecha.getMonth() + 1;
-
-if(dia === diaHoy && mes === mesHoy){
+if(fecha.getDate()==diaHoy && (fecha.getMonth()+1)==mesHoy){
 
 let clave = c.telefono + "_" + claveHoy;
 
 if(localStorage.getItem(clave)) return;
 
 localStorage.setItem(clave,"ENVIADO");
-
-console.log("🎉 ENVÍO AUTOMÁTICO:", c.nombre);
 
 enviarAhora(c.telefono,c.nombre,c.marca);
 }
@@ -216,6 +199,7 @@ enviarAhora(c.telefono,c.nombre,c.marca);
 function render(){
 let t = document.getElementById("tabla");
 t.innerHTML = "";
+
 contactos.forEach(c=>{
 t.innerHTML += `
 <tr>
@@ -229,55 +213,10 @@ data-tel="${c.telefono}"
 data-nombre="${c.nombre}"
 data-marca="${c.marca}"
 onclick="enviarDesdeBoton(this)">📲</button>
+<button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
 </td>
 </tr>`;
 });
-}
-
-function renderPlantillas(){
-let t = document.getElementById("tablaPlantillas");
-t.innerHTML = "";
-plantillas.forEach(p=>{
-t.innerHTML += `
-<tr>
-<td>${p.marca}</td>
-<td>${p.plantilla}</td>
-<td>${p.archivo || ''}</td>
-</tr>`;
-});
-}
-
-function enviarDesdeBoton(btn){
-let telefono = btn.dataset.tel.replace(/\D/g,'');
-let nombre = btn.dataset.nombre;
-let marca = btn.dataset.marca;
-enviarAhora(telefono,nombre,marca);
-}
-
-function tipoMedia(url){
-if(/\.(jpg|jpeg|png|webp)$/i.test(url)) return "imagen";
-if(/\.(mp4|mov|avi)$/i.test(url)) return "video";
-return "ninguno";
-}
-
-function enviarAhora(telefono,nombre,marca){
-let plantilla = plantillas.find(p =>
-p.marca.trim().toUpperCase() === marca.trim().toUpperCase()
-);
-
-let mensaje = plantilla
-? plantilla.plantilla.replace("{Nombre}",nombre)
-: "Hola " + nombre;
-
-let media = plantilla ? plantilla.archivo : "";
-let tipo = tipoMedia(media);
-
-if(tipo === "imagen"){
-window.open(`https://api.ultramsg.com/instance174263/messages/image?token=a7hqz1tofhwq65b4&to=${telefono}&image=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`);
-}
-else{
-window.open(`https://api.ultramsg.com/instance174263/messages/chat?token=a7hqz1tofhwq65b4&to=${telefono}&body=${encodeURIComponent(mensaje)}`);
-}
 }
 </script>
 
