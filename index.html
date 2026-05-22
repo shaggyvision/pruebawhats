@@ -160,6 +160,22 @@ render();
 revisarFechasAutomatico();
 }
 
+async function agregarContacto(){
+let nombre = document.getElementById("nombre").value;
+let telefono = document.getElementById("telefono").value;
+let marca = document.getElementById("marca").value;
+let fecha = document.getElementById("fecha").value;
+
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({nombre,telefono,marca,fecha})
+});
+
+alert("✅ Guardado");
+cargarContactos();
+}
+
 async function borrarContacto(telefono){
 if(!confirm("¿Eliminar contacto?")) return;
 
@@ -170,6 +186,32 @@ body:JSON.stringify({accion:"borrar",telefono})
 });
 
 cargarContactos();
+}
+
+async function cargarPlantillas(){
+let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
+plantillas = await res.json();
+renderPlantillas();
+}
+
+async function guardarPlantilla(){
+let marca = document.getElementById("marcaPlantilla").value;
+let plantilla = document.getElementById("textoPlantilla").value;
+let archivo = document.getElementById("urlMedia").value;
+
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({
+tipoOperacion:"guardarPlantilla",
+marca,
+plantilla,
+archivoURLmanual:archivo
+})
+});
+
+alert("✅ Plantilla guardada");
+cargarPlantillas();
 }
 
 function revisarFechasAutomatico(){
@@ -190,6 +232,8 @@ let clave = c.telefono + "_" + claveHoy;
 if(localStorage.getItem(clave)) return;
 
 localStorage.setItem(clave,"ENVIADO");
+
+console.log("🎉 ENVÍO AUTOMÁTICO:", c.nombre);
 
 enviarAhora(c.telefono,c.nombre,c.marca);
 }
@@ -217,6 +261,66 @@ onclick="enviarDesdeBoton(this)">📲</button>
 </td>
 </tr>`;
 });
+}
+
+function renderPlantillas(){
+let t = document.getElementById("tablaPlantillas");
+t.innerHTML = "";
+
+plantillas.forEach(p=>{
+t.innerHTML += `
+<tr>
+<td>${p.marca}</td>
+<td>${p.plantilla}</td>
+<td>${p.archivo || ''}</td>
+<td>
+<button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
+</td>
+</tr>`;
+});
+}
+
+function borrarPlantilla(marca){
+if(!confirm("¿Eliminar plantilla de " + marca + "?")) return;
+
+fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({tipoOperacion:"borrarPlantilla",marca})
+}).then(()=>cargarPlantillas());
+}
+
+function enviarDesdeBoton(btn){
+let telefono = btn.dataset.tel.replace(/\D/g,'');
+let nombre = btn.dataset.nombre;
+let marca = btn.dataset.marca;
+enviarAhora(telefono,nombre,marca);
+}
+
+function tipoMedia(url){
+if(/\.(jpg|jpeg|png|webp)$/i.test(url)) return "imagen";
+if(/\.(mp4|mov|avi)$/i.test(url)) return "video";
+return "ninguno";
+}
+
+function enviarAhora(telefono,nombre,marca){
+let plantilla = plantillas.find(p =>
+p.marca.trim().toUpperCase() === marca.trim().toUpperCase()
+);
+
+let mensaje = plantilla
+? plantilla.plantilla.replace("{Nombre}",nombre)
+: "Hola " + nombre;
+
+let media = plantilla ? plantilla.archivo : "";
+let tipo = tipoMedia(media);
+
+if(tipo === "imagen"){
+window.open(`https://api.ultramsg.com/instance174263/messages/image?token=a7hqz1tofhwq65b4&to=${telefono}&image=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`);
+}
+else{
+window.open(`https://api.ultramsg.com/instance174263/messages/chat?token=a7hqz1tofhwq65b4&to=${telefono}&body=${encodeURIComponent(mensaje)}`);
+}
 }
 </script>
 
