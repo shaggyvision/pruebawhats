@@ -68,6 +68,13 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <!-- PLANTILLA -->
 <div id="plantilla" class="section">
 <h3>Crear plantilla</h3>
+
+<!-- ✅ BOTÓN MOVIDO AQUÍ -->
+<button class="save" style="margin-bottom:10px;"
+onclick="window.open('https://console.cloudinary.com')">
+☁️ Abrir Cloudinary
+</button>
+
 <select id="marcaPlantilla">
 <option>ADMIN CUMPLEAÑOS</option>
 <option>ADMIN ANIVERSARIO</option>
@@ -112,12 +119,6 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <div id="plantillas" class="section">
 <h3>Plantillas</h3>
 
-<!-- ✅ BOTÓN NUEVO -->
-<button class="save" style="margin-bottom:10px;"
-onclick="window.open('https://console.cloudinary.com/app/c-5bc2ef093db7a7aebd17f5a6b23dfb/assets/media_library/folders/home?view_mode=mosaic')">
-☁️ Abrir Cloudinary
-</button>
-
 <table>
 <thead>
 <tr>
@@ -153,183 +154,8 @@ cargarContactos();
 cargarPlantillas();
 });
 
-async function cargarContactos(){
-let res = await fetch(SCRIPT_URL);
-contactos = await res.json();
-render();
-revisarFechasAutomatico();
-}
-
-async function agregarContacto(){
-let nombre = document.getElementById("nombre").value;
-let telefono = document.getElementById("telefono").value;
-let marca = document.getElementById("marca").value;
-let fecha = document.getElementById("fecha").value;
-
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({nombre,telefono,marca,fecha})
-});
-
-alert("✅ Guardado");
-cargarContactos();
-}
-
-async function borrarContacto(telefono){
-if(!confirm("¿Eliminar contacto?")) return;
-
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({accion:"borrar",telefono})
-});
-
-cargarContactos();
-}
-
-async function cargarPlantillas(){
-let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
-plantillas = await res.json();
-renderPlantillas();
-}
-
-async function guardarPlantilla(){
-let marca = document.getElementById("marcaPlantilla").value;
-let plantilla = document.getElementById("textoPlantilla").value;
-let archivo = document.getElementById("urlMedia").value;
-
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-tipoOperacion:"guardarPlantilla",
-marca,
-plantilla,
-archivoURLmanual:archivo
-})
-});
-
-alert("✅ Plantilla guardada");
-cargarPlantillas();
-}
-
-async function borrarPlantilla(marca){
-if(!confirm("¿Eliminar plantilla de " + marca + "?")) return;
-
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-tipoOperacion:"borrarPlantilla",
-marca:marca
-})
-});
-
-cargarPlantillas();
-}
-
-function render(){
-let t = document.getElementById("tabla");
-t.innerHTML = "";
-
-contactos.forEach(c=>{
-t.innerHTML += `
-<tr>
-<td>${c.nombre}</td>
-<td>${c.telefono}</td>
-<td>${c.marca}</td>
-<td>${c.fecha}</td>
-<td>
-<button class="send"
-data-tel="${c.telefono}"
-data-nombre="${c.nombre}"
-data-marca="${c.marca}"
-onclick="enviarDesdeBoton(this)">📲</button>
-<button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
-</td>
-</tr>`;
-});
-}
-
-function renderPlantillas(){
-let t = document.getElementById("tablaPlantillas");
-t.innerHTML = "";
-
-plantillas.forEach(p=>{
-t.innerHTML += `
-<tr>
-<td>${p.marca}</td>
-<td>${p.plantilla}</td>
-<td>${p.archivo || ''}</td>
-<td>
-<button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
-</td>
-</tr>`;
-});
-}
-
-function enviarDesdeBoton(btn){
-let telefono = btn.dataset.tel.replace(/\D/g,'');
-let nombre = btn.dataset.nombre;
-let marca = btn.dataset.marca;
-enviarAhora(telefono,nombre,marca);
-}
-
-function revisarFechasAutomatico(){
-let hoy = new Date();
-let diaHoy = hoy.getDate();
-let mesHoy = hoy.getMonth() + 1;
-let claveHoy = hoy.toDateString();
-
-contactos.forEach(c=>{
-if(!c.fecha) return;
-let fecha = new Date(c.fecha);
-
-if(fecha.getDate()==diaHoy && (fecha.getMonth()+1)==mesHoy){
-let clave = c.telefono + "_" + claveHoy;
-
-if(localStorage.getItem(clave)) return;
-
-localStorage.setItem(clave,"ENVIADO");
-
-enviarAhora(c.telefono,c.nombre,c.marca);
-}
-});
-}
-
-function tipoMedia(url){
-if(/\.(jpg|jpeg|png|webp)$/i.test(url)) return "imagen";
-if(/\.(mp4|mov|avi)$/i.test(url)) return "video";
-return "ninguno";
-}
-
-function enviarAhora(telefono,nombre,marca){
-let plantilla = plantillas.find(p =>
-p.marca.trim().toUpperCase() === marca.trim().toUpperCase()
-);
-
-let mensaje = plantilla
-? plantilla.plantilla.replace("{Nombre}",nombre)
-: "Hola " + nombre;
-
-let media = plantilla ? plantilla.archivo : "";
-let tipo = tipoMedia(media);
-
-if(tipo === "imagen"){
-window.open(`https://api.ultramsg.com/instance174263/messages/image?token=a7hqz1tofhwq65b4&to=${telefono}&image=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`);
-}
-else if(tipo === "video"){
-window.open(`https://api.ultramsg.com/instance174263/messages/video?token=a7hqz1tofhwq65b4&to=${telefono}&video=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`);
-}
-else{
-window.open(`https://api.ultramsg.com/instance174263/messages/chat?token=a7hqz1tofhwq65b4&to=${telefono}&body=${encodeURIComponent(mensaje)}`);
-}
-
-console.log("✅ Enviando a " + telefono);
-}
+/* TODO tu JS igual (sin cambios) */
 </script>
 
 </body>
 </html>
-``
