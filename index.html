@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>CRM Happy Moments</title>
+
 <style>
 body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 .container{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:20px;}
@@ -21,6 +22,7 @@ button{padding:10px;border:none;cursor:pointer;border-radius:8px;color:white;dis
 table{width:100%;margin-top:20px;border-collapse:collapse;}
 td,th{padding:10px;border-bottom:1px solid #ddd;}
 </style>
+
 </head>
 <body>
 
@@ -62,6 +64,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 
 <div style="display:flex;justify-content:space-between;margin-top:10px;">
 <button class="save" onclick="agregarContacto()">✅ Guardar</button>
+
 <button class="sheet" onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit')">
 📊 BD-CONTACTOS
 </button>
@@ -73,7 +76,7 @@ td,th{padding:10px;border-bottom:1px solid #ddd;}
 <h3>Crear plantilla</h3>
 
 <button class="save" style="margin-bottom:10px;"
-onclick="window.open('https://console.cloudinary.com/app/c-5bc2ef093db7a7aebd17f5a6b23dfb/assets/media_library/folders/home?view_mode=mosaic')">
+onclick="window.open('https://console.cloudinary.com')">
 ☁️ Abrir Cloudinary
 </button>
 
@@ -103,6 +106,7 @@ onclick="window.open('https://console.cloudinary.com/app/c-5bc2ef093db7a7aebd17f
 <!-- CONTACTOS -->
 <div id="lista" class="section">
 <h3>Contactos</h3>
+
 <table>
 <thead>
 <tr>
@@ -110,9 +114,11 @@ onclick="window.open('https://console.cloudinary.com/app/c-5bc2ef093db7a7aebd17f
 <th>Teléfono</th>
 <th>Área</th>
 <th>Fecha</th>
+<th>Estado</th>
 <th>Acción</th>
 </tr>
 </thead>
+
 <tbody id="tabla"></tbody>
 </table>
 </div>
@@ -120,6 +126,7 @@ onclick="window.open('https://console.cloudinary.com/app/c-5bc2ef093db7a7aebd17f
 <!-- PLANTILLAS -->
 <div id="plantillas" class="section">
 <h3>Plantillas</h3>
+
 <table>
 <thead>
 <tr>
@@ -129,6 +136,7 @@ onclick="window.open('https://console.cloudinary.com/app/c-5bc2ef093db7a7aebd17f
 <th>Acción</th>
 </tr>
 </thead>
+
 <tbody id="tablaPlantillas"></tbody>
 </table>
 </div>
@@ -154,12 +162,12 @@ document.addEventListener("DOMContentLoaded", async function(){
         });
     });
 
-    // ✅ ORDEN CORRECTO
     await cargarPlantillas();
     await cargarContactos();
 
-    // ✅ AHORA SÍ FUNCIONA AUTOMÁTICO
-    revisarFechasAutomatico();
+    // 🔒 YA NO ENVÍA DESDE EL NAVEGADOR
+    // revisarFechasAutomatico();
+
 });
 
 async function cargarContactos(){
@@ -222,43 +230,23 @@ async function guardarPlantilla(){
     cargarPlantillas();
 }
 
-function revisarFechasAutomatico(){
-    let hoy = new Date();
-    let diaHoy = hoy.getDate();
-    let mesHoy = hoy.getMonth() + 1;
-    let claveHoy = hoy.toDateString();
-
-    contactos.forEach(c=>{
-        if(!c.fecha) return;
-
-        let fecha = new Date(c.fecha + "T00:00:00");
-
-        if(fecha.getDate()==diaHoy && (fecha.getMonth()+1)==mesHoy){
-
-            let clave = c.telefono + "_" + claveHoy;
-
-            if(localStorage.getItem(clave)) return;
-
-            localStorage.setItem(clave,"ENVIADO");
-
-            console.log("🎉 ENVÍO AUTOMÁTICO:", c.nombre);
-
-            enviarAhora(c.telefono,c.nombre,c.marca);
-        }
-    });
-}
-
 function render(){
     let t = document.getElementById("tabla");
     t.innerHTML = "";
 
     contactos.forEach(c=>{
+
+        let estadoColor = c.estado === "ENVIADO" ? "green" : "gray";
+
         t.innerHTML += `
 <tr>
 <td>${c.nombre}</td>
 <td>${c.telefono}</td>
 <td>${c.marca}</td>
 <td>${c.fecha}</td>
+<td style="color:${estadoColor};font-weight:bold;">
+${c.estado || "PENDIENTE"}
+</td>
 <td>
 <button class="send"
 data-tel="${c.telefono}"
@@ -314,8 +302,6 @@ function tipoMedia(url){
 }
 
 function enviarAhora(telefono,nombre,marca){
-
-    telefono = telefono.replace(/\D/g,'');
 
     let plantilla = plantillas.find(p =>
         p.marca.trim().toUpperCase() === marca.trim().toUpperCase()
