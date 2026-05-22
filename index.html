@@ -22,95 +22,125 @@ body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 .section{display:none;}
 .section.active{display:block;}
 
-input, textarea, select{width:100%;padding:10px;margin-top:10px;}
+input, textarea, select{
+ width:100%;
+ padding:10px;
+ margin-top:10px;
+}
 
-button{padding:10px;border:none;border-radius:8px;color:white;cursor:pointer;}
+button{
+ padding:10px;
+ border:none;
+ border-radius:8px;
+ color:white;
+ cursor:pointer;
+}
+
 .save{background:#7e22ce;}
 .send{background:#16a34a;}
 
 .galeria-grid{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-gap:10px;
-margin-top:15px;
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+ gap:10px;
+ margin-top:15px;
 }
 
 img, video{
-width:100%;
-border-radius:10px;
-cursor:pointer;
+ width:100%;
+ border-radius:10px;
+ cursor:pointer;
 }
 </style>
-</head>
 
+</head>
 <body>
 
 <div class="container">
 
-<!-- ✅ BANNER CORREGIDO -->
+<!-- ✅ BANNER BIEN HECHO -->
 <div class="banner">
   <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
 </div>
 
 <!-- ✅ TABS -->
 <div class="tabs">
-<div class="tab active" data-tab="contacto">Contacto</div>
-<div class="tab" data-tab="plantilla">Plantilla</div>
-<div class="tab" data-tab="lista">Contactos</div>
-<div class="tab" data-tab="plantillas">Plantillas</div>
-<div class="tab" data-tab="galeria">Galería</div>
+  <div class="tab active" data-tab="contacto">Contacto</div>
+  <div class="tab" data-tab="plantilla">Plantilla</div>
+  <div class="tab" data-tab="lista">Contactos</div>
+  <div class="tab" data-tab="plantillas">Plantillas</div>
+  <div class="tab" data-tab="galeria">Galería</div>
 </div>
 
 <!-- CONTACTO -->
 <div id="contacto" class="section active">
-<input id="nombre" placeholder="Nombre">
-<input id="telefono" placeholder="521XXXXXXXXXX">
-<select id="marca">
-<option>ADMIN</option>
-<option>ADO</option>
-<option>SUR</option>
-<option>TRT</option>
-</select>
-<input type="date" id="fecha">
-<button onclick="agregarContacto()" class="save">Guardar</button>
+  <input id="nombre" placeholder="Nombre">
+  <input id="telefono" placeholder="521XXXXXXXXXX">
+  <select id="marca">
+    <option>ADMIN</option>
+    <option>ADO</option>
+    <option>SUR</option>
+    <option>TRT</option>
+  </select>
+  <input type="date" id="fecha">
+  <button onclick="agregarContacto()" class="save">Guardar</button>
 </div>
 
 <!-- PLANTILLA -->
 <div id="plantilla" class="section">
-<select id="marcaPlantilla">
-<option>ADMIN</option>
-<option>ADO</option>
-<option>SUR</option>
-<option>TRT</option>
-</select>
-<textarea id="textoPlantilla">Hola {Nombre}</textarea>
-<input id="urlMedia" placeholder="URL imagen/video">
-<button onclick="guardarPlantilla()" class="save">Guardar plantilla</button>
+  <select id="marcaPlantilla">
+    <option>ADMIN</option>
+    <option>ADO</option>
+    <option>SUR</option>
+    <option>TRT</option>
+  </select>
+
+  <textarea id="textoPlantilla">Hola {Nombre}</textarea>
+
+  <input id="urlMedia" placeholder="URL imagen/video">
+
+  <button onclick="guardarPlantilla()" class="save">Guardar plantilla</button>
 </div>
 
 <!-- CONTACTOS -->
 <div id="lista" class="section">
-<table>
-<tbody id="tabla"></tbody>
-</table>
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+        <th>Área</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody id="tabla"></tbody>
+  </table>
 </div>
 
 <!-- PLANTILLAS -->
 <div id="plantillas" class="section">
-<table>
-<tbody id="tablaPlantillas"></tbody>
-</table>
+  <table>
+    <thead>
+      <tr>
+        <th>Área</th>
+        <th>Mensaje</th>
+        <th>Media</th>
+      </tr>
+    </thead>
+    <tbody id="tablaPlantillas"></tbody>
+  </table>
 </div>
 
 <!-- ✅ GALERÍA -->
 <div id="galeria" class="section">
-<h3>Galería</h3>
+  <h3>Galería</h3>
 
-<input type="file" id="fileInput">
-<button onclick="subirArchivo()" class="save">⬆ Subir</button>
-<button onclick="cargarGaleria()" class="send">🔄 Actualizar</button>
+  <input type="file" id="fileInput">
 
-<div id="contenedorGaleria" class="galeria-grid"></div>
+  <button onclick="subirArchivo()" class="save">⬆ Subir</button>
+  <button onclick="cargarGaleria()" class="send">🔄 Actualizar</button>
+
+  <div id="contenedorGaleria" class="galeria-grid"></div>
 </div>
 
 </div>
@@ -122,61 +152,123 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GH
 const CLOUD_NAME = "dz9ipng1f";
 const UPLOAD_PRESET = "crm_publico";
 
+let contactos = [];
+let plantillas = [];
 let galeria = [];
 
 //////////////////////////////////////////////////
-// ✅ ESPERAR DOM CORRECTAMENTE
+// ✅ TABS FUNCIONANDO BIEN
 //////////////////////////////////////////////////
-window.onload = function(){
+document.addEventListener("DOMContentLoaded", () => {
 
-  document.querySelectorAll(".tab").forEach(tab=>{
-    tab.addEventListener("click", function(){
+  const tabs = document.querySelectorAll(".tab");
+  const sections = document.querySelectorAll(".section");
 
-      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-      this.classList.add("active");
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
 
-      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-      document.getElementById(this.dataset.tab).classList.add("active");
+      tabs.forEach(t => t.classList.remove("active"));
+      sections.forEach(s => s.classList.remove("active"));
+
+      tab.classList.add("active");
+      document.getElementById(tab.dataset.tab).classList.add("active");
 
     });
   });
 
+  cargarContactos();
+  cargarPlantillas();
+  cargarGaleria();
+});
+
+//////////////////////////////////////////////////
+// CONTACTOS
+//////////////////////////////////////////////////
+async function cargarContactos(){
+  let res = await fetch(SCRIPT_URL);
+  contactos = await res.json();
+  render();
+}
+
+async function agregarContacto(){
+  let nombre = document.getElementById("nombre").value;
+  let telefono = document.getElementById("telefono").value;
+  let marca = document.getElementById("marca").value;
+  let fecha = document.getElementById("fecha").value;
+
+  await fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({nombre,telefono,marca,fecha})
+  });
+
+  alert("✅ Guardado");
+  cargarContactos();
 }
 
 //////////////////////////////////////////////////
-// ✅ SUBIR A CLOUDINARY
+// PLANTILLAS
+//////////////////////////////////////////////////
+async function cargarPlantillas(){
+  let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
+  plantillas = await res.json();
+  renderPlantillas();
+}
+
+async function guardarPlantilla(){
+  let marca = document.getElementById("marcaPlantilla").value;
+  let plantilla = document.getElementById("textoPlantilla").value;
+  let archivo = document.getElementById("urlMedia").value;
+
+  await fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({
+      tipoOperacion:"guardarPlantilla",
+      marca,
+      plantilla,
+      archivoURLmanual:archivo
+    })
+  });
+
+  alert("✅ Guardado");
+  cargarPlantillas();
+}
+
+//////////////////////////////////////////////////
+// ✅ SUBIR CLOUDINARY
 //////////////////////////////////////////////////
 async function subirArchivo(){
 
-let file = document.getElementById("fileInput").files[0];
-if(!file){ alert("Selecciona archivo"); return; }
+  let file = document.getElementById("fileInput").files[0];
+  if(!file){ alert("Selecciona archivo"); return; }
 
-let formData = new FormData();
-formData.append("file", file);
-formData.append("upload_preset", UPLOAD_PRESET);
+  let formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", UPLOAD_PRESET);
 
-let res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`,{
-method:"POST",
-body:formData
-});
+  let res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`,{
+    method:"POST",
+    body:formData
+  });
 
-let data = await res.json();
+  let data = await res.json();
 
-let tipo = file.type.includes("video") ? "video" : "imagen";
+  let tipo = file.type.includes("video") ? "video" : "imagen";
 
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-tipoOperacion:"guardarGaleria",
-nombre:file.name,
-tipo:tipo,
-url:data.secure_url
-})
-});
+  await fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({
+      tipoOperacion:"guardarGaleria",
+      nombre:file.name,
+      tipo,
+      url:data.secure_url
+    })
+  });
 
-alert("✅ Subido correctamente");
-cargarGaleria();
+  alert("✅ Subido correctamente");
+  cargarGaleria();
 }
 
 //////////////////////////////////////////////////
@@ -184,39 +276,50 @@ cargarGaleria();
 //////////////////////////////////////////////////
 async function cargarGaleria(){
 
-let res = await fetch(SCRIPT_URL + "?tipo=galeria");
-galeria = await res.json();
+  let res = await fetch(SCRIPT_URL + "?tipo=galeria");
+  galeria = await res.json();
 
-let contenedor = document.getElementById("contenedorGaleria");
-contenedor.innerHTML = "";
+  let contenedor = document.getElementById("contenedorGaleria");
+  contenedor.innerHTML = "";
 
-galeria.forEach(a => {
+  galeria.forEach(a => {
 
-if(a.tipo === "imagen"){
-contenedor.innerHTML += `<img src="${a.url}" onclick="seleccionar('${a.url}')video src="${a.url}" muted onclick="seleccionar('${a.url}')ument.getElementById("urlMedia").value = url;
-alert("✅ Seleccionado");
+    if(a.tipo === "imagen"){
+      contenedor.innerHTML += `<img src="${a.url}" onclick="seleccionar('${a.urlr.innerHTML += `<video src="${a.url}" muted onclick="seleccionar('${nar(url){
+  document.getElementById("urlMedia").value = url;
+  alert("✅ Archivo seleccionado");
 }
 
 //////////////////////////////////////////////////
-// ✅ GUARDAR PLANTILLA
+// RENDER
 //////////////////////////////////////////////////
-async function guardarPlantilla(){
-let marca = document.getElementById("marcaPlantilla").value;
-let plantilla = document.getElementById("textoPlantilla").value;
-let archivo = document.getElementById("urlMedia").value;
+function render(){
+  let t = document.getElementById("tabla");
+  t.innerHTML = "";
 
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-tipoOperacion:"guardarPlantilla",
-marca,
-plantilla,
-archivoURLmanual:archivo
-})
-});
+  contactos.forEach(c=>{
+    t.innerHTML += `
+    <tr>
+      <td>${c.nombre}</td>
+      <td>${c.telefono}</td>
+      <td>${c.marca}</td>
+      <td>${c.fecha}</td>
+    </tr>`;
+  });
+}
 
-alert("✅ Guardado");
+function renderPlantillas(){
+  let t = document.getElementById("tablaPlantillas");
+  t.innerHTML = "";
+
+  plantillas.forEach(p=>{
+    t.innerHTML += `
+    <tr>
+      <td>${p.marca}</td>
+      <td>${p.plantilla}</td>
+      <td>${p.archivo || ''}</td>
+    </tr>`;
+  });
 }
 
 </script>
