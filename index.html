@@ -16,8 +16,18 @@ body{font-family:sans-serif;background:#f4f5fb;padding:20px;}
 }
 
 .tabs{display:flex;gap:10px;margin-bottom:20px;justify-content:center;}
-.tab{padding:10px 15px;background:#ddd;cursor:pointer;border-radius:8px;}
-.tab.active{background:#7e22ce;color:white;}
+
+.tab{
+ padding:10px 15px;
+ background:#ddd;
+ cursor:pointer;
+ border-radius:8px;
+}
+
+.tab.active{
+ background:#7e22ce;
+ color:white;
+}
 
 .section{display:none;}
 .section.active{display:block;}
@@ -31,116 +41,124 @@ input, textarea, select{
 button{
  padding:10px;
  border:none;
+ cursor:pointer;
  border-radius:8px;
  color:white;
- cursor:pointer;
+ display:flex;
+ align-items:center;
+ gap:6px;
 }
 
 .save{background:#7e22ce;}
 .send{background:#16a34a;}
+.delete{background:#dc2626;}
+.sheet{background:#15803d;}
 
-.galeria-grid{
- display:grid;
- grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
- gap:10px;
- margin-top:15px;
-}
-
-img, video{
- width:100%;
- border-radius:10px;
- cursor:pointer;
-}
+table{width:100%;margin-top:20px;border-collapse:collapse;}
+td,th{padding:10px;border-bottom:1px solid #ddd;}
 </style>
-
 </head>
+
 <body>
 
 <div class="container">
 
-<!-- ✅ BANNER BIEN HECHO -->
 <div class="banner">
-  <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
+<img src="https://shaggyvision.github.io/pruebawhats/logo.png">
 </div>
 
-<!-- ✅ TABS -->
 <div class="tabs">
-  <div class="tab active" data-tab="contacto">Contacto</div>
-  <div class="tab" data-tab="plantilla">Plantilla</div>
-  <div class="tab" data-tab="lista">Contactos</div>
-  <div class="tab" data-tab="plantillas">Plantillas</div>
-  <div class="tab" data-tab="galeria">Galería</div>
+ <div class="tab active" data-tab="contacto">Contacto</div>
+ <div class="tab" data-tab="plantilla">Plantilla</div>
+ <div class="tab" data-tab="lista">Contactos</div>
+ <div class="tab" data-tab="plantillas">Plantillas</div>
 </div>
 
 <!-- CONTACTO -->
 <div id="contacto" class="section active">
-  <input id="nombre" placeholder="Nombre">
-  <input id="telefono" placeholder="521XXXXXXXXXX">
-  <select id="marca">
-    <option>ADMIN</option>
-    <option>ADO</option>
-    <option>SUR</option>
-    <option>TRT</option>
-  </select>
-  <input type="date" id="fecha">
-  <button onclick="agregarContacto()" class="save">Guardar</button>
+<h3>Agregar contacto</h3>
+
+<input id="nombre" placeholder="Nombre">
+<input id="telefono" placeholder="521XXXXXXXXXX">
+
+<select id="marca">
+<option>ADMIN</option>
+<option>ADO</option>
+<option>SUR</option>
+<option>TRT</option>
+</select>
+
+<input type="date" id="fecha">
+
+<div style="display:flex;justify-content:space-between;margin-top:10px;">
+
+<button class="save" onclick="agregarContacto()">✅ Guardar</button>
+
+<button class="sheet"
+onclick="window.open('https://docs.google.com/spreadsheets/d/1nojKLQL2J4OZlrf2zxPHWuSwagHR8etSYrC7Pvrus4g/edit')">
+📊 BD-CONTACTOS
+</button>
+
+</div>
 </div>
 
 <!-- PLANTILLA -->
 <div id="plantilla" class="section">
-  <select id="marcaPlantilla">
-    <option>ADMIN</option>
-    <option>ADO</option>
-    <option>SUR</option>
-    <option>TRT</option>
-  </select>
+<h3>Crear plantilla</h3>
 
-  <textarea id="textoPlantilla">Hola {Nombre}</textarea>
+<select id="marcaPlantilla">
+<option>ADMIN</option>
+<option>ADO</option>
+<option>SUR</option>
+<option>TRT</option>
+</select>
 
-  <input id="urlMedia" placeholder="URL imagen/video">
+<textarea id="textoPlantilla">Hola {Nombre}</textarea>
 
-  <button onclick="guardarPlantilla()" class="save">Guardar plantilla</button>
+<input id="urlMedia" placeholder="URL imagen/video">
+
+<button class="save" style="margin-top:10px;" onclick="guardarPlantilla()">
+💾 Guardar plantilla
+</button>
 </div>
 
 <!-- CONTACTOS -->
 <div id="lista" class="section">
-  <table>
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Teléfono</th>
-        <th>Área</th>
-        <th>Fecha</th>
-      </tr>
-    </thead>
-    <tbody id="tabla"></tbody>
-  </table>
+
+<h3>Contactos</h3>
+
+<table>
+<thead>
+<tr>
+<th>Nombre</th>
+<th>Teléfono</th>
+<th>Área</th>
+<th>Fecha</th>
+<th>Acción</th>
+</tr>
+</thead>
+
+<tbody id="tabla"></tbody>
+</table>
 </div>
 
 <!-- PLANTILLAS -->
 <div id="plantillas" class="section">
-  <table>
-    <thead>
-      <tr>
-        <th>Área</th>
-        <th>Mensaje</th>
-        <th>Media</th>
-      </tr>
-    </thead>
-    <tbody id="tablaPlantillas"></tbody>
-  </table>
-</div>
 
-<!-- ✅ GALERÍA -->
-<div id="galeria" class="section">
-  <h3>Galería</h3>
+<h3>Plantillas</h3>
 
-  <input type="file" id="fileInput">
+<table>
+<thead>
+<tr>
+<th>Área</th>
+<th>Mensaje</th>
+<th>Media</th>
+<th>Acción</th>
+</tr>
+</thead>
 
-  <button onclick="subirArchivo()" class="save">⬆ Subir</button>
-  <button onclick="cargarGaleria()" class="send">🔄 Actualizar</button>
-
-  <div id="contenedorGaleria" class="galeria-grid"></div>
+<tbody id="tablaPlantillas"></tbody>
+</table>
 </div>
 
 </div>
@@ -149,177 +167,213 @@ img, video{
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GHsT8MCm0W0Er-nYKHqZsZigpmk1S6zWAuYMtPiFRV4uDjc0m/exec";
 
-const CLOUD_NAME = "dz9ipng1f";
-const UPLOAD_PRESET = "crm_publico";
-
 let contactos = [];
 let plantillas = [];
-let galeria = [];
 
-//////////////////////////////////////////////////
-// ✅ TABS FUNCIONANDO BIEN
-//////////////////////////////////////////////////
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function(){
 
-  const tabs = document.querySelectorAll(".tab");
-  const sections = document.querySelectorAll(".section");
+document.querySelectorAll(".tab").forEach(tab=>{
+tab.addEventListener("click", function(){
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+this.classList.add("active");
 
-  tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
+let id = this.dataset.tab;
 
-      tabs.forEach(t => t.classList.remove("active"));
-      sections.forEach(s => s.classList.remove("active"));
+document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+});
+});
 
-      tab.classList.add("active");
-      document.getElementById(tab.dataset.tab).classList.add("active");
+cargarContactos();
+cargarPlantillas();
 
-    });
-  });
-
-  cargarContactos();
-  cargarPlantillas();
-  cargarGaleria();
 });
 
 //////////////////////////////////////////////////
-// CONTACTOS
-//////////////////////////////////////////////////
+
 async function cargarContactos(){
-  let res = await fetch(SCRIPT_URL);
-  contactos = await res.json();
-  render();
+let res = await fetch(SCRIPT_URL);
+contactos = await res.json();
+render();
 }
 
 async function agregarContacto(){
-  let nombre = document.getElementById("nombre").value;
-  let telefono = document.getElementById("telefono").value;
-  let marca = document.getElementById("marca").value;
-  let fecha = document.getElementById("fecha").value;
 
-  await fetch(SCRIPT_URL,{
-    method:"POST",
-    headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({nombre,telefono,marca,fecha})
-  });
+let nombre = document.getElementById("nombre").value;
+let telefono = document.getElementById("telefono").value;
+let marca = document.getElementById("marca").value;
+let fecha = document.getElementById("fecha").value;
 
-  alert("✅ Guardado");
-  cargarContactos();
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({nombre,telefono,marca,fecha})
+});
+
+alert("✅ Guardado");
+cargarContactos();
+}
+
+async function borrarContacto(telefono){
+
+if(!confirm("¿Eliminar contacto?")) return;
+
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({accion:"borrar",telefono})
+});
+
+cargarContactos();
 }
 
 //////////////////////////////////////////////////
-// PLANTILLAS
-//////////////////////////////////////////////////
+
 async function cargarPlantillas(){
-  let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
-  plantillas = await res.json();
-  renderPlantillas();
+let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
+plantillas = await res.json();
+renderPlantillas();
 }
 
 async function guardarPlantilla(){
-  let marca = document.getElementById("marcaPlantilla").value;
-  let plantilla = document.getElementById("textoPlantilla").value;
-  let archivo = document.getElementById("urlMedia").value;
 
-  await fetch(SCRIPT_URL,{
-    method:"POST",
-    headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({
-      tipoOperacion:"guardarPlantilla",
-      marca,
-      plantilla,
-      archivoURLmanual:archivo
-    })
-  });
+let marca = document.getElementById("marcaPlantilla").value;
+let plantilla = document.getElementById("textoPlantilla").value;
+let archivo = document.getElementById("urlMedia").value;
 
-  alert("✅ Guardado");
-  cargarPlantillas();
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({
+tipoOperacion:"guardarPlantilla",
+marca,
+plantilla,
+archivoURLmanual:archivo
+})
+});
+
+alert("✅ Plantilla guardada");
+cargarPlantillas();
+}
+
+async function borrarPlantilla(marca){
+
+if(!confirm("¿Eliminar plantilla de " + marca + "?")) return;
+
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({
+tipoOperacion:"borrarPlantilla",
+marca:marca
+})
+});
+
+cargarPlantillas();
 }
 
 //////////////////////////////////////////////////
-// ✅ SUBIR CLOUDINARY
-//////////////////////////////////////////////////
-async function subirArchivo(){
 
-  let file = document.getElementById("fileInput").files[0];
-  if(!file){ alert("Selecciona archivo"); return; }
-
-  let formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", UPLOAD_PRESET);
-
-  let res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`,{
-    method:"POST",
-    body:formData
-  });
-
-  let data = await res.json();
-
-  let tipo = file.type.includes("video") ? "video" : "imagen";
-
-  await fetch(SCRIPT_URL,{
-    method:"POST",
-    headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({
-      tipoOperacion:"guardarGaleria",
-      nombre:file.name,
-      tipo,
-      url:data.secure_url
-    })
-  });
-
-  alert("✅ Subido correctamente");
-  cargarGaleria();
-}
-
-//////////////////////////////////////////////////
-// ✅ GALERÍA
-//////////////////////////////////////////////////
-async function cargarGaleria(){
-
-  let res = await fetch(SCRIPT_URL + "?tipo=galeria");
-  galeria = await res.json();
-
-  let contenedor = document.getElementById("contenedorGaleria");
-  contenedor.innerHTML = "";
-
-  galeria.forEach(a => {
-
-    if(a.tipo === "imagen"){
-      contenedor.innerHTML += `<img src="${a.url}" onclick="seleccionar('${a.urlr.innerHTML += `<video src="${a.url}" muted onclick="seleccionar('${nar(url){
-  document.getElementById("urlMedia").value = url;
-  alert("✅ Archivo seleccionado");
-}
-
-//////////////////////////////////////////////////
-// RENDER
-//////////////////////////////////////////////////
 function render(){
-  let t = document.getElementById("tabla");
-  t.innerHTML = "";
 
-  contactos.forEach(c=>{
-    t.innerHTML += `
-    <tr>
-      <td>${c.nombre}</td>
-      <td>${c.telefono}</td>
-      <td>${c.marca}</td>
-      <td>${c.fecha}</td>
-    </tr>`;
-  });
+let t = document.getElementById("tabla");
+t.innerHTML = "";
+
+contactos.forEach(c=>{
+
+t.innerHTML += `
+<tr>
+<td>${c.nombre}</td>
+<td>${c.telefono}</td>
+<td>${c.marca}</td>
+<td>${c.fecha}</td>
+<td>
+
+<button class="send"
+data-tel="${c.telefono}"
+data-nombre="${c.nombre}"
+data-marca="${c.marca}"
+onclick="enviarDesdeBoton(this)">📲</button>
+
+<button class="delete" onclick="borrarContacto('${c.telefono}')">🗑</button>
+
+</td>
+</tr>
+`;
+});
 }
 
 function renderPlantillas(){
-  let t = document.getElementById("tablaPlantillas");
-  t.innerHTML = "";
 
-  plantillas.forEach(p=>{
-    t.innerHTML += `
-    <tr>
-      <td>${p.marca}</td>
-      <td>${p.plantilla}</td>
-      <td>${p.archivo || ''}</td>
-    </tr>`;
-  });
+let t = document.getElementById("tablaPlantillas");
+t.innerHTML = "";
+
+plantillas.forEach(p=>{
+t.innerHTML += `
+<tr>
+<td>${p.marca}</td>
+<td>${p.plantilla}</td>
+<td>${p.archivo || p.archivoURLmanual || ''}</td>
+<td>
+<button class="delete" onclick="borrarPlantilla('${p.marca}')">🗑</button>
+</td>
+</tr>`;
+});
+}
+
+//////////////////////////////////////////////////
+
+function enviarDesdeBoton(btn){
+
+let telefono = btn.dataset.tel.replace(/\D/g,'');
+let nombre = btn.dataset.nombre;
+let marca = btn.dataset.marca;
+
+enviarAhora(telefono,nombre,marca);
+}
+
+function tipoMedia(url){
+
+  if(/\.(jpg|jpeg|png|webp)$/i.test(url)){
+    return "imagen";
+  }
+
+  if(/\.(mp4|mov|avi)$/i.test(url)){
+    return "video";
+  }
+
+  return "ninguno";
+}
+
+function enviarAhora(telefono,nombre,marca){
+
+  let plantilla = plantillas.find(p => p.marca === marca);
+
+  let mensaje = plantilla
+    ? plantilla.plantilla.replace("{Nombre}",nombre)
+    : "Hola " + nombre;
+
+  let media = plantilla ? (plantilla.archivo || plantilla.archivoURLmanual) : "";
+
+  let tipo = tipoMedia(media);
+
+  if(tipo === "imagen"){
+
+    let url = `https://api.ultramsg.com/instance174263/messages/image?token=a7hqz1tofhwq65b4&to=${telefono}&image=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`;
+    window.open(url,"_blank");
+
+  } else if(tipo === "video"){
+
+    let url = `https://api.ultramsg.com/instance174263/messages/video?token=a7hqz1tofhwq65b4&to=${telefono}&video=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`;
+    window.open(url,"_blank");
+
+  } else {
+
+    let url = `https://api.ultramsg.com/instance174263/messages/chat?token=a7hqz1tofhwq65b4&to=${telefono}&body=${encodeURIComponent(mensaje)}`;
+    window.open(url,"_blank");
+  }
+
+  alert("✅ Enviando a " + telefono);
 }
 
 </script>
