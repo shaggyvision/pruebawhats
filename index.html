@@ -332,33 +332,48 @@ let marca = btn.dataset.marca;
 enviarAhora(telefono,nombre,marca);
 }
 
-function esImagenValida(url){
-return /\.(jpg|jpeg|png|webp)$/i.test(url);
+function tipoMedia(url){
+
+  if(/\.(jpg|jpeg|png|webp)$/i.test(url)){
+    return "imagen";
+  }
+
+  if(/\.(mp4|mov|avi)$/i.test(url)){
+    return "video";
+  }
+
+  return "ninguno";
 }
 
 function enviarAhora(telefono,nombre,marca){
 
-let plantilla = plantillas.find(p=>p.marca===marca);
+  let plantilla = plantillas.find(p => p.marca === marca);
 
-let mensaje = plantilla 
- ? plantilla.plantilla.replace("{Nombre}",nombre) 
- : "Hola "+nombre;
+  let mensaje = plantilla
+    ? plantilla.plantilla.replace("{Nombre}",nombre)
+    : "Hola " + nombre;
 
-let media = plantilla ? (plantilla.archivo || plantilla.archivoURLmanual) : "";
+  let media = plantilla ? (plantilla.archivo || plantilla.archivoURLmanual) : "";
 
-if(media && esImagenValida(media)){
+  let tipo = tipoMedia(media);
 
-let url = `https://api.ultramsg.com/instance174263/messages/image?token=a7hqz1tofhwq65b4&to=${telefono}&image=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`;
-window.open(url,"_blank");
+  if(tipo === "imagen"){
 
-}else{
+    let url = `https://api.ultramsg.com/instance174263/messages/image?token=a7hqz1tofhwq65b4&to=${telefono}&image=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`;
+    window.open(url,"_blank");
 
-let url = `https://api.ultramsg.com/instance174263/messages/chat?token=a7hqz1tofhwq65b4&to=${telefono}&body=${encodeURIComponent(mensaje)}`;
-window.open(url,"_blank");
+  } else if(tipo === "video"){
 
-}
+    let url = `https://api.ultramsg.com/instance174263/messages/video?token=a7hqz1tofhwq65b4&to=${telefono}&video=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`;
+    window.open(url,"_blank");
 
-alert("✅ Enviando a "+telefono);
+  } else {
+
+    let url = `https://api.ultramsg.com/instance174263/messages/chat?token=a7hqz1tofhwq65b4&to=${telefono}&body=${encodeURIComponent(mensaje)}`;
+    window.open(url,"_blank");
+  }
+
+  alert("✅ Enviando a " + telefono);
 }
 
 </script>
