@@ -27,8 +27,6 @@ input, textarea, select{width:100%;padding:10px;margin-top:10px;}
 button{padding:10px;border:none;border-radius:8px;color:white;cursor:pointer;}
 .save{background:#7e22ce;}
 .send{background:#16a34a;}
-.delete{background:#dc2626;}
-.sheet{background:#15803d;}
 
 .galeria-grid{
 display:grid;
@@ -46,13 +44,15 @@ cursor:pointer;
 </head>
 
 <body>
+
 <div class="container">
 
-<!-- ✅ BANNER RESTAURADO -->
+<!-- ✅ BANNER CORREGIDO -->
 <div class="banner">
-<img src="https://shaggyvision.github.io/pruebawhats/logo.png">
+  <img src="https://shaggyvision.github.io/pruebawhats/logo.png">
 </div>
 
+<!-- ✅ TABS -->
 <div class="tabs">
 <div class="tab active" data-tab="contacto">Contacto</div>
 <div class="tab" data-tab="plantilla">Plantilla</div>
@@ -91,15 +91,6 @@ cursor:pointer;
 <!-- CONTACTOS -->
 <div id="lista" class="section">
 <table>
-<thead>
-<tr>
-<th>Nombre</th>
-<th>Teléfono</th>
-<th>Área</th>
-<th>Fecha</th>
-<th>Acción</th>
-</tr>
-</thead>
 <tbody id="tabla"></tbody>
 </table>
 </div>
@@ -107,14 +98,6 @@ cursor:pointer;
 <!-- PLANTILLAS -->
 <div id="plantillas" class="section">
 <table>
-<thead>
-<tr>
-<th>Área</th>
-<th>Mensaje</th>
-<th>Media</th>
-<th>Acción</th>
-</tr>
-</thead>
 <tbody id="tablaPlantillas"></tbody>
 </table>
 </div>
@@ -139,89 +122,29 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUX-hDUuKcj_we3d9GH
 const CLOUD_NAME = "dz9ipng1f";
 const UPLOAD_PRESET = "crm_publico";
 
-let contactos = [];
-let plantillas = [];
 let galeria = [];
 
 //////////////////////////////////////////////////
-// ✅ TABS CORREGIDOS
+// ✅ ESPERAR DOM CORRECTAMENTE
 //////////////////////////////////////////////////
-document.addEventListener("DOMContentLoaded", function(){
+window.onload = function(){
 
-document.querySelectorAll(".tab").forEach(tab=>{
-tab.addEventListener("click", function(){
+  document.querySelectorAll(".tab").forEach(tab=>{
+    tab.addEventListener("click", function(){
 
-document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-this.classList.add("active");
+      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+      this.classList.add("active");
 
-document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-document.getElementById(this.dataset.tab).classList.add("active");
+      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+      document.getElementById(this.dataset.tab).classList.add("active");
 
-});
-});
+    });
+  });
 
-cargarContactos();
-cargarPlantillas();
-cargarGaleria();
-
-});
-
-//////////////////////////////////////////////////
-// CONTACTOS
-//////////////////////////////////////////////////
-async function cargarContactos(){
-let res = await fetch(SCRIPT_URL);
-contactos = await res.json();
-render();
-}
-
-async function agregarContacto(){
-let nombre = document.getElementById("nombre").value;
-let telefono = document.getElementById("telefono").value;
-let marca = document.getElementById("marca").value;
-let fecha = document.getElementById("fecha").value;
-
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({nombre,telefono,marca,fecha})
-});
-
-alert("✅ Guardado");
-cargarContactos();
 }
 
 //////////////////////////////////////////////////
-// PLANTILLAS
-//////////////////////////////////////////////////
-async function cargarPlantillas(){
-let res = await fetch(SCRIPT_URL + "?tipo=plantillas");
-plantillas = await res.json();
-renderPlantillas();
-}
-
-async function guardarPlantilla(){
-let marca = document.getElementById("marcaPlantilla").value;
-let plantilla = document.getElementById("textoPlantilla").value;
-let archivo = document.getElementById("urlMedia").value;
-
-await fetch(SCRIPT_URL,{
-method:"POST",
-headers:{'Content-Type':'text/plain'},
-body:JSON.stringify({
-tipoOperacion:"guardarPlantilla",
-marca,
-plantilla,
-archivoURLmanual:archivo
-})
-});
-
-alert("✅ Guardado");
-cargarPlantillas();
-}
-
-//////////////////////////////////////////////////
-// ✅ CLOUDINARY SUBIR
+// ✅ SUBIR A CLOUDINARY
 //////////////////////////////////////////////////
 async function subirArchivo(){
 
@@ -252,12 +175,12 @@ url:data.secure_url
 })
 });
 
-alert("✅ Subido");
+alert("✅ Subido correctamente");
 cargarGaleria();
 }
 
 //////////////////////////////////////////////////
-// GALERÍA
+// ✅ GALERÍA
 //////////////////////////////////////////////////
 async function cargarGaleria(){
 
@@ -270,38 +193,33 @@ contenedor.innerHTML = "";
 galeria.forEach(a => {
 
 if(a.tipo === "imagen"){
-contenedor.innerHTML += `<img src="${a.url}" onclick="seleccionar('${a.url}')"${a.url}" muted onclick="seleccionar('${a.url}')ment.getElementById("urlMedia").value = url;
+contenedor.innerHTML += `<img src="${a.url}" onclick="seleccionar('${a.url}')video src="${a.url}" muted onclick="seleccionar('${a.url}')ument.getElementById("urlMedia").value = url;
 alert("✅ Seleccionado");
 }
 
 //////////////////////////////////////////////////
-// RENDER
+// ✅ GUARDAR PLANTILLA
 //////////////////////////////////////////////////
-function render(){
-let t = document.getElementById("tabla");
-t.innerHTML = "";
-contactos.forEach(c=>{
-t.innerHTML += `<tr>
-<td>${c.nombre}</td>
-<td>${c.telefono}</td>
-<td>${c.marca}</td>
-<td>${c.fecha}</td>
-</tr>`;
-});
-}
+async function guardarPlantilla(){
+let marca = document.getElementById("marcaPlantilla").value;
+let plantilla = document.getElementById("textoPlantilla").value;
+let archivo = document.getElementById("urlMedia").value;
 
-function renderPlantillas(){
-let t = document.getElementById("tablaPlantillas");
-t.innerHTML="";
-plantillas.forEach(p=>{
-t.innerHTML += `<tr>
-<td>${p.marca}</td>
-<td>${p.plantilla}</td>
-<td>${p.archivo || ''}</td>
-</tr>`;
+await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{'Content-Type':'text/plain'},
+body:JSON.stringify({
+tipoOperacion:"guardarPlantilla",
+marca,
+plantilla,
+archivoURLmanual:archivo
+})
 });
+
+alert("✅ Guardado");
 }
 
 </script>
+
 </body>
 </html>
