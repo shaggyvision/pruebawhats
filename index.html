@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background: url('https://shaggyvision.github.io/pruebawhats/pro-DiBbT3gd.jpeg') no-repeat center center/cover;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* 🔽 lo baja */
+        }
+
+      .login-box {
+    background: rgba(0, 0, 0, 0.18); /* ✅ mucho más transparente */
+    padding: 30px;
+    border-radius: 15px;
+    width: 300px;
+    text-align: center;
+
+    backdrop-filter: blur(12px); /* efecto vidrio más fuerte */
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    margin-bottom: 80px;
+}
+        .login-box h2 {
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 10px;
+            background: #00bcd4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .login-box button:hover {
+            background: #0097a7;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <h2>Iniciar Sesión</h2>
+    <input type="text" id="usuario" placeholder="Usuario">
+    <input type="password" id="password" placeholder="Contraseña">
+    <button onclick="login()">Ingresar</button>
+    <div class="error" id="error"></div>
+</div>
+
+<script>
+    function login() {
+        let usuario = document.getElementById("usuario").value;
+        let password = document.getElementById("password").value;
+        let error = document.getElementById("error");
+
+        if (usuario === "ADMIN" && password === "Recaudacion01") {
+            window.location.href = "https://shaggyvision.github.io/pruebawhats/index_happy.html";
+        } else {
+            error.textContent = "Usuario o contraseña incorrectos";
+        }
+    }
+</script>
+
+</body>
+</html>
