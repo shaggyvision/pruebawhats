@@ -315,9 +315,9 @@ function enviarAhora(telefono,nombre,marca){
     let tipo = tipoMedia(media);
 
     if(tipo === "imagen"){
-        window.open(`https://api.ultramsg.com/instance174263/messages/image?token=a7hqz1tofhwq65b4&to=${telefono}&image=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`);
+        window.open(`https://api.ultramsg.com/instance181162/messages/image?token=f3j7fb1kvrco7k2n&to=${telefono}&image=${encodeURIComponent(media)}&caption=${encodeURIComponent(mensaje)}`);
     } else {
-        window.open(`https://api.ultramsg.com/instance174263/messages/chat?token=a7hqz1tofhwq65b4&to=${telefono}&body=${encodeURIComponent(mensaje)}`);
+        window.open(`https://api.ultramsg.com/instance181162/messages/chat?token=f3j7fb1kvrco7k2n&to=${telefono}&body=${encodeURIComponent(mensaje)}`);
     }
 }
 
